@@ -69,7 +69,7 @@ loader.init().then(monaco => {
 
 function App() {
   const [value, setValue] = useState("// some comment")
-  
+
   function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: Monaco) {
     // Alt + / --> 智能提示
     editor.addCommand(
@@ -90,18 +90,16 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <Editor
-        height="60vh"
-        defaultLanguage="javascript"
-        defaultValue={value}
-        theme={"idea-dracula-theme"}
-        options={{
-          minimap: { enabled: false },
-        }}
-        onMount={handleEditorDidMount}
-      />
-    </div>
+    <Editor
+      height="100%"
+      defaultLanguage="javascript"
+      defaultValue={value}
+      theme={"idea-dracula-theme"}
+      options={{
+        minimap: { enabled: false },
+      }}
+      onMount={handleEditorDidMount}
+    />
   )
 }
 
