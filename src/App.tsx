@@ -56,7 +56,7 @@ loader.init().then(monaco => {
     }
   });
 
-  monaco.editor.defineTheme("idea-dracula-theme", {
+  monaco.editor.defineTheme("idea-dracula", {
     base: "vs-dark",
     inherit: true,
     rules: [
@@ -176,7 +176,7 @@ return Facts.next();
       defaultLanguage="javascript"
       defaultValue={value}
       // theme={"vs-dark"}
-      theme={"idea-dracula-theme"}
+      theme={"idea-dracula"}
       options={{
         minimap: { enabled: false },
         scrollbar: {
