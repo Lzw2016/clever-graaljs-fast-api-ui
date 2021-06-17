@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+// @ts-ignore
+// import * as actions from "monaco-editor/esm/vs/platform/actions/common/actions";
+import * as actions from 'monaco-editor/esm/vs/platform/actions/common/actions';
 import Editor, { loader, Monaco } from "@monaco-editor/react";
 import ideaDraculaTheme from '@/assets/idea-dracula-theme.json'
 import { TypeEnum, variableTypeOf } from '@/utils/typeof'
@@ -33,6 +36,24 @@ const COLOR_TABLE: { [name: string]: string } = {
 }
 
 loader.init().then(monaco => {
+
+
+//   let menus = actions.MenuRegistry._menuItems
+//   let contextMenuEntry = [...menus].find(entry => entry[0]._debugName == "EditorContext")
+//   let contextMenuLinks = contextMenuEntry[1]
+//   let removableIds = ["editor.action.clipboardCopyAction", "editor.action.clipboardPasteAction"]
+// // @ts-ignore
+//   let removeById = (list, ids) => {
+//     let node = list._first
+//     do {
+//       let shouldRemove = ids.includes(node.element?.command?.id)
+//       if (shouldRemove) {
+//         list._remove(node)
+//       }
+//     } while ((node = node.next))
+//   }
+//   removeById(contextMenuLinks, removableIds)
+
 
   // 设置主题
   const rules: Array<monaco.editor.ITokenThemeRule> = [];
@@ -152,6 +173,9 @@ return Facts.next();
   `)
 
   function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: Monaco) {
+    console.log("###->", actions.MenuRegistry._menuItems);
+    (window as any).aaa = actions.MenuRegistry._menuItems;
+
     // Alt + / --> 智能提示
     editor.addCommand(
       monaco.KeyMod.Alt | monaco.KeyCode.US_SLASH,
@@ -168,6 +192,26 @@ return Facts.next();
       monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_I,
       () => editor.trigger(null, 'editor.action.transformToLowercase', {}),
     );
+
+    editor.addAction({
+      id: "00a",
+      label: "自定义菜单",
+      // keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_V],
+      contextMenuGroupId: "001",
+      run: editor => {
+        alert("Add your custom pasting code here");
+      }
+    });
+
+    // delete (editor as any)._action["editor.action.revealDefinition"]
+    // (editor as any)._action["editor.action.revealDefinition"] = undefined;
+    // (editor as any).setAction() = {};
+    // console.log("@@@@", (editor as any)._actions);
+    console.log("@@@@",  editor.getAction("editor.action.revealDefinition"));
+    editor.getAction("editor.action.revealDefinition")
+    // editor.onContextMenu(e => {
+    //   e.target.
+    // })
   }
 
   return (
@@ -178,17 +222,19 @@ return Facts.next();
       // theme={"vs-dark"}
       theme={"idea-dracula"}
       options={{
+        fontSize: 14,
+        // automaticLayout: false,
+        contextmenu: true,
         minimap: { enabled: false },
         scrollbar: {
           vertical: "visible",
           horizontal: "visible",
           verticalScrollbarSize: 8,
           horizontalScrollbarSize: 8,
-          arrowSize: 16
-        }
+          arrowSize: 16,
+        },
       }}
       onMount={handleEditorDidMount}
-
     />
   )
 }
