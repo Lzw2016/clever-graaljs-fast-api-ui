@@ -18,6 +18,7 @@
     "simplebar": "^5.3.3",
     "simplebar-react": "^2.3.3",
     "monaco-editor": "^0.25.1",
+    "@monaco-editor/react": "^4.2.0",
     "react-split-pane": "^0.1.92",
     "@jetbrains/ring-ui": "^4.0.12",
     "antd": "^4.16.3",

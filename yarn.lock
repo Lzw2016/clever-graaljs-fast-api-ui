@@ -1096,6 +1096,22 @@
     style-loader "~2.0.0"
     util-deprecate "^1.0.2"
 
+"@monaco-editor/loader@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.nlark.com/@monaco-editor/loader/download/@monaco-editor/loader-1.1.0.tgz#24106ea29201f2fd1d8eeb769b4d067c77d7e7b5"
+  integrity sha1-JBBuopIB8v0djut2m00GfHfX57U=
+  dependencies:
+    state-local "^1.0.6"
+
+"@monaco-editor/react@^4.2.0":
+  version "4.2.0"
+  resolved "https://registry.nlark.com/@monaco-editor/react/download/@monaco-editor/react-4.2.0.tgz#55bb8e533f43aa4cdc0cb0e0a7cbaf5e6bfe204d"
+  integrity sha1-VbuOUz9DqkzcDLDgp8uvXmv+IE0=
+  dependencies:
+    "@monaco-editor/loader" "^1.1.0"
+    prop-types "^15.7.2"
+    state-local "^1.0.7"
+
 "@rollup/plugin-commonjs@^19.0.0":
   version "19.0.0"
   resolved "https://registry.nlark.com/@rollup/plugin-commonjs/download/@rollup/plugin-commonjs-19.0.0.tgz#8c3e71f9a66908e60d70cc1be205834ef3e45f71"
@@ -4370,6 +4386,11 @@ sourcemap-codec@^1.4.4:
   version "1.4.8"
   resolved "https://registry.npm.taobao.org/sourcemap-codec/download/sourcemap-codec-1.4.8.tgz#ea804bd94857402e6992d05a38ef1ae35a9ab4c4"
   integrity sha1-6oBL2UhXQC5pktBaOO8a41qatMQ=
+
+state-local@^1.0.6, state-local@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.npm.taobao.org/state-local/download/state-local-1.0.7.tgz#da50211d07f05748d53009bee46307a37db386d5"
+  integrity sha1-2lAhHQfwV0jVMAm+5GMHo32zhtU=
 
 strictdom@^1.0.1:
   version "1.0.1"
