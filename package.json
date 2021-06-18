@@ -20,6 +20,7 @@
     "monaco-editor": "^0.25.1",
     "@monaco-editor/react": "^4.2.0",
     "react-split-pane": "^0.1.92",
+    "@jetbrains/icons": "^3.14.1",
     "antd": "^4.16.3",
     "axios": "^0.21.1",
     "classnames": "^2.3.1",

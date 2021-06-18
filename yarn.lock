@@ -271,6 +271,11 @@
   resolved "https://registry.npm.taobao.org/@ctrl/tinycolor/download/@ctrl/tinycolor-3.4.0.tgz#c3c5ae543c897caa9c2a68630bed355be5f9990f"
   integrity sha1-w8WuVDyJfKqcKmhjC+01W+X5mQ8=
 
+"@jetbrains/icons@^3.14.1":
+  version "3.14.1"
+  resolved "https://registry.nlark.com/@jetbrains/icons/download/@jetbrains/icons-3.14.1.tgz#4e51684e2d451a427eb49539fb09c6ca598e100f"
+  integrity sha1-TlFoTi1FGkJ+tJU5+wnGylmOEA8=
+
 "@monaco-editor/loader@^1.1.0":
   version "1.1.0"
   resolved "https://registry.nlark.com/@monaco-editor/loader/download/@monaco-editor/loader-1.1.0.tgz#24106ea29201f2fd1d8eeb769b4d067c77d7e7b5"
