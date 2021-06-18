@@ -8,7 +8,12 @@ import ideaDraculaTheme from '@/assets/idea-dracula-theme.json'
 import { TypeEnum, variableTypeOf } from '@/utils/typeof'
 import './assets/App.css'
 
+
 loader.config({
+  paths: {
+    // vs: "http://cdn.static.msvc.top/monaco-editor/0.25.1/min/vs"
+    vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.25.2/min/vs"
+  },
   "vs/nls": {
     availableLanguages: {
       '*': 'zh-cn'
@@ -207,7 +212,7 @@ return Facts.next();
     // (editor as any)._action["editor.action.revealDefinition"] = undefined;
     // (editor as any).setAction() = {};
     // console.log("@@@@", (editor as any)._actions);
-    console.log("@@@@",  editor.getAction("editor.action.revealDefinition"));
+    console.log("@@@@", editor.getAction("editor.action.revealDefinition"));
     editor.getAction("editor.action.revealDefinition")
     // editor.onContextMenu(e => {
     //   e.target.
