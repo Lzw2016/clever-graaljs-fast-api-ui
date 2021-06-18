@@ -4,9 +4,10 @@ import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
 import { ConfigProvider } from "antd";
 import antdZhCN from "antd/lib/locale/zh_CN";
+import 'antd/dist/antd.compact.min.css';
 import { ConfigProviderProps } from "antd/es/config-provider";
-import './assets/index.css'
-import App from './App3'
+import './assets/index.css';
+import App from './App3';
 
 dayjs.locale("zh-cn");
 const antdConfig: ConfigProviderProps = {
@@ -15,11 +16,8 @@ const antdConfig: ConfigProviderProps = {
 };
 
 ReactDOM.render(
-  <React.StrictMode>
-    <ConfigProvider {...antdConfig}>
-      <App/>
-    </ConfigProvider>
-
-  </React.StrictMode>,
+  <ConfigProvider {...antdConfig}>
+    <App/>
+  </ConfigProvider>,
   document.getElementById('root')
 )
