@@ -1,8 +1,8 @@
 import { RouteConfig } from "react-router-config";
-import App from "@/App";
-import App2 from "@/App2";
-import App3 from "@/App3";
-import App4 from "@/App4";
+import App from "@/pages/App";
+import App2 from "@/pages/App2";
+import App3 from "@/pages/App3";
+import App4 from "@/pages/App4";
 
 const routesConfig: RouteConfig[] = [
   { path: "/", exact: true, component: App4 },

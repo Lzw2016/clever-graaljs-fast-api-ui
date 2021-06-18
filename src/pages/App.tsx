@@ -6,8 +6,6 @@ import * as actions from 'monaco-editor/esm/vs/platform/actions/common/actions';
 import Editor, { loader, Monaco } from "@monaco-editor/react";
 import ideaDraculaTheme from '@/assets/idea-dracula-theme.json'
 import { TypeEnum, variableTypeOf } from '@/utils/typeof'
-import './assets/App.css'
-
 
 loader.config({
   paths: {
