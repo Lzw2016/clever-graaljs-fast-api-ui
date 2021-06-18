@@ -83,9 +83,9 @@ class App extends React.Component<AppProps, AppState> {
               {items.map((item, index) => (
                 <Draggable key={item.id} draggableId={item.id} index={index}>
                   {(provided, snapshot) => {
-                    console.log("### provided", provided);
-                    console.log("### snapshot", snapshot);
-                    console.log("-------------------------------------------------");
+                    // console.log("### provided", provided);
+                    // console.log("### snapshot", snapshot);
+                    // console.log("-------------------------------------------------");
                     // if (snapshot.isDragging) {
                     //   return <></>;
                     // }
@@ -118,4 +118,4 @@ class App extends React.Component<AppProps, AppState> {
   }
 }
 
-export default App
+export default App;

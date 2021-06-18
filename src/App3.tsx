@@ -95,4 +95,4 @@ class App extends React.Component<AppProps, AppState> {
   }
 }
 
-export default App
+export default App;

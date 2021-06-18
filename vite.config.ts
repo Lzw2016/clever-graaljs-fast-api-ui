@@ -1,8 +1,9 @@
 import path from "path";
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite";
 import legacy from "@vitejs/plugin-legacy";
 import vitePluginImp from "vite-plugin-imp";
-import reactRefresh from '@vitejs/plugin-react-refresh'
+import reactRefresh from "@vitejs/plugin-react-refresh";
+import { minifyHtml } from "vite-plugin-html";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -21,6 +22,7 @@ export default defineConfig({
       ],
     }),
     reactRefresh(),
+    minifyHtml(),
   ],
   publicDir: "public",
   resolve: {
@@ -30,8 +32,14 @@ export default defineConfig({
     },
   },
   css: {
+    preprocessorOptions: {
+      less: {
+        javascriptEnabled: true,
+        modifyVars: {}
+      }
+    },
     modules: {
-      localsConvention: "camelCaseOnly",
+      localsConvention: "camelCaseOnly"
     }
   },
   clearScreen: true,
@@ -57,4 +65,4 @@ export default defineConfig({
     rollupOptions: {},
     commonjsOptions: {}
   },
-})
+});
