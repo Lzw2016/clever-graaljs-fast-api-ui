@@ -86,7 +86,7 @@ loader.init().then(monaco => {
     base: "vs-dark",
     inherit: true,
     rules: [
-      ...rules
+      ...rules,
     ],
     colors: {
       ...ideaDraculaTheme.colors,
