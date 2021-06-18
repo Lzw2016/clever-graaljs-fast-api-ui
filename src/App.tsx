@@ -217,6 +217,7 @@ return Facts.next();
     // editor.onContextMenu(e => {
     //   e.target.
     // })
+    // editor.layout();
   }
 
   return (
