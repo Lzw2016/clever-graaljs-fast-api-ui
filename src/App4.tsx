@@ -82,8 +82,14 @@ class App extends React.Component<AppProps, AppState> {
             >
               {items.map((item, index) => (
                 <Draggable key={item.id} draggableId={item.id} index={index}>
-                  {(provided, snapshot) => (
-                    <div
+                  {(provided, snapshot) => {
+                    console.log("### provided", provided);
+                    console.log("### snapshot", snapshot);
+                    console.log("-------------------------------------------------");
+                    // if (snapshot.isDragging) {
+                    //   return <></>;
+                    // }
+                    return <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
@@ -100,7 +106,7 @@ class App extends React.Component<AppProps, AppState> {
                         delete
                       </button>
                     </div>
-                  )}
+                  }}
                 </Draggable>
               ))}
               {provided.placeholder}
