@@ -9,7 +9,7 @@ import antdZhCN from "antd/lib/locale/zh_CN";
 import "antd/dist/antd.compact.min.css";
 import { ConfigProviderProps } from "antd/es/config-provider";
 import routes from "@/routes";
-import "@/assets/index.css";
+import "@/assets/global.css";
 
 dayjs.locale("zh-cn");
 const antdConfig: ConfigProviderProps = {

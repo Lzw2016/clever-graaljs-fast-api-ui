@@ -1,0 +1,140 @@
+.flexRow {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+.flexItemRow {
+  width: 100%;
+  flex-grow: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.flexItemRowHeightFull {
+  width: 100%;
+  flex-grow: 1;
+  flex-shrink: 1;
+  box-sizing: border-box;
+}
+
+.flexColumn {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.flexItemColumn {
+  height: 100%;
+  flex-grow: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.flexItemColumnWidthFull {
+  height: 100%;
+  flex-grow: 1;
+  flex-shrink: 1;
+  box-sizing: border-box;
+}
+
+.topMenu {
+  height: 24px;
+}
+
+.topStatus {
+  height: 24px;
+}
+
+.bottomTabs {
+  height: 24px;
+}
+
+.bottomStatus {
+  height: 24px;
+}
+
+.leftTabs {
+  width: 24px;
+}
+
+.rightTabs {
+  width: 24px;
+}
+
+.editorConsoleSplit {
+  height: unset !important;
+  min-height: unset !important;
+  position: unset !important;
+  box-sizing: border-box;
+  border: 1px solid #3C3F41;
+}
+
+.editorConsoleSplitResizerStyle {
+  height: 5px;
+  margin: -2px 0;
+  background: #3C3F41;
+  box-sizing: border-box;
+  background-clip: padding-box;
+  border-top: 2px solid rgba(255, 255, 255, 0);
+  border-bottom: 2px solid rgba(255, 255, 255, 0);
+  cursor: ns-resize;
+  z-index: 999;
+}
+
+.resourcesEditorSplitResizerStyle {
+  width: 5px;
+  margin: 0 -2px;
+  background: #3C3F41;
+  box-sizing: border-box;
+  background-clip: padding-box;
+  border-left: 2px solid rgba(255, 255, 255, 0);
+  border-right: 2px solid rgba(255, 255, 255, 0);
+  cursor: ew-resize;
+  z-index: 999;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
