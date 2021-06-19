@@ -145,17 +145,17 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           <div className={cls(styles.flexItemColumn, styles.rightTabs, styles.flexRow)} style={{ alignItems: "center" }}>
             <div className={cls(styles.flexItemRow, styles.verticalTabsItem, styles.verticalTabsItemActive)} style={{ height: 110 }}>
               <IconFont type="icon-database"/>
-              <div style={{ marginTop: 6, marginBottom: 16, transform: "rotate(90deg)" }}>JDBC</div>
+              <div style={{ marginTop: 6, marginBottom: 16, marginLeft: -2, transform: "rotate(90deg)" }}>JDBC</div>
               数据库
             </div>
             <div className={cls(styles.flexItemRow, styles.verticalTabsItem)} style={{ height: 110 }}>
               <IconFont type="icon-redis"/>
-              <div style={{ marginTop: 6, marginBottom: 16, transform: "rotate(90deg)" }}>Redis</div>
+              <div style={{ marginTop: 6, marginBottom: 16, marginLeft: -2, transform: "rotate(90deg)" }}>Redis</div>
               数据库
             </div>
             <div className={cls(styles.flexItemRow, styles.verticalTabsItem)} style={{ height: 146 }}>
               <IconFont type="icon-elasticsearch"/>
-              <div style={{ marginTop: 6, transform: "rotate(90deg)" }}>Elasticsearch</div>
+              <div style={{ marginTop: 6, marginLeft: -2, transform: "rotate(90deg)" }}>Elasticsearch</div>
             </div>
             <div className={styles.flexItemRowHeightFull}/>
           </div>
