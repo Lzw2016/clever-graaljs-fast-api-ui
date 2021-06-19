@@ -1,10 +1,9 @@
 import React from "react";
-import classnames from "classnames";
+import cls from "classnames";
 import SplitPane from "react-split-pane";
-import styles from "./Workbench.module.css";
+import styles from "./Workbench.module.less";
 
 interface WorkbenchProps {
-
 }
 
 interface WorkbenchState {
@@ -12,50 +11,69 @@ interface WorkbenchState {
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
 
-
   private getLayout() {
     return (
       <div className={styles.flexRow}>
-        <div className={classnames(styles.flexItemRow, styles.topMenu)}>
+        {/*顶部菜单栏*/}
+        <div className={cls(styles.flexItemRow, styles.topMenu)}>
         </div>
-        <div className={classnames(styles.flexItemRow, styles.topStatus)}>
+        {/*顶部工具栏*/}
+        <div className={cls(styles.flexItemRow, styles.topStatus)}>
         </div>
-
-        <div className={classnames(styles.flexItemRowHeightFull, styles.flexColumn)}>
-          <div className={classnames(styles.flexItemColumn, styles.leftTabs)}>
+        {/*外层中间区域*/}
+        <div className={cls(styles.flexItemRowHeightFull, styles.flexColumn)}>
+          {/*左边多叶签栏*/}
+          <div className={cls(styles.flexItemColumn, styles.leftTabs)}>
           </div>
-
+          {/*内层中间区域(上-下)*/}
           <SplitPane
-            className={styles.editorConsoleSplit}
+            className={styles.topBottomSplit}
             split="horizontal"
-            defaultSize={200}
             primary="second"
-            resizerClassName={styles.editorConsoleSplitResizerStyle}
+            defaultSize={256}
+            minSize={64}
+            resizerClassName={styles.topBottomSplitResizerStyle}
           >
+            {/*(左-中)*/}
             <SplitPane
               split="vertical"
-              defaultSize={200}
               primary="first"
-              resizerClassName={styles.resourcesEditorSplitResizerStyle}
+              defaultSize={256}
+              minSize={64}
+              resizerClassName={styles.leftRightSplitResizerStyle}
             >
-              <div>
-
+              {/*编辑器左侧区域*/}
+              <div className={cls(styles.leftResources)}>
               </div>
-              <div>
-
-              </div>
+              {/*(中-右)*/}
+              <SplitPane
+                split="vertical"
+                primary="second"
+                defaultSize={256}
+                minSize={64}
+                resizerClassName={styles.leftRightSplitResizerStyle}
+              >
+                {/*编辑器区域*/}
+                <div>
+                </div>
+                {/*编辑器右侧区域*/}
+                <div>
+                </div>
+              </SplitPane>
             </SplitPane>
+            {/*编辑器底部区域*/}
             <div>
             </div>
           </SplitPane>
-
-          <div className={classnames(styles.flexItemColumn, styles.rightTabs)}>
+          {/*右边多叶签栏*/}
+          <div className={cls(styles.flexItemColumn, styles.rightTabs)}>
           </div>
         </div>
-
-        <div className={classnames(styles.flexItemRow, styles.bottomTabs)}>
+        {/*底部多叶签栏*/}
+        <div className={cls(styles.flexItemRow, styles.bottomTabs)}>
         </div>
-        <div className={classnames(styles.flexItemRow, styles.bottomStatus)}>
+        {/*底部状态栏*/}
+        <div className={cls(styles.flexItemRow, styles.bottomStatus)}>
         </div>
       </div>
     );

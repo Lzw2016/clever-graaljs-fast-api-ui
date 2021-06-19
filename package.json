@@ -23,6 +23,7 @@
     "react-split-pane": "^0.1.92",
     "react-draggable": "^4.4.3",
     "react-beautiful-dnd": "^13.1.0",
+    "localforage": "^1.9.0",
     "antd": "^4.16.3",
     "axios": "^0.21.1",
     "classnames": "^2.3.1",
