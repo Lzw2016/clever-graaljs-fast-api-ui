@@ -87,10 +87,38 @@
   }
 }
 
+.verticalTabsItem {
+  width: 100%;
+  padding: 6px 0;
+  color: @fontColor;
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1.2;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-align: center;
+  user-select: none;
+
+  span {
+    font-size: 14px;
+    color: @iconColor;
+  }
+
+  &:hover {
+    background-color: @toolItemHoverBgColor;
+  }
+}
+
+.verticalTabsItemActive {
+  color: @fontActiveColor !important;
+  background-color: @toolItemActiveBgColor !important;
+}
+
+
 // --------------------------------------------------------------------------- 组件样式
 
 .topMenu {
-  height: @toolHeight;
+  height: @toolHeight + 4px;
   box-sizing: border-box;
   background-color: @toolBgColor;
   border-bottom: 1px solid @splitColor;
@@ -175,8 +203,39 @@
   }
 }
 
+.logo {
+  height: 100%;
+  padding: 3px 6px;
+  color: @fontColor;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  user-select: none;
 
+  img {
+    height: @toolHeight - 2px;
+  }
 
+  span {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 12px;
+    font-weight: normal;
+    color: @versionColor;
+  }
+}
+
+.icon {
+  padding: 4px;
+  height: 100%;
+  font-size: 18px;
+  color: @iconColor;
+  cursor: pointer;
+
+  &:hover {
+    background-color: @toolItemHoverBgColor;
+  }
+}
 
 
 

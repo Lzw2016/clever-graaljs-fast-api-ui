@@ -2,18 +2,21 @@ import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
 import { Spin } from "antd";
-import { Loading3QuartersOutlined } from '@ant-design/icons';
+import { FolderFilled, GithubOutlined, Loading3QuartersOutlined, QqOutlined, WechatOutlined, } from "@ant-design/icons";
 import { ReflexContainer, ReflexElement, ReflexSplitter } from "react-reflex";
 import "react-reflex/styles.css";
 import * as MonacoApi from "monaco-editor/esm/vs/editor/editor.api";
 import Editor from "@monaco-editor/react";
 import { editorDefOptions, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
+import IconFont from "@/components/IconFont";
+import logo from "@/assets/logo.svg";
 import styles from "./Workbench.module.less";
 
 interface WorkbenchProps {
 }
 
 interface WorkbenchState {
+
 }
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
@@ -29,8 +32,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
    * 分隔面板大小自适应
    */
   private splitPaneResize = {
-    onResize: (e: any) => e?.domElement?.classList?.add('resizing'),
-    onStopResize: (e: any) => e?.domElement?.classList?.remove('resizing'),
+    onResize: (e: any) => e?.domElement?.classList?.add("resizing"),
+    onStopResize: (e: any) => e?.domElement?.classList?.remove("resizing"),
   };
 
   constructor(props: Readonly<WorkbenchProps>) {
@@ -49,15 +52,32 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     return (
       <div className={styles.flexRow}>
         {/*顶部菜单栏*/}
-        <div className={cls(styles.flexItemRow, styles.topMenu)}>
+        <div className={cls(styles.flexItemRow, styles.topMenu, styles.flexColumn)} style={{ alignItems: "center" }}>
+          <div className={cls(styles.flexItemColumn, styles.logo)} style={{ marginLeft: 2 }}>
+            <img src={logo} alt={"logo"}/> Fast-API
+            <span>0.0.1</span>
+          </div>
+          <div className={cls(styles.flexItemColumnWidthFull)}/>
+          <QqOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <WechatOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <GithubOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ marginRight: 16 }}/>
         </div>
         {/*顶部工具栏*/}
-        <div className={cls(styles.flexItemRow, styles.topStatus)}>
-        </div>
+        {/*<div className={cls(styles.flexItemRow, styles.topStatus)}></div>*/}
         {/*外层中间区域*/}
         <div className={cls(styles.flexItemRowHeightFull, styles.flexColumn)}>
           {/*左边多叶签栏*/}
-          <div className={cls(styles.flexItemColumn, styles.leftTabs)}>
+          <div className={cls(styles.flexItemColumn, styles.leftTabs, styles.flexRow)} style={{ alignItems: "center" }}>
+            <div className={cls(styles.flexItemRow, styles.verticalTabsItem, styles.verticalTabsItemActive)}>
+              接口文件<FolderFilled/>
+            </div>
+            <div className={cls(styles.flexItemRow, styles.verticalTabsItem)}>
+              自定义扩展<FolderFilled/>
+            </div>
+            <div className={cls(styles.flexItemRow, styles.verticalTabsItem)}>
+              初始化脚本<FolderFilled/>
+            </div>
+            <div className={styles.flexItemRowHeightFull}/>
           </div>
           {/*内层中间区域*/}
           <ReflexContainer orientation="horizontal" maxRecDepth={1}>
@@ -117,12 +137,27 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
               onResize={this.editorResize}
             />
             {/*IDE底部面板*/}
-            <ReflexElement {...this.splitPaneResize} size={256} minSize={64} className={styles.bottomPane}>
+            <ReflexElement {...this.splitPaneResize} size={200} minSize={64} className={styles.bottomPane}>
 
             </ReflexElement>
           </ReflexContainer>
           {/*右边多叶签栏*/}
-          <div className={cls(styles.flexItemColumn, styles.rightTabs)}>
+          <div className={cls(styles.flexItemColumn, styles.rightTabs, styles.flexRow)} style={{ alignItems: "center" }}>
+            <div className={cls(styles.flexItemRow, styles.verticalTabsItem, styles.verticalTabsItemActive)} style={{ height: 110 }}>
+              <IconFont type="icon-database"/>
+              <div style={{ marginTop: 6, marginBottom: 16, transform: "rotate(90deg)" }}>JDBC</div>
+              数据库
+            </div>
+            <div className={cls(styles.flexItemRow, styles.verticalTabsItem)} style={{ height: 110 }}>
+              <IconFont type="icon-redis"/>
+              <div style={{ marginTop: 6, marginBottom: 16, transform: "rotate(90deg)" }}>Redis</div>
+              数据库
+            </div>
+            <div className={cls(styles.flexItemRow, styles.verticalTabsItem)} style={{ height: 146 }}>
+              <IconFont type="icon-elasticsearch"/>
+              <div style={{ marginTop: 6, transform: "rotate(90deg)" }}>Elasticsearch</div>
+            </div>
+            <div className={styles.flexItemRowHeightFull}/>
           </div>
         </div>
         {/*底部多叶签栏*/}
