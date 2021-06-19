@@ -74,6 +74,11 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                 />
                 {/*IDE中部面板 - 编辑器*/}
                 <ReflexElement {...this.splitPaneResize} minSize={256} className={styles.editorPane}>
+                  {/*Monaco编辑器文件叶签*/}
+                  <div className={cls(styles.flexItemRow, styles.editorTabs)}>
+
+                  </div>
+                  {/*Monaco编辑器*/}
                   <Editor
                     wrapperClassName={styles.editorWrapper}
                     className={styles.editor}

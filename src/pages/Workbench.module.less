@@ -100,7 +100,7 @@
   height: @toolHeight + 4px;
   box-sizing: border-box;
   background-color: @toolBgColor;
-  border-bottom: 2px solid @borderColor;
+  border-bottom: 1px solid @borderColor;
 }
 
 .bottomTabs {
@@ -153,6 +153,12 @@
   background-color: @editorBgColor;
 }
 
+.editorTabs {
+  height: @toolHeight + 8px;
+  background-color: @editorTabsBgColor;
+  border-bottom: 1px solid @editorTabsBottomColor;
+}
+
 .editorWrapper {
   width: 100%;
   height: 100%;
@@ -162,7 +168,15 @@
 .editor {
   width: 100%;
   height: 100%;
+
+  :global(.monaco-editor.vs-dark .overflow-guard .margin .margin-view-overlays) {
+    box-sizing: border-box;
+    border-right: 1px solid #555555 !important;
+  }
 }
+
+
+
 
 
 
