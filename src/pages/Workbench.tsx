@@ -58,9 +58,11 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             <span>0.0.1</span>
           </div>
           <div className={cls(styles.flexItemColumnWidthFull)}/>
+          <IconFont type="icon-gitee" className={cls(styles.flexItemColumn, styles.icon)}/>
+          <GithubOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
           <QqOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
           <WechatOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
-          <GithubOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ marginRight: 16 }}/>
+          <div className={cls(styles.flexItemColumn)} style={{ marginRight: 16 }}/>
         </div>
         {/*顶部工具栏*/}
         {/*<div className={cls(styles.flexItemRow, styles.topStatus)}></div>*/}
@@ -102,7 +104,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                   </div>
                   {/*Monaco编辑器*/}
                   <Editor
-                    wrapperClassName={styles.editorWrapper}
+                    wrapperClassName={cls(styles.flexItemRowHeightFull, styles.editorWrapper)}
                     className={styles.editor}
                     width={"100%"}
                     height={"100%"}
@@ -161,10 +163,27 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           </div>
         </div>
         {/*底部多叶签栏*/}
-        <div className={cls(styles.flexItemRow, styles.bottomTabs)}>
+        <div className={cls(styles.flexItemRow, styles.bottomTabs, styles.flexColumn)} style={{ alignItems: "center" }}>
+          <div className={cls(styles.flexItemColumn, styles.horizontalTabsFirst)}/>
+          <div className={cls(styles.flexItemColumn, styles.horizontalTabsItem, styles.horizontalTabsItemActive)}>
+            接口配置
+          </div>
+          <div className={cls(styles.flexItemColumn, styles.horizontalTabsItem)}>
+            请求配置
+          </div>
+          <div className={cls(styles.flexItemColumn, styles.horizontalTabsItem)}>
+            运行结果
+          </div>
+          <div className={cls(styles.flexItemColumn, styles.horizontalTabsItem)}>
+            请求全局参数
+          </div>
         </div>
         {/*底部状态栏*/}
-        <div className={cls(styles.flexItemRow, styles.bottomStatus)}>
+        <div className={cls(styles.flexItemRow, styles.bottomStatus, styles.flexColumn)} style={{ alignItems: "center" }}>
+          <div className={cls(styles.flexItemColumn, styles.horizontalTabsFirst)}/>
+          <div className={cls(styles.flexItemColumn, styles.horizontalTabsItem)}>
+            正在检查更新，请稍候...
+          </div>
         </div>
       </div>
     );

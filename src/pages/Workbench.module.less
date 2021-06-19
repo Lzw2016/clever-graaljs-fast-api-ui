@@ -114,6 +114,35 @@
   background-color: @toolItemActiveBgColor !important;
 }
 
+.horizontalTabsFirst {
+  margin-left: @toolWidth;
+}
+
+.horizontalTabsItem {
+  height: 100%;
+  padding: 1px 6px;
+  color: @fontColor;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-align: center;
+  user-select: none;
+
+  span {
+    font-size: 14px;
+    color: @iconColor;
+  }
+
+  &:hover {
+    background-color: @toolItemHoverBgColor;
+  }
+}
+
+.horizontalTabsItemActive {
+  color: @fontActiveColor !important;
+  background-color: @toolItemActiveBgColor !important;
+}
 
 // --------------------------------------------------------------------------- 组件样式
 
