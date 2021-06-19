@@ -1,162 +1,138 @@
 import React from "react";
-import SplitPane from "react-split-pane";
+import { ReflexContainer, ReflexElement, ReflexSplitter } from "react-reflex";
+import "react-reflex/styles.css";
 
-interface AppProps {
-
+interface ReflexAdvancedDemoProps {
 }
 
-interface AppState {
+interface ReflexAdvancedDemoState {
 }
 
-class App extends React.Component<AppProps, AppState> {
+class ReflexAdvancedDemo extends React.Component<ReflexAdvancedDemoProps, ReflexAdvancedDemoState> {
+
+  constructor(props: Readonly<ReflexAdvancedDemoProps>) {
+    super(props);
+  }
+
+  resizeProps = {
+    onStopResize: this.onStopResize.bind(this),
+    onResize: this.onResize.bind(this)
+  }
+
+  onResize(e: any) {
+    if (e.domElement) {
+      e.domElement.classList.add('resizing')
+    }
+  }
+
+  onStopResize(e: any) {
+    if (e.domElement) {
+      e.domElement.classList.remove('resizing')
+    }
+  }
+
   render() {
     return (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          flexWrap: "nowrap",
-        }}
-      >
-        <div
-          style={{
-            width: "100%",
-            height: 24,
-            flexGrow: 0,
-            flexShrink: 0,
-            boxSizing: "border-box",
-            borderTop: "1px solid #3C3F41",
-          }}
-        >
-        </div>
-
-        <div
-          style={{
-            width: "100%",
-            height: 24,
-            flexGrow: 0,
-            flexShrink: 0,
-            boxSizing: "border-box",
-            borderTop: "1px solid #3C3F41",
-          }}
-        >
-        </div>
-
-        <div
-          style={{
-            flexGrow: 1,
-            flexShrink: 1,
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "nowrap",
-            // boxSizing: "border-box",
-            // border: "1px solid #3C3F41",
-          }}
-        >
-          <div
-            style={{
-              width: 24,
-              height: "100%",
-              flexGrow: 0,
-              flexShrink: 0,
-              boxSizing: "border-box",
-              borderTop: "1px solid #3C3F41",
-              borderBottom: "1px solid #3C3F41",
-            }}
-          >
+      <ReflexContainer orientation="horizontal">
+        <ReflexElement className="header" flex={0.1}>
+          <div className="pane-content">
+            <label>
+              Header (fixed)
+            </label>
           </div>
-          <SplitPane
-            style={{
-              height: "unset",
-              minHeight: "unset",
-              position: "unset",
-              boxSizing: "border-box",
-              border: "1px solid #3C3F41",
-            }}
-            split="horizontal"
-            defaultSize={200}
-            primary="second"
-            resizerStyle={{
-              height: 5,
-              margin: "-2px 0",
-              background: "#3C3F41",
-              boxSizing: "border-box",
-              backgroundClip: "padding-box",
-              borderTop: "2px solid rgba(255,255,255,0)",
-              borderBottom: "2px solid rgba(255,255,255,0)",
-              cursor: "ns-resize",
-              zIndex: 999,
-            }}
-          >
-            <SplitPane
-              split="vertical"
-              defaultSize={200}
-              primary="first"
-              resizerStyle={{
-                width: 5,
-                margin: "0 -2px",
-                background: "#3C3F41",
-                boxSizing: "border-box",
-                backgroundClip: "padding-box",
-                borderLeft: "2px solid rgba(255,255,255,0)",
-                borderRight: "2px solid rgba(255,255,255,0)",
-                cursor: "ew-resize",
-                zIndex: 999,
-              }}
-            >
-              <div>
-
+        </ReflexElement>
+        <ReflexElement>
+          <ReflexContainer orientation="vertical">
+            <ReflexElement {...this.resizeProps}>
+              <ReflexContainer orientation="horizontal">
+                <ReflexElement {...this.resizeProps}>
+                  <div className="pane-content">
+                    <div style={{ height: '30%' }}/>
+                    <label style={{ height: '0%' }}>
+                      Left Pane <br/> Top
+                      <br/>
+                      (splitter propagation)
+                    </label>
+                  </div>
+                </ReflexElement>
+                <ReflexSplitter propagate={true} {...this.resizeProps}/>
+                <ReflexElement {...this.resizeProps}>
+                  <div className="pane-content">
+                    <div style={{ height: '30%' }}/>
+                    <label style={{ height: '0%' }}>
+                      Left Pane <br/> Middle
+                      <br/>
+                      (splitter propagation)
+                    </label>
+                  </div>
+                </ReflexElement>
+                <ReflexSplitter propagate={true} {...this.resizeProps}/>
+                <ReflexElement {...this.resizeProps}>
+                  <div className="pane-content">
+                    <div style={{ height: '30%' }}/>
+                    <label style={{ height: '0%' }}>
+                      Left Pane <br/> Bottom
+                      <br/>
+                      (splitter propagation)
+                    </label>
+                  </div>
+                </ReflexElement>
+              </ReflexContainer>
+            </ReflexElement>
+            <ReflexSplitter {...this.resizeProps}/>
+            <ReflexElement flex={0.5} {...this.resizeProps}>
+              <div className="pane-content">
+                <label>
+                  Middle Pane
+                </label>
               </div>
-              <div>
-
-              </div>
-            </SplitPane>
-            <div>
-
-            </div>
-          </SplitPane>
-          <div
-            style={{
-              width: 24,
-              height: "100%",
-              flexGrow: 0,
-              flexShrink: 0,
-              boxSizing: "border-box",
-              borderTop: "1px solid #3C3F41",
-              borderBottom: "1px solid #3C3F41",
-            }}
-          >
+            </ReflexElement>
+            <ReflexSplitter{...this.resizeProps}/>
+            <ReflexElement {...this.resizeProps}>
+              <ReflexContainer orientation="horizontal">
+                <ReflexElement {...this.resizeProps}>
+                  <div>
+                    <ReflexContainer orientation="vertical">
+                      <ReflexElement {...this.resizeProps}>
+                        <div className="pane-content">
+                          <label>
+                            Right Pane <br/> Upper-Left
+                          </label>
+                        </div>
+                      </ReflexElement>
+                      <ReflexSplitter/>
+                      <ReflexElement {...this.resizeProps}>
+                        <div className="pane-content">
+                          <label>
+                            Right Pane <br/> Upper-Right
+                          </label>
+                        </div>
+                      </ReflexElement>
+                    </ReflexContainer>
+                  </div>
+                </ReflexElement>
+                <ReflexSplitter {...this.resizeProps}/>
+                <ReflexElement {...this.resizeProps}>
+                  <div className="pane-content">
+                    <label>
+                      Right Pane <br/> Bottom
+                    </label>
+                  </div>
+                </ReflexElement>
+              </ReflexContainer>
+            </ReflexElement>
+          </ReflexContainer>
+        </ReflexElement>
+        <ReflexElement className="footer" flex={0.1}>
+          <div className="pane-content">
+            <label>
+              Footer (fixed)
+            </label>
           </div>
-        </div>
-        <div
-          style={{
-            width: "100%",
-            height: 24,
-            flexGrow: 0,
-            flexShrink: 0,
-            boxSizing: "border-box",
-            borderBottom: "1px solid #3C3F41",
-          }}
-        >
-
-        </div>
-        <div
-          style={{
-            width: "100%",
-            height: 24,
-            flexGrow: 0,
-            flexShrink: 0,
-            boxSizing: "border-box",
-            borderBottom: "1px solid #3C3F41",
-          }}
-        >
-
-        </div>
-      </div>
-    );
+        </ReflexElement>
+      </ReflexContainer>
+    )
   }
 }
 
-export default App
+export default ReflexAdvancedDemo;

@@ -30,6 +30,32 @@ const themeEnum = {
   IdeaLight: "idea-light",
 };
 
+/**
+ * 语言枚举
+ */
+const languageEnum = {
+  javascript: "javascript",
+  xml: "xml",
+  json: "json",
+};
+
+/**
+ * Monaco编辑器默认选择
+ */
+const editorDefOptions: MonacoApi.editor.IStandaloneEditorConstructionOptions = {
+  fontSize: 14,
+  automaticLayout: false,
+  contextmenu: true,
+  minimap: { enabled: false },
+  scrollbar: {
+    vertical: "visible",
+    horizontal: "visible",
+    verticalScrollbarSize: 8,
+    horizontalScrollbarSize: 8,
+    arrowSize: 16,
+  },
+};
+
 const getRules = (themeConfig: { colors: any, tokenColors: Array<{ scope: string | string[], settings: any }> }): Array<MonacoApi.editor.ITokenThemeRule> => {
   const rules: Array<MonacoApi.editor.ITokenThemeRule> = [];
   themeConfig.tokenColors.forEach(tokenColor => {
@@ -195,7 +221,8 @@ const initKeyBinding = (editor: MonacoApi.editor.IStandaloneCodeEditor, monaco: 
   // );
 };
 
+
 // AppContext.initEditorViewState = editorInstance.saveViewState();
 // editorInstance.onDidChangeModelContent(lodash.debounce(AppContext.fileContentChange, 100, { maxWait: 350 }));
 
-export { themeEnum, registerTheme, initMonaco, initKeyBinding };
+export { themeEnum, languageEnum,editorDefOptions, registerTheme, initMonaco, initKeyBinding };
