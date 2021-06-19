@@ -24,6 +24,8 @@
     "react-draggable": "^4.4.3",
     "react-beautiful-dnd": "^13.1.0",
     "localforage": "^1.9.0",
+    "react-icons": "^4.2.0",
+    "@ant-design/icons": "^4.6.2",
     "antd": "^4.16.3",
     "axios": "^0.21.1",
     "classnames": "^2.3.1",

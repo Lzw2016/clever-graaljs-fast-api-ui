@@ -1,6 +1,8 @@
 import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
+import { Spin } from "antd";
+import { Loading3QuartersOutlined } from '@ant-design/icons';
 import { ReflexContainer, ReflexElement, ReflexSplitter } from "react-reflex";
 import "react-reflex/styles.css";
 import * as MonacoApi from "monaco-editor/esm/vs/editor/editor.api";
@@ -88,6 +90,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                     defaultValue={""}
                     theme={themeEnum.IdeaDracula}
                     options={editorDefOptions}
+                    loading={<Spin delay={200} spinning={true} indicator={<Loading3QuartersOutlined style={{ fontSize: 32 }} spin/>}/>}
                     onMount={(editor, monaco) => {
                       this.editor = editor;
                       this.editor.layout();
