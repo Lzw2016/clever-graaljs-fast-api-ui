@@ -88,8 +88,9 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             <span className={styles.fileModify}>JdbcDatabaseTest.js</span>
           </div>
           <div className={cls(styles.flexItemColumn, styles.fileResourcePath)}>
-            <ArrowRightOutlined style={{ fontSize: 10, padding: "0 8px" }}/>
+            <ArrowRightOutlined style={{ fontSize: 10, padding: "0 0 0 8px" }}/>
           </div>
+          <ApiOutlined className={cls(styles.flexItemColumn, styles.apiIcon)}/>
           <div className={cls(styles.flexItemColumn, styles.fileResourcePath)}>
             [GET] /api/aaa/bbb/ccc/ddd
           </div>
