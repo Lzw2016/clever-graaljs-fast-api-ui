@@ -132,6 +132,7 @@
   span {
     font-size: 14px;
     color: @iconColor;
+    padding-right: 2px;
   }
 
   &:hover {
@@ -142,6 +143,22 @@
 .horizontalTabsItemActive {
   color: @fontActiveColor !important;
   background-color: @toolItemActiveBgColor !important;
+}
+
+.statusTabsFirst {
+  margin-left: @toolWidth;
+}
+
+
+.statusTabsItem {
+  height: 100%;
+  padding: 1px 6px;
+  color: @fontColor;
+  font-size: 12px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-align: center;
+  user-select: none;
 }
 
 // --------------------------------------------------------------------------- 组件样式
@@ -255,9 +272,9 @@
 }
 
 .icon {
-  padding: 4px;
+  padding: 6px 6px;
   height: 100%;
-  font-size: 18px;
+  font-size: 16px;
   color: @iconColor;
   cursor: pointer;
 
@@ -265,7 +282,6 @@
     background-color: @toolItemHoverBgColor;
   }
 }
-
 
 
 

@@ -2,7 +2,19 @@ import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
 import { Spin } from "antd";
-import { FolderFilled, GithubOutlined, Loading3QuartersOutlined, QqOutlined, WechatOutlined, } from "@ant-design/icons";
+import {
+  ApiOutlined,
+  ControlOutlined,
+  FolderFilled,
+  GithubOutlined,
+  HistoryOutlined,
+  Loading3QuartersOutlined,
+  LockOutlined,
+  QqOutlined,
+  QuestionCircleOutlined,
+  UnlockOutlined,
+  WechatOutlined,
+} from "@ant-design/icons";
 import { ReflexContainer, ReflexElement, ReflexSplitter } from "react-reflex";
 import "react-reflex/styles.css";
 import * as MonacoApi from "monaco-editor/esm/vs/editor/editor.api";
@@ -27,7 +39,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   /**
    * 编辑器大小自适应
    */
-  private editorResize = lodash.debounce(() => this.editor?.layout(), 30, { maxWait: 150 });
+  private editorResize = lodash.debounce(() => this.editor?.layout(), 60, { maxWait: 150 });
   /**
    * 分隔面板大小自适应
    */
@@ -58,10 +70,19 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             <span>0.0.1</span>
           </div>
           <div className={cls(styles.flexItemColumnWidthFull)}/>
-          <IconFont type="icon-gitee" className={cls(styles.flexItemColumn, styles.icon)}/>
-          <GithubOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
-          <QqOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
-          <WechatOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <IconFont type="icon-run" className={cls(styles.flexItemColumn, styles.icon)} style={{ color: "#499C54" }}/>
+          <IconFont type="icon-save" className={cls(styles.flexItemColumn, styles.icon)}/>
+          <LockOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <UnlockOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <IconFont type="icon-search" className={cls(styles.flexItemColumn, styles.icon)}/>
+          <HistoryOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <IconFont type="icon-keyboard" className={cls(styles.flexItemColumn, styles.icon)} style={{ fontSize: 22, padding: "2px 6px" }}/>
+          <div className={cls(styles.flexItemColumn)} style={{ width: 16 }}/>
+          <IconFont type="icon-gitee" className={cls(styles.flexItemColumn, styles.icon)} style={{ padding: "6px 4px" }}/>
+          <GithubOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ padding: "6px 4px" }}/>
+          <QqOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ padding: "6px 4px" }}/>
+          <WechatOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ padding: "6px 4px" }}/>
+          <QuestionCircleOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ padding: "6px 4px" }}/>
           <div className={cls(styles.flexItemColumn)} style={{ marginRight: 16 }}/>
         </div>
         {/*顶部工具栏*/}
@@ -166,23 +187,35 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         <div className={cls(styles.flexItemRow, styles.bottomTabs, styles.flexColumn)} style={{ alignItems: "center" }}>
           <div className={cls(styles.flexItemColumn, styles.horizontalTabsFirst)}/>
           <div className={cls(styles.flexItemColumn, styles.horizontalTabsItem, styles.horizontalTabsItemActive)}>
-            接口配置
+            {/*接口路由|接口文档*/}
+            <ApiOutlined/>接口配置
           </div>
           <div className={cls(styles.flexItemColumn, styles.horizontalTabsItem)}>
-            请求配置
+            {/*请求参数(单选列表)*/}
+            <IconFont type="icon-http"/>请求配置
           </div>
           <div className={cls(styles.flexItemColumn, styles.horizontalTabsItem)}>
-            运行结果
+            {/*HTTP请求响应数据|运行日志*/}
+            <IconFont type="icon-run"/>运行结果
           </div>
           <div className={cls(styles.flexItemColumn, styles.horizontalTabsItem)}>
-            请求全局参数
+            {/*HTTP全局请求配置*/}
+            <ControlOutlined/>全局请求参数
           </div>
+          <div className={cls(styles.flexItemColumnWidthFull)}/>
+          <div className={cls(styles.flexItemColumn, styles.horizontalTabsItem)}>
+            <IconFont type="icon-message"/>系统事件
+          </div>
+          <div className={cls(styles.flexItemColumn)} style={{ marginRight: 16 }}/>
         </div>
         {/*底部状态栏*/}
         <div className={cls(styles.flexItemRow, styles.bottomStatus, styles.flexColumn)} style={{ alignItems: "center" }}>
-          <div className={cls(styles.flexItemColumn, styles.horizontalTabsFirst)}/>
-          <div className={cls(styles.flexItemColumn, styles.horizontalTabsItem)}>
+          <div className={cls(styles.flexItemColumn, styles.statusTabsFirst)}/>
+          <div className={cls(styles.flexItemColumn, styles.statusTabsItem)} style={{ paddingLeft: 0 }}>
             正在检查更新，请稍候...
+          </div>
+          <div className={cls(styles.flexItemColumnWidthFull)}/>
+          <div className={cls(styles.flexItemColumn, styles.statusTabsItem)}>
           </div>
         </div>
       </div>
