@@ -160,6 +160,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
               {...this.splitPaneResize}
               onResize={this.editorResize}
             >
+              <div className={cls(styles.flexItemColumn, styles.splitTabsLabel)}>接口配置:</div>
               <div className={cls(styles.flexItemColumn, styles.splitTabsItem, styles.splitTabsItemActive)}>
                 叶签1
                 <CloseOutlined/>
