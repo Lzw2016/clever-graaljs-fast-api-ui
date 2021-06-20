@@ -4,6 +4,7 @@ import lodash from "lodash";
 import { Spin } from "antd";
 import {
   ApiOutlined,
+  CloseOutlined,
   ControlOutlined,
   FolderFilled,
   GithubOutlined,
@@ -155,10 +156,27 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             </ReflexElement>
             <ReflexSplitter
               propagate={true}
-              className={styles.horizontalResizerStyle}
+              className={cls(styles.splitTabsResizerStyle, styles.flexColumn)}
               {...this.splitPaneResize}
               onResize={this.editorResize}
-            />
+            >
+              <div className={cls(styles.flexItemColumn, styles.splitTabsItem, styles.splitTabsItemActive)}>
+                叶签1
+                <CloseOutlined/>
+              </div>
+              <div className={cls(styles.flexItemColumn, styles.splitTabsItem)}>
+                叶签2
+                <CloseOutlined/>
+              </div>
+              <div className={cls(styles.flexItemColumn, styles.splitTabsItem)}>
+                叶签3
+                <CloseOutlined/>
+              </div>
+              <div className={cls(styles.flexItemColumnWidthFull)}/>
+              <div className={cls(styles.flexItemColumn, styles.splitTabsItem)}>
+                叶签4
+              </div>
+            </ReflexSplitter>
             {/*IDE底部面板*/}
             <ReflexElement {...this.splitPaneResize} size={200} minSize={64} className={styles.bottomPane}>
 

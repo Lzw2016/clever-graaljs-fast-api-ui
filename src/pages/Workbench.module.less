@@ -161,6 +161,57 @@
   user-select: none;
 }
 
+.splitTabsResizerStyle {
+  &:global(.reflex-splitter), &:hover {
+    height: @toolHeight + 2px !important;
+    box-sizing: border-box !important;
+    background: #3B4754 !important;
+    border-top: 1px solid @borderColor !important;
+    border-bottom: 1px solid @borderColor !important;
+    border-left: none !important;
+    border-right: none !important;
+    cursor: ns-resize !important;
+    z-index: 999 !important;
+  }
+}
+
+.splitTabsItem {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 1px 8px;
+  color: @fontColor;
+  font-size: 14px;
+  user-select: none;
+  cursor: default !important;
+
+  &:hover {
+    background-color: #27292A;
+  }
+
+  span {
+    //font-size: 13px;
+    border-radius: 8px;
+    color: #61696D;
+    margin-left: 6px;
+    cursor: pointer;
+
+    svg {
+      padding: 2px;
+    }
+
+    &:hover {
+      color: #27292A;
+      background-color: #51585B;
+    }
+  }
+}
+
+.splitTabsItemActive {
+  color: @fontActiveColor;
+  border-bottom: 2px solid #4083C9 !important;
+  // #747A80
+}
+
 // --------------------------------------------------------------------------- 组件样式
 
 .topMenu {
@@ -282,10 +333,6 @@
     background-color: @toolItemHoverBgColor;
   }
 }
-
-
-
-
 
 
 
