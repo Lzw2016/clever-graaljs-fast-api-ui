@@ -200,11 +200,11 @@
   }
 
   span {
-    //font-size: 13px;
+    font-size: 12px;
     border-radius: 8px;
     color: #61696D;
     margin-left: 6px;
-    cursor: pointer;
+    //cursor: pointer;
 
     svg {
       padding: 2px;
@@ -221,6 +221,50 @@
   color: @fontActiveColor;
   border-bottom: 2px solid #4083C9 !important;
   // #747A80
+}
+
+.fileTabsItem {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 2px 8px;
+  color: #AFB0B0;
+  font-size: 14px;
+  user-select: none;
+  cursor: default !important;
+
+  &:hover {
+    color: #BBBBBB;
+    background-color: #27292A;
+  }
+}
+
+.fileTabsItemClose {
+  //font-size: 13px;
+  border-radius: 8px;
+  color: #61696D;
+  margin-left: 6px;
+  //cursor: pointer;
+
+  svg {
+    padding: 3px;
+  }
+
+  &:hover {
+    color: #27292A;
+    background-color: #51585B;
+  }
+}
+
+.fileTabsItemType {
+  font-size: 14px;
+  color: #61696D;
+  padding-right: 3px;
+}
+
+.fileTabsItemActive {
+  color: #A9A8A8 !important;
+  background-color: #4E5254 !important;
+  border-bottom: 2px solid #4083C9 !important;
 }
 
 // --------------------------------------------------------------------------- 组件样式
@@ -290,7 +334,7 @@
 }
 
 .editorTabs {
-  height: @toolHeight + 8px;
+  height: @toolHeight + 4px;
   background-color: @editorTabsBgColor;
   border-bottom: 1px solid @editorTabsBottomColor;
 }

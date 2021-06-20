@@ -7,6 +7,7 @@ import {
   ArrowRightOutlined,
   CloseOutlined,
   ControlOutlined,
+  FileExcelOutlined,
   FolderFilled,
   GithubOutlined,
   HistoryOutlined,
@@ -137,8 +138,18 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                 {/*IDE中部面板 - 编辑器*/}
                 <ReflexElement {...this.splitPaneResize} minSize={256} className={styles.editorPane}>
                   {/*Monaco编辑器文件叶签*/}
-                  <div className={cls(styles.flexItemRow, styles.editorTabs)}>
-
+                  <div className={cls(styles.flexItemRow, styles.editorTabs, styles.flexColumn)}>
+                    <div className={cls(styles.flexItemColumn, styles.fileTabsItem)}>
+                      <FileExcelOutlined className={styles.fileTabsItemType}/>index01.js<CloseOutlined className={styles.fileTabsItemClose}/>
+                    </div>
+                    <div className={cls(styles.flexItemColumn, styles.fileTabsItem, styles.fileTabsItemActive)}>
+                      <FileExcelOutlined className={styles.fileTabsItemType}/>index02.js<CloseOutlined className={styles.fileTabsItemClose}/>
+                    </div>
+                    <div className={cls(styles.flexItemColumn, styles.fileTabsItem)}>
+                      <FileExcelOutlined className={styles.fileTabsItemType}/>index03.js<CloseOutlined className={styles.fileTabsItemClose}/>
+                    </div>
+                    <div className={styles.flexItemColumnWidthFull}/>
+                    <div className={cls(styles.flexItemColumn)}/>
                   </div>
                   {/*Monaco编辑器*/}
                   <Editor
@@ -178,16 +189,13 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             >
               <div className={cls(styles.flexItemColumn, styles.splitTabsLabel)}>接口配置:</div>
               <div className={cls(styles.flexItemColumn, styles.splitTabsItem, styles.splitTabsItemActive)}>
-                叶签1
-                <CloseOutlined/>
+                叶签1<CloseOutlined/>
               </div>
               <div className={cls(styles.flexItemColumn, styles.splitTabsItem)}>
-                叶签2
-                <CloseOutlined/>
+                叶签2<CloseOutlined/>
               </div>
               <div className={cls(styles.flexItemColumn, styles.splitTabsItem)}>
-                叶签3
-                <CloseOutlined/>
+                叶签3<CloseOutlined/>
               </div>
               <div className={cls(styles.flexItemColumnWidthFull)}/>
               <div className={cls(styles.flexItemColumn, styles.splitTabsItem)}>
