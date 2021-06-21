@@ -125,7 +125,7 @@
   padding: 1px 6px;
   color: @fontColor;
   font-size: 13px;
-  font-weight: bold;
+  //font-weight: bold;
   cursor: pointer;
   letter-spacing: 2px;
   text-align: center;
@@ -167,7 +167,7 @@
   &:global(.reflex-splitter), &:hover {
     height: @toolHeight + 2px !important;
     box-sizing: border-box !important;
-    background: #3B4754 !important;
+    background: @splitBgColor !important;
     border-top: 1px solid @borderColor !important;
     border-bottom: 1px solid @borderColor !important;
     border-left: none !important;
@@ -181,9 +181,9 @@
   height: 100%;
   box-sizing: border-box;
   color: @fontColor;
-  font-size: 14px;
+  font-size: 13px;
   user-select: none;
-  padding: 1px 8px 1px 0;
+  padding: 1px 8px 1px 4px;
 }
 
 .splitTabsItem {
@@ -191,18 +191,18 @@
   box-sizing: border-box;
   padding: 1px 8px;
   color: @fontColor;
-  font-size: 14px;
+  font-size: 12px;
   user-select: none;
   cursor: default !important;
 
   &:hover {
-    background-color: #27292A;
+    background-color: @splitHoverBgColor !important;
   }
 
   span {
     font-size: 12px;
     border-radius: 8px;
-    color: #61696D;
+    color: @splitIconColor;
     margin-left: 6px;
     //cursor: pointer;
 
@@ -211,37 +211,36 @@
     }
 
     &:hover {
-      color: #27292A;
-      background-color: #51585B;
+      color: @splitHoverBgColor !important;
+      background-color: @splitIconHoverColor !important;
     }
   }
 }
 
 .splitTabsItemActive {
-  color: @fontActiveColor;
-  border-bottom: 2px solid #4083C9 !important;
-  // #747A80
+  color: @fontColor;
+  border-bottom: 2px solid @splitBottomColor !important;
 }
 
 .fileTabsItem {
   height: 100%;
   box-sizing: border-box;
   padding: 2px 8px;
-  color: #AFB0B0;
+  color: @fileTabsColor;
   font-size: 14px;
   user-select: none;
   cursor: default !important;
 
   &:hover {
-    color: #BBBBBB;
-    background-color: #27292A;
+    color: @fontColor !important;
+    background-color: @fileTabsHoverBgColor !important;
   }
 }
 
 .fileTabsItemClose {
   //font-size: 13px;
   border-radius: 8px;
-  color: #61696D;
+  color: @fileTabsCloseIconColor;
   margin-left: 6px;
   //cursor: pointer;
 
@@ -250,21 +249,21 @@
   }
 
   &:hover {
-    color: #27292A;
-    background-color: #51585B;
+    color: @fileTabsCloseIconHoverColor !important;
+    background-color: @fileTabsCloseIconHoverBgColor !important;
   }
 }
 
 .fileTabsItemType {
   font-size: 14px;
-  color: #61696D;
+  color: @fileTabsTypeIconColor;
   padding-right: 3px;
 }
 
 .fileTabsItemActive {
-  color: #A9A8A8 !important;
-  background-color: #4E5254 !important;
-  border-bottom: 2px solid #4083C9 !important;
+  color: @fileTabsActiveColor;
+  background-color: @fileTabsActiveBgColor;
+  border-bottom: 2px solid @fileTabsBottomColor !important;
 }
 
 // --------------------------------------------------------------------------- 组件样式
@@ -351,7 +350,7 @@
 
   :global(.monaco-editor.vs-dark .overflow-guard .margin .margin-view-overlays) {
     box-sizing: border-box;
-    border-right: 1px solid #555555 !important;
+    border-right: 1px solid @editorSplitRightColor !important;
   }
 }
 
@@ -406,7 +405,7 @@
 }
 
 .fileModify {
-  color: #6897BB !important;
+  color: @fileModifyColor !important;
 }
 
 .apiIcon {
