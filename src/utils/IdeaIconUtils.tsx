@@ -56,5 +56,11 @@ const Folder = () => (
   </svg>
 );
 
+// const ChevronUp = () => (
+//   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+//     <path d="M11.51 10.49L8 6.99l-3.5 3.5-1-.98L8 5.01l4.49 4.5-.98.98z"/>
+//   </svg>
+// );
+
 export { JsFile, JsonFile, YmlFile, Folder }
 

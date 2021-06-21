@@ -12,9 +12,11 @@ import Icon, {
   HistoryOutlined,
   Loading3QuartersOutlined,
   LockOutlined,
+  MinusOutlined,
   QqOutlined,
   QuestionCircleOutlined,
   UnlockOutlined,
+  VerticalAlignTopOutlined,
   WechatOutlined,
 } from "@ant-design/icons";
 import { ReflexContainer, ReflexElement, ReflexSplitter } from "react-reflex";
@@ -204,9 +206,9 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                 叶签3<CloseOutlined/>
               </div>
               <div className={cls(styles.flexItemColumnWidthFull)}/>
-              <div className={cls(styles.flexItemColumn, styles.splitTabsItem)}>
-                叶签4
-              </div>
+              <VerticalAlignTopOutlined className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)}/>
+              <MinusOutlined className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)}/>
+              <div className={cls(styles.flexItemColumn)} style={{ width: 2 }}/>
             </ReflexSplitter>
             {/*IDE底部面板*/}
             <ReflexElement {...this.splitPaneResize} size={200} minSize={64} className={styles.bottomPane}>

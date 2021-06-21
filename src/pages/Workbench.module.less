@@ -92,7 +92,7 @@
   padding: 6px 0;
   color: @fontColor;
   font-size: 13px;
-  font-weight: bold;
+  font-weight: 400;
   line-height: 1.2;
   cursor: pointer;
   letter-spacing: 2px;
@@ -125,7 +125,7 @@
   padding: 1px 6px;
   color: @fontColor;
   font-size: 13px;
-  //font-weight: bold;
+  font-weight: 400;
   cursor: pointer;
   letter-spacing: 2px;
   text-align: center;
@@ -266,6 +266,31 @@
   border-bottom: 2px solid @fileTabsBottomColor !important;
 }
 
+.icon {
+  padding: 6px 6px;
+  height: 100%;
+  font-size: 16px;
+  color: @iconColor;
+  cursor: pointer;
+
+  &:hover {
+    background-color: @toolItemIconHoverBgColor;
+  }
+
+  &:active {
+    background-color: @toolItemIconActiveBgColor;
+  }
+}
+
+.iconDisable {
+  color: @fontDisableColor !important;
+  cursor: default !important;
+
+  &:hover {
+    background-color: @toolBgColor !important;
+  }
+}
+
 // --------------------------------------------------------------------------- 组件样式
 
 .topMenu {
@@ -376,27 +401,6 @@
   }
 }
 
-.icon {
-  padding: 6px 6px;
-  height: 100%;
-  font-size: 16px;
-  color: @iconColor;
-  cursor: pointer;
-
-  &:hover {
-    background-color: @toolItemHoverBgColor;
-  }
-}
-
-.iconDisable {
-  color: @fontDisableColor !important;
-  cursor: default !important;
-
-  &:hover {
-    background-color: @toolBgColor !important;
-  }
-}
-
 .fileResourcePath {
   padding: 2px 0;
   height: 100%;
@@ -421,4 +425,12 @@
   &:hover {
     background-color: @toolItemHoverBgColor;
   }
+}
+
+.bottomTabsIcon {
+  height: @toolHeight - 4px;
+  font-size: 14px;
+  border-radius: 2px;
+  margin: 2px 0;
+  padding: 3px 4px;
 }
