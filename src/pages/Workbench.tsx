@@ -196,18 +196,18 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
               onResize={this.editorResize}
             >
               <div className={cls(styles.flexItemColumn, styles.splitTabsLabel)}>接口配置:</div>
-              <div className={cls(styles.flexItemColumn, styles.splitTabsItem, styles.splitTabsItemActive)}>
+              <div className={cls(styles.flexItemColumn, styles.splitTabsItem, styles.splitTabsItemActive)} onMouseDown={e => e.stopPropagation()}>
                 叶签1<CloseOutlined/>
               </div>
-              <div className={cls(styles.flexItemColumn, styles.splitTabsItem)}>
+              <div className={cls(styles.flexItemColumn, styles.splitTabsItem)} onMouseDown={e => e.stopPropagation()}>
                 叶签2<CloseOutlined/>
               </div>
-              <div className={cls(styles.flexItemColumn, styles.splitTabsItem)}>
+              <div className={cls(styles.flexItemColumn, styles.splitTabsItem)} onMouseDown={e => e.stopPropagation()}>
                 叶签3<CloseOutlined/>
               </div>
               <div className={cls(styles.flexItemColumnWidthFull)}/>
-              <VerticalAlignTopOutlined className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)}/>
-              <MinusOutlined className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)}/>
+              <VerticalAlignTopOutlined className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)} onMouseDown={e => e.stopPropagation()}/>
+              <MinusOutlined className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)} onMouseDown={e => e.stopPropagation()}/>
               <div className={cls(styles.flexItemColumn)} style={{ width: 2 }}/>
             </ReflexSplitter>
             {/*IDE底部面板*/}
