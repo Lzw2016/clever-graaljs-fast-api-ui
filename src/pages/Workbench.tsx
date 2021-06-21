@@ -16,7 +16,6 @@ import Icon, {
   QqOutlined,
   QuestionCircleOutlined,
   UnlockOutlined,
-  VerticalAlignTopOutlined,
   WechatOutlined,
 } from "@ant-design/icons";
 import { ReflexContainer, ReflexElement, ReflexSplitter } from "react-reflex";
@@ -25,7 +24,7 @@ import * as MonacoApi from "monaco-editor/esm/vs/editor/editor.api";
 import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
 import { editorDefOptions, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
-import { JsFile, JsonFile, YmlFile } from "@/utils/IdeaIconUtils";
+import { ChevronUp, JsFile, JsonFile, YmlFile } from "@/utils/IdeaIconUtils";
 import logo from "@/assets/logo.svg";
 import styles from "./Workbench.module.less";
 
@@ -206,7 +205,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                 叶签3<CloseOutlined/>
               </div>
               <div className={cls(styles.flexItemColumnWidthFull)}/>
-              <VerticalAlignTopOutlined className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)} onMouseDown={e => e.stopPropagation()}/>
+              <Icon component={ChevronUp} className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)} onMouseDown={e => e.stopPropagation()}/>
               <MinusOutlined className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)} onMouseDown={e => e.stopPropagation()}/>
               <div className={cls(styles.flexItemColumn)} style={{ width: 2 }}/>
             </ReflexSplitter>
