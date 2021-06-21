@@ -2,12 +2,11 @@ import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
 import { Spin } from "antd";
-import {
+import Icon, {
   ApiOutlined,
   ArrowRightOutlined,
   CloseOutlined,
   ControlOutlined,
-  FileExcelOutlined,
   FolderFilled,
   GithubOutlined,
   HistoryOutlined,
@@ -22,8 +21,9 @@ import { ReflexContainer, ReflexElement, ReflexSplitter } from "react-reflex";
 import "react-reflex/styles.css";
 import * as MonacoApi from "monaco-editor/esm/vs/editor/editor.api";
 import Editor from "@monaco-editor/react";
-import { editorDefOptions, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
 import IconFont from "@/components/IconFont";
+import { editorDefOptions, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
+import { JsFile, JsonFile, YmlFile } from "@/utils/IdeaIconUtils";
 import logo from "@/assets/logo.svg";
 import styles from "./Workbench.module.less";
 
@@ -140,13 +140,19 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                   {/*Monaco编辑器文件叶签*/}
                   <div className={cls(styles.flexItemRow, styles.editorTabs, styles.flexColumn)}>
                     <div className={cls(styles.flexItemColumn, styles.fileTabsItem)}>
-                      <FileExcelOutlined className={styles.fileTabsItemType}/>index01.js<CloseOutlined className={styles.fileTabsItemClose}/>
+                      <Icon component={JsFile} className={styles.fileTabsItemType}/>
+                      index01.js
+                      <CloseOutlined className={styles.fileTabsItemClose}/>
                     </div>
                     <div className={cls(styles.flexItemColumn, styles.fileTabsItem, styles.fileTabsItemActive)}>
-                      <FileExcelOutlined className={styles.fileTabsItemType}/>index02.js<CloseOutlined className={styles.fileTabsItemClose}/>
+                      <Icon component={YmlFile} className={styles.fileTabsItemType}/>
+                      index02.js
+                      <CloseOutlined className={styles.fileTabsItemClose}/>
                     </div>
                     <div className={cls(styles.flexItemColumn, styles.fileTabsItem)}>
-                      <FileExcelOutlined className={styles.fileTabsItemType}/>index03.js<CloseOutlined className={styles.fileTabsItemClose}/>
+                      <Icon component={JsonFile} className={styles.fileTabsItemType}/>
+                      index03.js
+                      <CloseOutlined className={styles.fileTabsItemClose}/>
                     </div>
                     <div className={styles.flexItemColumnWidthFull}/>
                     <div className={cls(styles.flexItemColumn)}/>
