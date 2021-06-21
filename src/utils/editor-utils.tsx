@@ -54,6 +54,8 @@ const editorDefOptions: MonacoApi.editor.IStandaloneEditorConstructionOptions = 
     horizontalScrollbarSize: 8,
     arrowSize: 16,
   },
+  fixedOverflowWidgets: true,
+  // overflowWidgetsDomNode: window.document.body,
 };
 
 const getRules = (themeConfig: { colors: any, tokenColors: Array<{ scope: string | string[], settings: any }> }): Array<MonacoApi.editor.ITokenThemeRule> => {
