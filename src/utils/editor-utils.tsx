@@ -127,7 +127,8 @@ const initMonaco = (monaco: typeof MonacoApi) => {
     ...defCompilerOptions,
     target: monaco.languages.typescript.ScriptTarget.ES2020,
     allowNonTsExtensions: true,
-    noLib: true,
+    noLib: false,
+    // lib: [],
   });
   // TODO 加载扩展lib定义
   // monaco.languages.typescript.javascriptDefaults.addExtraLib(libSource, libUri);
@@ -225,4 +226,4 @@ const initKeyBinding = (editor: MonacoApi.editor.IStandaloneCodeEditor, monaco: 
 // AppContext.initEditorViewState = editorInstance.saveViewState();
 // editorInstance.onDidChangeModelContent(lodash.debounce(AppContext.fileContentChange, 100, { maxWait: 350 }));
 
-export { themeEnum, languageEnum,editorDefOptions, registerTheme, initMonaco, initKeyBinding };
+export { themeEnum, languageEnum, editorDefOptions, registerTheme, initMonaco, initKeyBinding };
