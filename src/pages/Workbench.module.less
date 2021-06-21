@@ -267,8 +267,10 @@
 }
 
 .icon {
-  padding: 6px 6px;
-  height: 100%;
+  height: @toolHeight - 2px;
+  margin: 2px 0;
+  padding: 3px 4px;
+  border-radius: 2px;
   font-size: 16px;
   color: @iconColor;
   cursor: pointer;
@@ -410,21 +412,6 @@
 
 .fileModify {
   color: @fileModifyColor !important;
-}
-
-.apiIcon {
-  margin: 0 0 0 4px;
-  padding-top: 7px;
-  padding-left: 6px;
-  padding-right: 6px;
-  height: 100%;
-  font-size: 14px;
-  color: @fontColor !important;
-  cursor: pointer;
-
-  &:hover {
-    background-color: @toolItemHoverBgColor;
-  }
 }
 
 .bottomTabsIcon {

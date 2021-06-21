@@ -76,11 +76,11 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           </div>
           <div className={cls(styles.flexItemColumnWidthFull)}/>
           {/*<div className={cls(styles.flexItemColumn)} style={{ width: 16 }}/>*/}
-          <IconFont type="icon-gitee" className={cls(styles.flexItemColumn, styles.icon)} style={{ padding: "6px 4px" }}/>
-          <GithubOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ padding: "6px 4px" }}/>
-          <QqOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ padding: "6px 4px" }}/>
-          <WechatOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ padding: "6px 4px" }}/>
-          <QuestionCircleOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ padding: "6px 4px" }}/>
+          <IconFont type="icon-gitee" className={cls(styles.flexItemColumn, styles.icon)}/>
+          <GithubOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <QqOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <WechatOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <QuestionCircleOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
           <div className={cls(styles.flexItemColumn)} style={{ marginRight: 16 }}/>
         </div>
         {/*顶部工具栏*/}
@@ -93,18 +93,18 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           <div className={cls(styles.flexItemColumn, styles.fileResourcePath)}>
             <ArrowRightOutlined style={{ fontSize: 10, padding: "0 0 0 8px" }}/>
           </div>
-          <ApiOutlined className={cls(styles.flexItemColumn, styles.apiIcon)}/>
+          <ApiOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
           <div className={cls(styles.flexItemColumn, styles.fileResourcePath)}>
             [GET] /api/aaa/bbb/ccc/ddd
           </div>
           <div className={cls(styles.flexItemColumnWidthFull)}/>
-          <IconFont type="icon-run" className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)} style={{ color: "#499C54" }}/>
+          <IconFont type="icon-run" className={cls(styles.flexItemColumn, styles.icon)} style={{ color: "#499C54" }}/>
           <IconFont type="icon-save" className={cls(styles.flexItemColumn, styles.icon)}/>
           <LockOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
-          <UnlockOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <UnlockOutlined className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
           <IconFont type="icon-search" className={cls(styles.flexItemColumn, styles.icon)}/>
           <HistoryOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
-          <IconFont type="icon-keyboard" className={cls(styles.flexItemColumn, styles.icon)} style={{ fontSize: 22, padding: "2px 6px" }}/>
+          <IconFont type="icon-keyboard" className={cls(styles.flexItemColumn, styles.icon)} style={{ fontSize: 20, padding: "1px 2px" }}/>
           <div className={cls(styles.flexItemColumn)} style={{ marginRight: 16 }}/>
         </div>
         {/*外层中间区域*/}
