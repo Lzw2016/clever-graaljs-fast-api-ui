@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 import legacy from "@vitejs/plugin-legacy";
 import vitePluginImp from "vite-plugin-imp";
 import reactRefresh from "@vitejs/plugin-react-refresh";
-import { minifyHtml } from "vite-plugin-html";
+// import { minifyHtml } from "vite-plugin-html";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -22,7 +22,7 @@ export default defineConfig({
       ],
     }),
     reactRefresh(),
-    minifyHtml(),
+    // minifyHtml(),
   ],
   publicDir: "public",
   resolve: {

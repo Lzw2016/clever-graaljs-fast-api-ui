@@ -59,6 +59,15 @@
   }
 }
 
+.leftResizerStyleHide {
+  &:global(.reflex-splitter), &:hover {
+    width: 0 !important;
+    border: none !important;
+    cursor: default !important;
+  }
+}
+
+
 .rightResizerStyle {
   &:global(.reflex-splitter), &:hover {
     width: 5px !important;

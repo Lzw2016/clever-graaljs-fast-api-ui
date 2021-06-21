@@ -57,10 +57,16 @@ const Folder = () => (
 );
 
 const ChevronUp = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
     <path fillRule="evenodd" clipRule="evenodd" d="M8 6.04042L3.02022 11.0202L2.31311 10.3131L7.64645 4.97976L8.35355 4.97976L13.6869 10.3131L12.9798 11.0202L8 6.04042Z"
           fill="#C5C5C5"/>
   </svg>
 );
 
-export { JsFile, JsonFile, YmlFile, Folder, ChevronUp }
+const ChevronDown = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+    <path fillRule="evenodd" clipRule="evenodd" d="M7.97602 10.0719L12.3333 5.7146L12.952 6.33332L8.28538 11L7.66666 11L3 6.33332L3.61872 5.7146L7.97602 10.0719Z" fill="#C5C5C5"/>
+  </svg>
+);
+
+export { JsFile, JsonFile, YmlFile, Folder, ChevronUp, ChevronDown }

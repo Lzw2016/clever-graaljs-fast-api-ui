@@ -15,6 +15,7 @@ import Icon, {
   MinusOutlined,
   QqOutlined,
   QuestionCircleOutlined,
+  SettingOutlined,
   UnlockOutlined,
   WechatOutlined,
 } from "@ant-design/icons";
@@ -24,18 +25,49 @@ import * as MonacoApi from "monaco-editor/esm/vs/editor/editor.api";
 import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
 import { editorDefOptions, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
-import { ChevronUp, JsFile, JsonFile, YmlFile } from "@/utils/IdeaIconUtils";
+import { ChevronDown, ChevronUp, JsFile, JsonFile, YmlFile } from "@/utils/IdeaIconUtils";
+import { TypeEnum, variableTypeOf } from "@/utils/typeof";
 import logo from "@/assets/logo.svg";
 import styles from "./Workbench.module.less";
+
+/** 布局状态 */
+interface LayoutSize {
+  /** 左侧容器宽度 */
+  leftSize: number;
+  /** 是否显示左侧容器 */
+  showLeft: boolean;
+  /** 右侧容器宽度 */
+  rightSize: number;
+  /** 是否显示右侧容器 */
+  showRight: boolean;
+  /** 底部侧容器宽度 */
+  bottomSize: number;
+  /** 是否显示底部侧容器 */
+  showBottom: boolean;
+}
+
+enum LayoutPanelEnum {
+  Left,
+  Right,
+  Bottom,
+}
 
 interface WorkbenchProps {
 }
 
-interface WorkbenchState {
-
+interface WorkbenchState extends LayoutSize {
 }
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
+  static defaultState: WorkbenchState = {
+    leftSize: 256,
+    showLeft: true,
+    rightSize: 256,
+    showRight: true,
+    bottomSize: 200,
+    showBottom: true,
+  };
+
   /**
    * 编辑器实例
    */
@@ -54,17 +86,33 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
 
   constructor(props: Readonly<WorkbenchProps>) {
     super(props);
+    this.state = { ...Workbench.defaultState };
   }
 
+  // 组件挂载后
   public componentDidMount() {
     window.addEventListener("resize", this.editorResize);
   }
 
+  // 组件将要被卸载
   public componentWillUnmount() {
     window.removeEventListener("resize", this.editorResize);
   }
 
+  public setLayoutSize(layoutSize: Partial<LayoutSize>) {
+    if (variableTypeOf(layoutSize.leftSize) === TypeEnum.number) this.setState({ leftSize: layoutSize.leftSize! });
+    if (variableTypeOf(layoutSize.rightSize) === TypeEnum.number) this.setState({ rightSize: layoutSize.rightSize! });
+    if (variableTypeOf(layoutSize.bottomSize) === TypeEnum.number) this.setState({ bottomSize: layoutSize.bottomSize! });
+  }
+
+  public toggleLayoutPanel(layoutPanel: LayoutPanelEnum) {
+    if (layoutPanel === LayoutPanelEnum.Left) this.setState({ showLeft: !this.state.showLeft });
+    if (layoutPanel === LayoutPanelEnum.Right) this.setState({ showRight: !this.state.showRight });
+    if (layoutPanel === LayoutPanelEnum.Bottom) this.setState({ showBottom: !this.state.showBottom });
+  }
+
   private getLayout() {
+    const { leftSize, showLeft, rightSize, showRight, bottomSize, showBottom } = this.state;
     return (
       <div className={styles.flexRow}>
         {/*顶部菜单栏*/}
@@ -90,9 +138,9 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             <span className={styles.fileModify}>JdbcDatabaseTest.js</span>
           </div>
           <div className={cls(styles.flexItemColumn, styles.fileResourcePath)}>
-            <ArrowRightOutlined style={{ fontSize: 10, padding: "0 0 0 8px" }}/>
+            <ArrowRightOutlined style={{ fontSize: 10, padding: "0 8px 0 8px" }}/>
           </div>
-          <ApiOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <SettingOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ fontSize: 14, padding: "4px 4px" }}/>
           <div className={cls(styles.flexItemColumn, styles.fileResourcePath)}>
             [GET] /api/aaa/bbb/ccc/ddd
           </div>
@@ -110,7 +158,10 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         <div className={cls(styles.flexItemRowHeightFull, styles.flexColumn)}>
           {/*左边多叶签栏*/}
           <div className={cls(styles.flexItemColumn, styles.leftTabs, styles.flexRow)} style={{ alignItems: "center" }}>
-            <div className={cls(styles.flexItemRow, styles.verticalTabsItem, styles.verticalTabsItemActive)}>
+            <div
+              className={cls(styles.flexItemRow, styles.verticalTabsItem, styles.verticalTabsItemActive)}
+              onClick={() => this.toggleLayoutPanel(LayoutPanelEnum.Left)}
+            >
               接口文件<FolderFilled/>
             </div>
             <div className={cls(styles.flexItemRow, styles.verticalTabsItem)}>
@@ -127,12 +178,21 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             <ReflexElement {...this.splitPaneResize} minSize={128}>
               <ReflexContainer orientation="vertical" maxRecDepth={1}>
                 {/*IDE左部面板 - 文件管理器等*/}
-                <ReflexElement {...this.splitPaneResize} size={256} minSize={64} className={styles.leftPane}>
-
+                <ReflexElement
+                  {...this.splitPaneResize}
+                  size={showLeft ? leftSize : 0}
+                  minSize={showLeft ? 64 : 0}
+                  maxSize={512}
+                  className={styles.leftPane}
+                  onStopResize={e => {
+                    this.splitPaneResize.onStopResize(e);
+                    this.setLayoutSize({ leftSize: (e.domElement as any)?.offsetWidth });
+                  }}
+                >
                 </ReflexElement>
                 <ReflexSplitter
                   propagate={true}
-                  className={styles.leftResizerStyle}
+                  className={showLeft ? styles.leftResizerStyle : styles.leftResizerStyleHide}
                   {...this.splitPaneResize}
                   onResize={this.editorResize}
                 />
@@ -183,7 +243,17 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                   onResize={this.editorResize}
                 />
                 {/*IDE右部面板 - 数据库管理器等*/}
-                <ReflexElement {...this.splitPaneResize} size={256} minSize={64} className={styles.rightPane}>
+                <ReflexElement
+                  {...this.splitPaneResize}
+                  size={showRight ? rightSize : 0}
+                  minSize={64}
+                  maxSize={512}
+                  className={styles.rightPane}
+                  onStopResize={e => {
+                    this.splitPaneResize.onStopResize(e);
+                    this.setLayoutSize({ rightSize: (e.domElement as any)?.offsetWidth });
+                  }}
+                >
 
                 </ReflexElement>
               </ReflexContainer>
@@ -206,11 +276,21 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
               </div>
               <div className={cls(styles.flexItemColumnWidthFull)}/>
               <Icon component={ChevronUp} className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)} onMouseDown={e => e.stopPropagation()}/>
+              <Icon component={ChevronDown} className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)} onMouseDown={e => e.stopPropagation()}/>
               <MinusOutlined className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)} onMouseDown={e => e.stopPropagation()}/>
               <div className={cls(styles.flexItemColumn)} style={{ width: 2 }}/>
             </ReflexSplitter>
             {/*IDE底部面板*/}
-            <ReflexElement {...this.splitPaneResize} size={200} minSize={64} className={styles.bottomPane}>
+            <ReflexElement
+              {...this.splitPaneResize}
+              size={showBottom ? bottomSize : 0}
+              minSize={64}
+              className={styles.bottomPane}
+              onStopResize={e => {
+                this.splitPaneResize.onStopResize(e);
+                this.setLayoutSize({ bottomSize: (e.domElement as any)?.offsetHeight });
+              }}
+            >
 
             </ReflexElement>
           </ReflexContainer>
@@ -273,6 +353,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   public render() {
+    console.log("### render");
     return this.getLayout();
   }
 }
