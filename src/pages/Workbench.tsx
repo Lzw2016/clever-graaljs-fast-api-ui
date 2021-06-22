@@ -31,12 +31,11 @@ import { TypeEnum, variableTypeOf } from "@/utils/typeof";
 import logo from "@/assets/logo.svg";
 import styles from "./Workbench.module.less";
 
-enum LayoutPanelEnum {
-  Left,
-  Right,
-  Bottom,
-}
-
+// enum LayoutPanelEnum {
+//   Left,
+//   Right,
+//   Bottom,
+// }
 
 enum LeftPanelEnum {
   /** 接口文件 */
@@ -108,7 +107,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   /**
    * 编辑器大小自适应
    */
-  private editorResize = lodash.debounce(() => this.editor?.layout(), 60, { maxWait: 150 });
+  private editorResize = lodash.debounce(() => this.editor?.layout(), 60, { maxWait: 180 });
   /**
    * 分隔面板大小自适应
    */
@@ -246,14 +245,14 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             <div className={styles.flexItemRowHeightFull}/>
           </div>
           {/*内层中间区域*/}
-          <ReflexContainer orientation="horizontal" maxRecDepth={1}>
+          <ReflexContainer orientation="horizontal" maxRecDepth={1} className={cls(styles.flexItemColumnWidthFull, styles.flexRow)}>
             {/*IDE左、中、右部面板*/}
-            <ReflexElement {...this.splitPaneResize} direction={1} minSize={128}>
-              <ReflexContainer orientation="vertical" maxRecDepth={1}>
+            <ReflexElement {...this.splitPaneResize} direction={[-1, 1]} minSize={128} className={cls(styles.flexItemRowHeightFull)}>
+              <ReflexContainer orientation="vertical" maxRecDepth={1} className={cls(styles.flexColumn)}>
                 {/*IDE左部面板 - 文件管理器等*/}
                 <ReflexElement
                   {...this.splitPaneResize}
-                  className={cls(styles.leftPane, { [styles.leftPaneHide]: noValue(leftPanel) })}
+                  className={cls(styles.flexItemColumn, styles.leftPane, { [styles.leftPaneHide]: noValue(leftPanel) })}
                   direction={1}
                   size={hasValue(leftPanel) ? leftSize : 0}
                   minSize={hasValue(leftPanel) ? 64 : 0}
@@ -263,11 +262,11 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                 </ReflexElement>
                 <ReflexSplitter
                   propagate={true}
-                  className={hasValue(leftPanel) ? styles.leftResizerStyle : styles.leftResizerHideStyle}
+                  className={cls(styles.flexItemColumn, hasValue(leftPanel) ? styles.leftResizerStyle : styles.leftResizerHideStyle)}
                   {...this.splitPaneResize}
                 />
                 {/*IDE中部面板 - 编辑器*/}
-                <ReflexElement {...this.splitPaneResize} className={styles.editorPane} direction={[-1, 1]} minSize={256}>
+                <ReflexElement {...this.splitPaneResize} className={cls(styles.editorPane, styles.flexItemColumnWidthFull, styles.flexRow)} direction={[-1, 1]} minSize={256}>
                   {/*Monaco编辑器文件叶签*/}
                   <div className={cls(styles.flexItemRow, styles.editorTabs, styles.flexColumn)}>
                     <div className={cls(styles.flexItemColumn, styles.fileTabsItem)}>
@@ -292,8 +291,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                   <Editor
                     wrapperClassName={cls(styles.flexItemRowHeightFull, styles.editorWrapper)}
                     className={styles.editor}
-                    width={"100%"}
-                    height={"100%"}
+                    // width={"100%"}
+                    // height={"100%"}
                     defaultLanguage={languageEnum.javascript}
                     defaultValue={""}
                     theme={themeEnum.IdeaDracula}
@@ -308,26 +307,25 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                 </ReflexElement>
                 <ReflexSplitter
                   propagate={true}
-                  className={hasValue(rightPanel) ? styles.rightResizerStyle : styles.rightResizerHideStyle}
+                  className={cls(styles.flexItemColumn, hasValue(rightPanel) ? styles.rightResizerStyle : styles.rightResizerHideStyle)}
                   {...this.splitPaneResize}
                 />
                 {/*IDE右部面板 - 数据库管理器等*/}
                 <ReflexElement
                   {...this.splitPaneResize}
-                  className={cls(styles.rightPane, { [styles.rightPaneHide]: noValue(rightPanel) })}
+                  className={cls(styles.flexItemColumn, styles.rightPane, { [styles.rightPaneHide]: noValue(rightPanel) })}
                   direction={-1}
                   size={hasValue(rightPanel) ? rightSize : 0}
                   minSize={hasValue(rightPanel) ? 64 : 0}
                   maxSize={512}
                   onStopResize={e => this.setLayoutSize({ rightSize: (e.domElement as any)?.offsetWidth })}
                 >
-
                 </ReflexElement>
               </ReflexContainer>
             </ReflexElement>
             <ReflexSplitter
               propagate={true}
-              className={cls(hasValue(bottomPanel) ? styles.splitTabsResizerStyle : styles.splitTabsResizerHideStyle, styles.flexColumn)}
+              className={cls(styles.flexItemRow, hasValue(bottomPanel) ? styles.splitTabsResizerStyle : styles.splitTabsResizerHideStyle, styles.flexColumn)}
               {...this.splitPaneResize}
             >
               <div className={cls(styles.flexItemColumn, styles.splitTabsLabel)}>接口配置:</div>
@@ -348,8 +346,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             </ReflexSplitter>
             {/*IDE底部面板*/}
             <ReflexElement
+              className={cls(styles.flexItemRow, styles.bottomPane, { [styles.bottomPaneHide]: noValue(bottomPanel) })}
               {...this.splitPaneResize}
-              className={cls(styles.bottomPane, { [styles.bottomPaneHide]: noValue(bottomPanel) })}
               direction={-1}
               size={hasValue(bottomPanel) ? bottomSize : 0}
               minSize={hasValue(bottomPanel) ? 64 : 0}

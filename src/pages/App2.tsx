@@ -1,6 +1,12 @@
 import React from "react";
 import { ReflexContainer, ReflexElement, ReflexSplitter } from "react-reflex";
 import "react-reflex/styles.css";
+import Editor from "@monaco-editor/react";
+import { editorDefOptions, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
+import { Spin } from "antd";
+import { Loading3QuartersOutlined } from "@ant-design/icons";
+import cls from "classnames";
+import styles from "@/pages/Workbench.module.less";
 
 interface ReflexAdvancedDemoProps {
 }
@@ -30,7 +36,22 @@ class ReflexAdvancedDemo extends React.Component<ReflexAdvancedDemoProps, Reflex
               </ReflexElement>
               <ReflexSplitter propagate={false}/>
               <ReflexElement style={{ backgroundColor: "#444" }}>
-                222
+                <Editor
+                  wrapperClassName={cls(styles.flexItemRowHeightFull, styles.editorWrapper)}
+                  className={styles.editor}
+                  width={"100%"}
+                  height={"100%"}
+                  defaultLanguage={languageEnum.javascript}
+                  defaultValue={""}
+                  theme={themeEnum.IdeaDracula}
+                  options={editorDefOptions}
+                  loading={<Spin delay={200} spinning={true} indicator={<Loading3QuartersOutlined style={{ fontSize: 32 }} spin/>}/>}
+                  onMount={(editor, monaco) => {
+                    // this.editor = editor;
+                    editor.layout();
+                    initKeyBinding(editor, monaco);
+                  }}
+                />
               </ReflexElement>
               <ReflexSplitter propagate={false}/>
               <ReflexElement style={{ backgroundColor: "#555" }}>
@@ -50,7 +71,6 @@ class ReflexAdvancedDemo extends React.Component<ReflexAdvancedDemoProps, Reflex
           >
           </ReflexElement>
         </ReflexContainer>
-
         <div style={{ height: 64, flexShrink: 0, flexGrow: 0, display: "flex", flexDirection: "row" }}>
 
         </div>
