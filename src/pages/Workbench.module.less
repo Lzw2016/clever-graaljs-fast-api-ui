@@ -67,7 +67,6 @@
   }
 }
 
-
 .rightResizerStyle {
   &:global(.reflex-splitter), &:hover {
     width: 5px !important;
@@ -79,6 +78,14 @@
     border-right: 4px solid @paneBgColor !important;
     cursor: ew-resize !important;
     //z-index: 999 !important;
+  }
+}
+
+.rightResizerHideStyle {
+  &:global(.reflex-splitter), &:hover {
+    width: 0 !important;
+    border: none !important;
+    cursor: default !important;
   }
 }
 
@@ -169,6 +176,26 @@
     border-right: none !important;
     cursor: ns-resize !important;
     //z-index: 999 !important;
+  }
+}
+
+.splitTabsResizerHideStyle {
+  //display: none;
+  //visibility: hidden !important;
+
+  &:global(.reflex-splitter), &:hover {
+    //height: 0 !important;
+    //border: none !important;
+    //cursor: default !important;
+
+    height: @toolHeight + 2px !important;
+    box-sizing: border-box !important;
+    background: @splitBgColor !important;
+    border-top: 1px solid @borderColor !important;
+    border-bottom: 1px solid @borderColor !important;
+    border-left: none !important;
+    border-right: none !important;
+    cursor: ns-resize !important;
   }
 }
 
@@ -346,9 +373,17 @@
   background-color: @paneBgColor;
 }
 
+.rightPaneHide {
+  background-color: @editorBgColor !important;
+}
+
 .bottomPane {
   box-sizing: border-box;
   background-color: @paneBgColor;
+}
+
+.bottomPaneHide {
+  background-color: @editorBgColor !important;
 }
 
 .editorPane {
