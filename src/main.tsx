@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
 import { ConfigProvider } from "antd";
 import antdZhCN from "antd/lib/locale/zh_CN";
-import "antd/dist/antd.compact.min.css";
+// import "antd/dist/antd.compact.min.css";
 import { ConfigProviderProps } from "antd/es/config-provider";
 import routes from "@/routes";
 import { loader } from "@monaco-editor/react";

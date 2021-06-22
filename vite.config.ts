@@ -15,10 +15,10 @@ export default defineConfig({
     }),
     vitePluginImp({
       libList: [
-        {
-          libName: "antd",
-          style: name => `antd/es/${name}/style/index.css`,
-        },
+        // {
+        //   libName: "antd",
+        //   style: name => `antd/es/${name}/style/index.css`,
+        // },
       ],
     }),
     reactRefresh(),
@@ -35,7 +35,10 @@ export default defineConfig({
     preprocessorOptions: {
       less: {
         javascriptEnabled: true,
-        modifyVars: {}
+        modifyVars: {
+          // "white": "#3C3F41",
+          // "primary-color": "#3C3F41",
+        },
       }
     },
     modules: {

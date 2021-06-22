@@ -24,6 +24,7 @@ import "react-reflex/styles.css";
 import * as MonacoApi from "monaco-editor/esm/vs/editor/editor.api";
 import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
+import { FileResourceTree } from "@/components/ide";
 import { editorDefOptions, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
 import { ChevronDown, ChevronUp, JsFile, JsonFile, YmlFile } from "@/utils/IdeaIconUtils";
 import { hasValue, noValue } from "@/utils/utils";
@@ -68,6 +69,31 @@ enum BottomPanelEnum {
   SysEvent,
 }
 
+/** 文件资源 */
+interface FileResource {
+// TODO 文件资源
+}
+
+/** HTTP接口 */
+interface HttpApi {
+// TODO HTTP接口
+}
+
+interface EditorTabItem {
+  /** 顺序(由小到大) */
+  sort: number;
+  /** 文件 */
+  fileResource: FileResource,
+  /** 是否需要保存 */
+  needSave: boolean;
+  /** Http接口 */
+  httpApi?: HttpApi,
+  /** TODO 请求参数(列表) */
+  httpApiRequestParamList?: Array<any>;
+  /** TODO API文档 */
+  httpApiDoc?: any;
+}
+
 /** 布局状态 */
 interface LayoutSize {
   /** 左侧容器宽度 */
@@ -82,6 +108,18 @@ interface LayoutSize {
   bottomSize: number;
   /** 底部容器显示的叶签 */
   bottomPanel?: BottomPanelEnum;
+}
+
+/** 编辑器打开的文件 */
+interface EditorTabsState {
+  /** 当前编辑的文件ID */
+  currentItemId: string;
+  /** 当前打开的文件列表 */
+  tabItems: Map<string, EditorTabItem>;
+  /** 编辑器文件状态 */
+  editorStates: { [fileResourceId: string]: MonacoApi.editor.IEditorViewState };
+  /**  */
+  /**  */
 }
 
 interface WorkbenchProps {
@@ -261,6 +299,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                   maxSize={512}
                   onStopResize={e => this.setLayoutSize({ leftSize: (e.domElement as any)?.offsetWidth })}
                 >
+                  <FileResourceTree/>
                 </ReflexElement>
                 <ReflexSplitter
                   propagate={true}
