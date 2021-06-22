@@ -11,7 +11,7 @@ import { ConfigProviderProps } from "antd/es/config-provider";
 import routes from "@/routes";
 import { loader } from "@monaco-editor/react";
 import { initMonaco, registerTheme } from "@/utils/editor-utils";
-import "@/assets/global.css";
+import "@/assets/global.less";
 
 dayjs.locale("zh-cn");
 loader.config({

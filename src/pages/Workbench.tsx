@@ -19,7 +19,7 @@ import Icon, {
   UnlockOutlined,
   WechatOutlined,
 } from "@ant-design/icons";
-import { ReflexContainer, ReflexElement, ReflexSplitter } from "react-reflex";
+import { ReflexContainer, ReflexElement, ReflexElementProps, ReflexSplitter } from "react-reflex";
 import "react-reflex/styles.css";
 import * as MonacoApi from "monaco-editor/esm/vs/editor/editor.api";
 import Editor from "@monaco-editor/react";
@@ -79,9 +79,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   /**
    * 分隔面板大小自适应
    */
-  private splitPaneResize = {
-    onResize: (e: any) => e?.domElement?.classList?.add("resizing"),
-    onStopResize: (e: any) => e?.domElement?.classList?.remove("resizing"),
+  private splitPaneResize: ReflexElementProps = {
+    onResize: e => this.editorResize(),
   };
 
   constructor(props: Readonly<WorkbenchProps>) {
@@ -99,12 +98,14 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     window.removeEventListener("resize", this.editorResize);
   }
 
+  // 设置布局区域大小
   public setLayoutSize(layoutSize: Partial<LayoutSize>) {
     if (variableTypeOf(layoutSize.leftSize) === TypeEnum.number) this.setState({ leftSize: layoutSize.leftSize! });
     if (variableTypeOf(layoutSize.rightSize) === TypeEnum.number) this.setState({ rightSize: layoutSize.rightSize! });
     if (variableTypeOf(layoutSize.bottomSize) === TypeEnum.number) this.setState({ bottomSize: layoutSize.bottomSize! });
   }
 
+  // 切换布局区域隐藏/显示
   public toggleLayoutPanel(layoutPanel: LayoutPanelEnum) {
     if (layoutPanel === LayoutPanelEnum.Left) this.setState({ showLeft: !this.state.showLeft });
     if (layoutPanel === LayoutPanelEnum.Right) this.setState({ showRight: !this.state.showRight });
@@ -159,12 +160,15 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           {/*左边多叶签栏*/}
           <div className={cls(styles.flexItemColumn, styles.leftTabs, styles.flexRow)} style={{ alignItems: "center" }}>
             <div
-              className={cls(styles.flexItemRow, styles.verticalTabsItem, styles.verticalTabsItemActive)}
+              className={cls(styles.flexItemRow, styles.verticalTabsItem)}
               onClick={() => this.toggleLayoutPanel(LayoutPanelEnum.Left)}
             >
               接口文件<FolderFilled/>
             </div>
-            <div className={cls(styles.flexItemRow, styles.verticalTabsItem)}>
+            <div
+              className={cls(styles.flexItemRow, styles.verticalTabsItem, styles.verticalTabsItemActive)}
+              onClick={() => this.toggleLayoutPanel(LayoutPanelEnum.Left)}
+            >
               自定义扩展<FolderFilled/>
             </div>
             <div className={cls(styles.flexItemRow, styles.verticalTabsItem)}>
@@ -180,21 +184,17 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                 {/*IDE左部面板 - 文件管理器等*/}
                 <ReflexElement
                   {...this.splitPaneResize}
-                  size={showLeft ? leftSize : 0}
+                  className={cls(styles.leftPane, { [styles.leftPaneHide]: !showLeft })}
+                  size={showLeft ? leftSize : -1}
                   minSize={showLeft ? 64 : 0}
                   maxSize={512}
-                  className={styles.leftPane}
-                  onStopResize={e => {
-                    this.splitPaneResize.onStopResize(e);
-                    this.setLayoutSize({ leftSize: (e.domElement as any)?.offsetWidth });
-                  }}
+                  onStopResize={e => this.setLayoutSize({ leftSize: (e.domElement as any)?.offsetWidth })}
                 >
                 </ReflexElement>
                 <ReflexSplitter
                   propagate={true}
-                  className={showLeft ? styles.leftResizerStyle : styles.leftResizerStyleHide}
+                  className={showLeft ? styles.leftResizerStyle : styles.leftResizerHideStyle}
                   {...this.splitPaneResize}
-                  onResize={this.editorResize}
                 />
                 {/*IDE中部面板 - 编辑器*/}
                 <ReflexElement {...this.splitPaneResize} minSize={256} className={styles.editorPane}>
@@ -240,7 +240,6 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                   propagate={true}
                   className={styles.rightResizerStyle}
                   {...this.splitPaneResize}
-                  onResize={this.editorResize}
                 />
                 {/*IDE右部面板 - 数据库管理器等*/}
                 <ReflexElement
@@ -249,10 +248,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                   minSize={64}
                   maxSize={512}
                   className={styles.rightPane}
-                  onStopResize={e => {
-                    this.splitPaneResize.onStopResize(e);
-                    this.setLayoutSize({ rightSize: (e.domElement as any)?.offsetWidth });
-                  }}
+                  onStopResize={e => this.setLayoutSize({ rightSize: (e.domElement as any)?.offsetWidth })}
                 >
 
                 </ReflexElement>
@@ -262,7 +258,6 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
               propagate={true}
               className={cls(styles.splitTabsResizerStyle, styles.flexColumn)}
               {...this.splitPaneResize}
-              onResize={this.editorResize}
             >
               <div className={cls(styles.flexItemColumn, styles.splitTabsLabel)}>接口配置:</div>
               <div className={cls(styles.flexItemColumn, styles.splitTabsItem, styles.splitTabsItemActive)} onMouseDown={e => e.stopPropagation()}>
@@ -286,10 +281,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
               size={showBottom ? bottomSize : 0}
               minSize={64}
               className={styles.bottomPane}
-              onStopResize={e => {
-                this.splitPaneResize.onStopResize(e);
-                this.setLayoutSize({ bottomSize: (e.domElement as any)?.offsetHeight });
-              }}
+              onStopResize={e => this.setLayoutSize({ bottomSize: (e.domElement as any)?.offsetHeight })}
             >
 
             </ReflexElement>
@@ -353,7 +345,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   public render() {
-    console.log("### render");
+    console.log("### render", this.state);
     return this.getLayout();
   }
 }
