@@ -69,6 +69,28 @@ class ReflexAdvancedDemo extends React.Component<ReflexAdvancedDemoProps, Reflex
             direction={-1}
             onStopResize={e => this.setState({ size: (e.domElement as any)?.offsetHeight })}
           >
+            <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "row" }}>
+              <div style={{ flexGrow: 1, flexShrink: 1 }}>
+                AAA
+              </div>
+
+              <div
+                style={{ backgroundColor: "red", flexGrow: 0, flexShrink: 0, height: "100%", width: 8 }}
+                onDrag={e => {
+                  console.log(e)
+                }}
+              />
+
+              <div style={{ flexGrow: 1, flexShrink: 1 }}>
+                BBB
+              </div>
+
+              <div style={{ backgroundColor: "red", flexGrow: 0, flexShrink: 0, height: "100%", width: 8 }}/>
+
+              <div style={{ flexGrow: 1, flexShrink: 1 }}>
+                CCC
+              </div>
+            </div>
           </ReflexElement>
         </ReflexContainer>
         <div style={{ height: 64, flexShrink: 0, flexGrow: 0, display: "flex", flexDirection: "row" }}>

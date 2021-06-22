@@ -112,7 +112,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
    * 分隔面板大小自适应
    */
   private splitPaneResize: ReflexElementProps = {
-    onResize: e => this.editorResize(),
+    // onResize: e => this.editorResize(),
   };
 
   constructor(props: Readonly<WorkbenchProps>) {

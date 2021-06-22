@@ -44,7 +44,7 @@ const languageEnum = {
  */
 const editorDefOptions: MonacoApi.editor.IStandaloneEditorConstructionOptions = {
   fontSize: 14,
-  automaticLayout: false,
+  automaticLayout: true,
   contextmenu: true,
   minimap: { enabled: false },
   scrollbar: {
