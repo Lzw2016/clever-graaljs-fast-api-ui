@@ -107,7 +107,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   /**
    * 编辑器大小自适应
    */
-  private editorResize = lodash.debounce(() => this.editor?.layout(), 60, { maxWait: 180 });
+  private editorResize = lodash.debounce(() => this.editor?.layout(), 500, { maxWait: 3000 });
   /**
    * 分隔面板大小自适应
    */
@@ -162,7 +162,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   // 切换底部布局区域隐藏/显示
-  public toggleBottomPanel(panel: BottomPanelEnum) {
+  public toggleBottomPanel(panel?: BottomPanelEnum) {
     const { bottomPanel } = this.state;
     if (panel === BottomPanelEnum.Interface) {
       this.setState({ bottomPanel: bottomPanel === BottomPanelEnum.Interface ? undefined : BottomPanelEnum.Interface });
@@ -174,6 +174,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
       this.setState({ bottomPanel: bottomPanel === BottomPanelEnum.GlobalConfig ? undefined : BottomPanelEnum.GlobalConfig });
     } else if (panel === BottomPanelEnum.SysEvent) {
       this.setState({ bottomPanel: bottomPanel === BottomPanelEnum.SysEvent ? undefined : BottomPanelEnum.SysEvent });
+    } else {
+      this.setState({ bottomPanel: undefined });
     }
   }
 
@@ -339,9 +341,29 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                 叶签3<CloseOutlined/>
               </div>
               <div className={cls(styles.flexItemColumnWidthFull)}/>
-              <Icon component={ChevronUp} className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)} onMouseDown={e => e.stopPropagation()}/>
-              <Icon component={ChevronDown} className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)} onMouseDown={e => e.stopPropagation()}/>
-              <MinusOutlined className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)} onMouseDown={e => e.stopPropagation()}/>
+              {
+                bottomSize < 666 &&
+                <Icon
+                  component={ChevronUp}
+                  className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)}
+                  onMouseDown={e => e.stopPropagation()}
+                  onClick={() => this.setLayoutSize({ bottomSize: 666 })}
+                />
+              }
+              {
+                bottomSize >= 666 &&
+                <Icon
+                  component={ChevronDown}
+                  className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)}
+                  onMouseDown={e => e.stopPropagation()}
+                  onClick={() => this.setLayoutSize({ bottomSize: 64 })}
+                />
+              }
+              <MinusOutlined
+                className={cls(styles.flexItemColumn, styles.icon, styles.bottomTabsIcon)}
+                onMouseDown={e => e.stopPropagation()}
+                onClick={() => this.toggleBottomPanel()}
+              />
               <div className={cls(styles.flexItemColumn)} style={{ width: 2 }}/>
             </ReflexSplitter>
             {/*IDE底部面板*/}
