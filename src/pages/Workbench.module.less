@@ -60,11 +60,7 @@
 }
 
 .leftResizerHideStyle {
-  &:global(.reflex-splitter), &:hover {
-    width: 0 !important;
-    border: none !important;
-    cursor: default !important;
-  }
+  display: none !important;
 }
 
 .rightResizerStyle {
@@ -82,11 +78,7 @@
 }
 
 .rightResizerHideStyle {
-  &:global(.reflex-splitter), &:hover {
-    width: 0 !important;
-    border: none !important;
-    cursor: default !important;
-  }
+  display: none !important;
 }
 
 .verticalTabsItem {
@@ -180,23 +172,7 @@
 }
 
 .splitTabsResizerHideStyle {
-  //display: none;
-  //visibility: hidden !important;
-
-  &:global(.reflex-splitter), &:hover {
-    //height: 0 !important;
-    //border: none !important;
-    //cursor: default !important;
-
-    height: @toolHeight + 2px !important;
-    box-sizing: border-box !important;
-    background: @splitBgColor !important;
-    border-top: 1px solid @borderColor !important;
-    border-bottom: 1px solid @borderColor !important;
-    border-left: none !important;
-    border-right: none !important;
-    cursor: ns-resize !important;
-  }
+  display: none !important;
 }
 
 .splitTabsLabel {
