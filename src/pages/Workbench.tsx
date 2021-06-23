@@ -68,16 +68,6 @@ enum BottomPanelEnum {
   SysEvent,
 }
 
-/** 文件资源 */
-interface FileResource {
-// TODO 文件资源
-}
-
-/** HTTP接口 */
-interface HttpApi {
-// TODO HTTP接口
-}
-
 interface EditorTabItem {
   /** 顺序(由小到大) */
   sort: number;
