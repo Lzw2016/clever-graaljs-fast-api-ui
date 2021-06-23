@@ -1,7 +1,6 @@
 import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
-import { Spin } from "antd";
 import Icon, {
   ApiOutlined,
   ArrowRightOutlined,
@@ -10,7 +9,6 @@ import Icon, {
   FolderFilled,
   GithubOutlined,
   HistoryOutlined,
-  Loading3QuartersOutlined,
   LockOutlined,
   MinusOutlined,
   QqOutlined,
@@ -19,8 +17,9 @@ import Icon, {
   UnlockOutlined,
   WechatOutlined,
 } from "@ant-design/icons";
-import { ReflexContainer, ReflexElement, ReflexElementProps, ReflexSplitter } from "react-reflex";
+import { Spinner } from "@blueprintjs/core";
 import "react-reflex/styles.css";
+import { ReflexContainer, ReflexElement, ReflexElementProps, ReflexSplitter } from "react-reflex";
 import * as MonacoApi from "monaco-editor/esm/vs/editor/editor.api";
 import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
@@ -292,7 +291,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                 {/*IDE左部面板 - 文件管理器等*/}
                 <ReflexElement
                   {...this.splitPaneResize}
-                  className={cls(styles.flexItemColumn, styles.leftPane, { [styles.leftPaneHide]: noValue(leftPanel) })}
+                  className={cls(styles.flexItemColumn, styles.leftPane, { [styles.leftPaneHide]: noValue(leftPanel) }, styles.flexRow)}
                   direction={1}
                   size={hasValue(leftPanel) ? leftSize : 0}
                   minSize={hasValue(leftPanel) ? 64 : 0}
@@ -338,7 +337,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                     defaultValue={""}
                     theme={themeEnum.IdeaDracula}
                     options={editorDefOptions}
-                    loading={<Spin delay={200} spinning={true} indicator={<Loading3QuartersOutlined style={{ fontSize: 32 }} spin/>}/>}
+                    loading={<Spinner intent={"primary"} size={48}/>}
                     onMount={(editor, monaco) => {
                       this.editor = editor;
                       this.editor.layout();

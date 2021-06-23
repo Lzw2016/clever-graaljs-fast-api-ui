@@ -1,6 +1,7 @@
 import React from "react";
-import { Tree } from "antd";
-import "./FileResourceTree.css";
+import cls from "classnames";
+import { Classes, Tree } from "@blueprintjs/core";
+import "./FileResourceTree.module.less";
 
 interface FileResourceTreeProps {
 }
@@ -30,19 +31,25 @@ const treeData = [
 class FileResourceTree extends React.Component<FileResourceTreeProps, FileResourceTreeState> {
   render() {
     return (
-      <div>
-        <Tree.DirectoryTree
-          expandAction={"doubleClick"}
-          defaultExpandAll
-          // expandedKeys
-          // filterTreeNode
-          // icon
-          // onDragEnd
-          // onSelect={onSelect}
-          // onExpand={onExpand}
-          treeData={treeData}
+      <>
+        <Tree
+          contents={[
+            {
+              id: "01", label: "test01", childNodes: [
+                { id: "0101", label: "test0101" },
+                { id: "0102", label: "test0102" },
+              ],
+            },
+            {
+              id: "02", label: "test02", childNodes: [
+                { id: "0201", label: "test0201" },
+                { id: "0202", label: "test0202" },
+              ],
+            },
+          ]}
+          className={cls(Classes.DARK)}
         />
-      </div>
+      </>
     );
   }
 }

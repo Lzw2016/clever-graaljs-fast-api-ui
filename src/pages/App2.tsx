@@ -1,10 +1,9 @@
 import React from "react";
-import { ReflexContainer, ReflexElement, ReflexSplitter } from "react-reflex";
 import "react-reflex/styles.css";
+import { ReflexContainer, ReflexElement, ReflexSplitter } from "react-reflex";
+import { Spinner } from "@blueprintjs/core";
 import Editor from "@monaco-editor/react";
 import { editorDefOptions, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
-import { Spin } from "antd";
-import { Loading3QuartersOutlined } from "@ant-design/icons";
 import cls from "classnames";
 import styles from "@/pages/Workbench.module.less";
 
@@ -45,7 +44,7 @@ class ReflexAdvancedDemo extends React.Component<ReflexAdvancedDemoProps, Reflex
                   defaultValue={""}
                   theme={themeEnum.IdeaDracula}
                   options={editorDefOptions}
-                  loading={<Spin delay={200} spinning={true} indicator={<Loading3QuartersOutlined style={{ fontSize: 32 }} spin/>}/>}
+                  loading={<Spinner intent={"primary"} size={48}/>}
                   onMount={(editor, monaco) => {
                     // this.editor = editor;
                     editor.layout();
