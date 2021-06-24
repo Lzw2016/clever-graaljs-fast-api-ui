@@ -118,13 +118,64 @@ interface FileResourceHistory {
 
 interface ApiFileResourceRes {
   /**
-   * 主键id
+   * HTTP接口id
    */
   httpApiId: string;
   /**
    * 资源文件id
    */
   fileResourceId: string;
+  /**
+   * 父级编号(资源文件id)
+   */
+  parentFileResourceId: string;
+  /**
+   * 命名空间
+   */
+  namespace: string;
+  /**
+   * 文件路径(以"/"结束)
+   */
+  path: string;
+  /**
+   * 文件名称
+   */
+  name: string;
+  /**
+   * 数据类型：0-文件夹，1-文件
+   */
+  isFile: 0 | 1;
+  /**
+   * 读写权限：0-可读可写，1-只读
+   */
+  readOnly: 0 | 1;
+  /**
+   * http请求路径
+   */
+  requestMapping: string;
+  /**
+   * http请求method，ALL GET HEAD POST PUT DELETE CONNECT OPTIONS TRACE PATCH
+   */
+  requestMethod: RequestMethod;
+  /**
+   * 禁用http请求：0-启用，1-禁用
+   */
+  disableRequest: 0 | 1;
+}
+
+interface ApiRequestMappingRes {
+  /**
+   * HTTP接口id
+   */
+  httpApiId: string;
+  /**
+   * 资源文件id
+   */
+  fileResourceId: string;
+  /**
+   * 父级编号(HTTP接口id)
+   */
+  parentHttpApiId: string;
   /**
    * 命名空间
    */
