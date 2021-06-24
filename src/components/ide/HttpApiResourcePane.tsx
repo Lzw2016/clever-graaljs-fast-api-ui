@@ -58,7 +58,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           scrollbarMinSize={48}
         >
           <Tree
-            // className={cls( styles.center, { [styles.hide]: loading })}
+            className={cls(styles.fileTree)}
             contents={treeData}
             onNodeExpand={node => {
               node.isExpanded = true;
@@ -68,8 +68,16 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
               node.isExpanded = false;
               this.forceUpdate();
             }}
-            // onNodeDoubleClick
-            // onNodeClick
+            onNodeDoubleClick={node => {
+              node.isExpanded = !node.isExpanded;
+              this.forceUpdate();
+            }}
+            onNodeClick={node => {
+              if (node?.nodeData?.isFile !== 0) {
+                return;
+              }
+              // TODO 打开文件
+            }}
             // onNodeContextMenu
           />
         </SimpleBar>
