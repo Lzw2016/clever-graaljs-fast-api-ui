@@ -148,7 +148,7 @@
 
 .statusTabsItem {
   height: 100%;
-  padding: 1px 6px;
+  padding: 4px 6px;
   color: @fontColor;
   font-size: 12px;
   cursor: pointer;
@@ -181,13 +181,12 @@
   color: @fontColor;
   font-size: 13px;
   user-select: none;
-  padding: 1px 8px 1px 4px;
+  padding: 4px 8px 4px 4px;
 }
 
 .splitTabsItem {
   height: 100%;
   box-sizing: border-box;
-  padding: 2px 6px 2px 8px;
   color: @fontColor;
   font-size: 12px;
   user-select: none;
@@ -196,22 +195,28 @@
   &:hover {
     background-color: @splitHoverBgColor !important;
   }
+}
 
-  span {
-    font-size: 12px;
-    border-radius: 8px;
-    color: @splitIconColor;
-    margin-left: 6px;
-    //cursor: pointer;
+.splitTabsItemLabel {
+  display: inline-block;
+  padding: 5px 4px 6px 8px;
+}
 
-    svg {
-      padding: 2px;
-    }
+.splitTabsItemClose {
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 12px;
+  border-radius: 8px;
+  color: @splitIconColor;
+  //cursor: pointer;
 
-    &:hover {
-      color: @splitHoverBgColor !important;
-      background-color: @splitIconHoverColor !important;
-    }
+  svg {
+    padding: 2px;
+  }
+
+  &:hover {
+    color: @splitHoverBgColor !important;
+    background-color: @splitIconHoverColor !important;
   }
 }
 
@@ -223,7 +228,7 @@
 .fileTabsItem {
   height: 100%;
   box-sizing: border-box;
-  padding: 2px 6px 2px 8px;
+  padding: 4px 8px 2px 8px;
   color: @fileTabsColor;
   font-size: 14px;
   user-select: none;
@@ -239,7 +244,7 @@
   //font-size: 13px;
   border-radius: 8px;
   color: @fileTabsCloseIconColor;
-  margin-left: 6px;
+  margin-left: 2px;
   //cursor: pointer;
 
   svg {
@@ -280,6 +285,10 @@
 
   &:active {
     background-color: @toolItemIconActiveBgColor;
+  }
+
+  &:focus {
+    outline: unset !important;
   }
 }
 
@@ -421,7 +430,7 @@
 }
 
 .fileResourcePath {
-  padding: 2px 0;
+  padding: 5px 0;
   height: 100%;
   font-size: 14px;
   color: @fontColor !important;

@@ -359,13 +359,16 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             >
               <div className={cls(styles.flexItemColumn, styles.splitTabsLabel)}>接口配置:</div>
               <div className={cls(styles.flexItemColumn, styles.splitTabsItem, styles.splitTabsItemActive)} onMouseDown={e => e.stopPropagation()}>
-                叶签1<CloseOutlined/>
+                <span className={cls(styles.splitTabsItemLabel)}>叶签1</span>
+                <CloseOutlined className={cls(styles.splitTabsItemClose)}/>
               </div>
               <div className={cls(styles.flexItemColumn, styles.splitTabsItem)} onMouseDown={e => e.stopPropagation()}>
-                叶签2<CloseOutlined/>
+                <span className={cls(styles.splitTabsItemLabel)}>叶签2</span>
+                <CloseOutlined className={cls(styles.splitTabsItemClose)}/>
               </div>
               <div className={cls(styles.flexItemColumn, styles.splitTabsItem)} onMouseDown={e => e.stopPropagation()}>
-                叶签3<CloseOutlined/>
+                <span className={cls(styles.splitTabsItemLabel)}>叶签3</span>
+                <CloseOutlined className={cls(styles.splitTabsItemClose)}/>
               </div>
               <div className={cls(styles.flexItemColumnWidthFull)}/>
               {
