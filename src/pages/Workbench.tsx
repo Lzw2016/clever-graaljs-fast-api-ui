@@ -212,10 +212,9 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
       <div className={styles.flexRow}>
         {/*顶部菜单栏*/}
         <div className={cls(styles.flexItemRow, styles.topMenu, styles.flexColumn)} style={{ alignItems: "center" }}>
-          <div className={cls(styles.flexItemColumn, styles.logo)} style={{ marginLeft: 2 }}>
-            <img src={logo} alt={"logo"}/> Fast-API
-            <span>0.0.1</span>
-          </div>
+          <img className={cls(styles.flexItemColumn, styles.logoImg)} src={logo} alt={"logo"}/>
+          <div className={cls(styles.flexItemColumn, styles.logoText)}>Fast-API</div>
+          <div className={cls(styles.flexItemColumn, styles.logoTextVersion)}>0.0.1</div>
           <div className={cls(styles.flexItemColumnWidthFull)}/>
           {/*<div className={cls(styles.flexItemColumn)} style={{ width: 16 }}/>*/}
           <IconFont type="icon-gitee" className={cls(styles.flexItemColumn, styles.icon)}/>

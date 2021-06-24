@@ -398,26 +398,26 @@
   }
 }
 
-.logo {
-  height: 100%;
-  padding: 3px 6px;
+.logoImg {
+  height: @toolHeight - 2px;
+  margin-left: 8px;
+}
+
+.logoText {
+  padding: 3px;
   color: @fontColor;
   font-size: 16px;
   font-weight: 400;
   line-height: 1.2;
   user-select: none;
+}
 
-  img {
-    height: @toolHeight - 2px;
-  }
-
-  span {
-    display: inline-block;
-    margin-left: 8px;
-    font-size: 12px;
-    font-weight: normal;
-    color: @versionColor;
-  }
+.logoTextVersion {
+  padding: 8px 0 3px 0;
+  font-size: 10px;
+  font-weight: normal;
+  color: @versionColor;
+  user-select: none;
 }
 
 .fileResourcePath {
