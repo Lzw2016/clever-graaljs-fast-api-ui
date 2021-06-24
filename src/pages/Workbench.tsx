@@ -118,7 +118,7 @@ interface WorkbenchState extends LayoutSize {
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   static defaultState: WorkbenchState = {
-    leftSize: 256,
+    leftSize: 285,
     leftPanel: LeftPanelEnum.Interface,
     rightSize: 256,
     rightPanel: RightPanelEnum.JDBC,
@@ -282,7 +282,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                   className={cls(styles.flexItemColumn, styles.leftPane, { [styles.leftPaneHide]: noValue(leftPanel) }, styles.flexRow)}
                   direction={1}
                   size={hasValue(leftPanel) ? leftSize : 0}
-                  minSize={hasValue(leftPanel) ? 64 : 0}
+                  minSize={hasValue(leftPanel) ? 285 : 0}
                   maxSize={512}
                   onStopResize={e => this.setLayoutSize({ leftSize: (e.domElement as any)?.offsetWidth })}
                 >

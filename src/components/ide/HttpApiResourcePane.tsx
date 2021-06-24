@@ -1,6 +1,15 @@
 import React from "react";
 import cls from "classnames";
-import Icon, { AimOutlined, MinusOutlined } from "@ant-design/icons";
+import Icon, {
+  AimOutlined,
+  ColumnHeightOutlined,
+  MinusOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+  SortAscendingOutlined,
+  SortDescendingOutlined,
+  VerticalAlignMiddleOutlined
+} from "@ant-design/icons";
 import SimpleBar from "simplebar-react";
 import { Classes, Intent, Spinner, SpinnerSize, Tree, TreeNodeInfo } from "@blueprintjs/core";
 import { FastApi } from "@/apis";
@@ -53,6 +62,16 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           </select>
           <div className={cls(styles.flexItemColumnWidthFull)}/>
           <AimOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <ColumnHeightOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <VerticalAlignMiddleOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <SortAscendingOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <SortDescendingOutlined className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
+          <SearchOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <ReloadOutlined
+            className={cls(styles.flexItemColumn, styles.icon)}
+            style={{ fontSize: 14, padding: 3 }}
+            onClick={() => this.reLoadTreeData()}
+          />
           <MinusOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
           <div className={cls(styles.flexItemColumn)} style={{ marginRight: 2 }}/>
         </div>

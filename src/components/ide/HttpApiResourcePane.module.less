@@ -113,7 +113,7 @@
 
 .icon {
   height: @toolHeight - 4px;
-  margin: 2px 0;
+  margin: 2px 2px;
   padding: 2px;
   border-radius: 2px;
   font-size: 16px;
@@ -127,5 +127,14 @@
 
   &:active {
     background-color: @toolItemIconActiveBgColor;
+  }
+}
+
+.iconDisable {
+  color: @fontDisableColor !important;
+  cursor: default !important;
+
+  &:hover {
+    background-color: unset !important;
   }
 }
