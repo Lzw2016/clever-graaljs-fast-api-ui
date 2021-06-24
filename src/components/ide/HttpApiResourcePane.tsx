@@ -61,10 +61,12 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
             className={cls(styles.fileTree)}
             contents={treeData}
             onNodeExpand={node => {
+              if (node.childNodes && node.childNodes.length <= 0) return;
               node.isExpanded = true;
               this.forceUpdate();
             }}
             onNodeCollapse={node => {
+              if (node.childNodes && node.childNodes.length <= 0) return;
               node.isExpanded = false;
               this.forceUpdate();
             }}
