@@ -50,6 +50,10 @@
   }
 }
 
+.loading {
+  height: 256px;
+}
+
 .fileTree {
   font-size: 14px;
 
@@ -60,6 +64,22 @@
 
     .bp3-tree-node-content {
       height: 22px;
+    }
+
+    .bp3-tree-node-caret {
+      padding: 2px;
+    }
+
+    .bp3-tree-node-caret, .bp3-tree-node-caret-none {
+      min-width: 22px;
+    }
+
+    .bp3-tree-node .bp3-tree-node-content:hover {
+      background-color: #0D293E;
+    }
+
+    .bp3-tree-node.bp3-tree-node-selected > .bp3-tree-node-content {
+      background-color: #4B6EAF !important;
     }
   }
 }

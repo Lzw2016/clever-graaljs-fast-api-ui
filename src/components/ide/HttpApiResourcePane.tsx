@@ -51,7 +51,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           <div className={cls(styles.flexItemColumn)}>222</div>
           <div className={cls(styles.flexItemColumn)}>333</div>
         </div>
-        {loading && <Spinner className={cls(styles.flexItemRowHeightFull)} intent={Intent.PRIMARY} size={SpinnerSize.SMALL}/>}
+        {loading && <Spinner className={cls(styles.loading)} intent={Intent.PRIMARY} size={SpinnerSize.SMALL}/>}
         <SimpleBar
           className={cls(styles.center, { [styles.hide]: loading })}
           autoHide={false}
@@ -73,10 +73,11 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
               this.forceUpdate();
             }}
             onNodeClick={node => {
-              if (node?.nodeData?.isFile !== 0) {
-                return;
+              node.isSelected = true;
+              if (node.nodeData?.isFile === 0) {
+                // TODO 打开文件
               }
-              // TODO 打开文件
+              this.forceUpdate();
             }}
             // onNodeContextMenu
           />
