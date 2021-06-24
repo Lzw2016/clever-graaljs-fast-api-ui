@@ -17,13 +17,12 @@ import Icon, {
   UnlockOutlined,
   WechatOutlined,
 } from "@ant-design/icons";
-import { Spinner } from "@blueprintjs/core";
-import "react-reflex/styles.css";
+import { Intent, Spinner, SpinnerSize } from "@blueprintjs/core";
 import { ReflexContainer, ReflexElement, ReflexElementProps, ReflexSplitter } from "react-reflex";
 import * as MonacoApi from "monaco-editor/esm/vs/editor/editor.api";
 import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
-import { FileResourceTree } from "@/components/ide";
+import { HttpApiResourcePane } from "@/components/ide";
 import { editorDefOptions, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
 import { ChevronDown, ChevronUp, JsFile, JsonFile, YmlFile } from "@/utils/IdeaIconUtils";
 import { hasValue, noValue } from "@/utils/utils";
@@ -287,7 +286,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                   maxSize={512}
                   onStopResize={e => this.setLayoutSize({ leftSize: (e.domElement as any)?.offsetWidth })}
                 >
-                  <FileResourceTree/>
+                  <HttpApiResourcePane/>
                 </ReflexElement>
                 <ReflexSplitter
                   propagate={true}
@@ -326,7 +325,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                     defaultValue={""}
                     theme={themeEnum.IdeaDracula}
                     options={editorDefOptions}
-                    loading={<Spinner intent={"primary"} size={48}/>}
+                    loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
                     onMount={(editor, monaco) => {
                       this.editor = editor;
                       this.editor.layout();

@@ -1,5 +1,39 @@
 type RequestMethod = "ALL" | "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "CONNECT" | "OPTIONS" | "TRACE" | "PATCH";
 
+/** Fast-Api全局环境 */
+interface FastApiGlobalEnv {
+  /** Fast-Api版本 */
+  version: string;
+  /** 当前的命名空间 */
+  namespace: string;
+  /** 接口请求前缀 */
+  apiPrefix: string;
+}
+
+/** 树节点 */
+interface SimpleTreeNode<T = any> {
+  /**
+   * 节点标识
+   */
+  id: string;
+  /**
+   * 父级编号
+   */
+  parentId?: string;
+  /**
+   * 是否被添加到父节点下
+   */
+  build: boolean;
+  /**
+   * 子节点
+   */
+  children: Array<SimpleTreeNode<T>>;
+  /**
+   * 绑定到节点的对象
+   */
+  attributes: T;
+}
+
 /** 文件资源 */
 interface FileResource {
   /**
@@ -116,11 +150,12 @@ interface FileResourceHistory {
   updateAt: string;
 }
 
+/** HTTP接口树节点(文件纬度) */
 interface ApiFileResourceRes {
   /**
    * HTTP接口id
    */
-  httpApiId: string;
+  httpApiId?: string;
   /**
    * 资源文件id
    */
@@ -152,17 +187,18 @@ interface ApiFileResourceRes {
   /**
    * http请求路径
    */
-  requestMapping: string;
+  requestMapping?: string;
   /**
    * http请求method，ALL GET HEAD POST PUT DELETE CONNECT OPTIONS TRACE PATCH
    */
-  requestMethod: RequestMethod;
+  requestMethod?: RequestMethod;
   /**
    * 禁用http请求：0-启用，1-禁用
    */
-  disableRequest: 0 | 1;
+  disableRequest?: 0 | 1;
 }
 
+/** HTTP接口树节点(请求路径纬度) */
 interface ApiRequestMappingRes {
   /**
    * HTTP接口id

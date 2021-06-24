@@ -10,8 +10,9 @@ import { initMonaco, registerTheme } from "@/utils/editor-utils";
 import "normalize.css/normalize.css";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
+import "react-reflex/styles.css";
+import "simplebar/dist/simplebar.min.css";
 import "@/assets/global.less";
-
 
 dayjs.locale("zh-cn");
 loader.config({

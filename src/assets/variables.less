@@ -1,3 +1,4 @@
+// --------------------------------------------------------------------------- 通用颜色
 // 边框颜色
 @borderColor: #323232;
 // 分割线颜色
@@ -47,8 +48,56 @@
 @fileModifyColor: #6897BB;
 // 代码编辑器行区域和编辑器区域样式
 @editorSplitRightColor: #555555;
+// 滚动条颜色
+@scrollBarColor: #666868;
 
 // 工具栏高度
 @toolHeight: 24px;
 // 工具栏宽度
 @toolWidth: 24px;
+
+// --------------------------------------------------------------------------- 通用样式
+
+.flexRow {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+.flexItemRow {
+  width: 100%;
+  flex-grow: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.flexItemRowHeightFull {
+  width: 100%;
+  flex-grow: 1;
+  flex-shrink: 1;
+  box-sizing: border-box;
+}
+
+.flexColumn {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.flexItemColumn {
+  height: 100%;
+  flex-grow: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.flexItemColumnWidthFull {
+  height: 100%;
+  flex-grow: 1;
+  flex-shrink: 1;
+  box-sizing: border-box;
+}

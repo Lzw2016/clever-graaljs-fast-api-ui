@@ -1,1 +1,1 @@
-export * from "./FileResourceTree";
+export * from "./HttpApiResourcePane";

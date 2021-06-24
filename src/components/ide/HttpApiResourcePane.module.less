@@ -1,0 +1,51 @@
+@import "/src/assets/variables";
+
+.hide {
+  display: none !important;
+}
+
+.pane {
+  overflow: hidden;
+  height: 100%;
+  //overflow-y: auto;
+}
+
+.head {
+  height: @toolHeight;
+  background-color: @splitBgColor;
+  align-items: center;
+  box-sizing: border-box;
+  border-bottom: 1px solid @borderColor;
+  //border-left: 1px solid @borderColor;
+  //border-right: 1px solid @borderColor;
+}
+
+.center {
+  overflow: auto;
+  height: calc(100% - @toolHeight);
+  font-size: 14px;
+  flex-shrink: 0;
+
+  :global {
+    .simplebar-track {
+      &.simplebar-horizontal {
+        width: 12px;
+      }
+
+      &.simplebar-vertical {
+        width: 12px;
+      }
+
+      .simplebar-scrollbar {
+        width: 12px;
+        right: 0;
+
+        &:before {
+          background-color: @scrollBarColor;
+          border-radius: 0;
+          opacity: 0.6;
+        }
+      }
+    }
+  }
+}
