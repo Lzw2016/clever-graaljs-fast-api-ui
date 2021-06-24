@@ -50,6 +50,17 @@ const YmlFile = () => (
   </svg>
 );
 
+const UnknownFile = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+    <g fill="none" fillRule="evenodd">
+      <path fill="#9AA7B0" fillOpacity=".8" d="M7 1L3 5h4z"/>
+      <path fill="#9AA7B0" fillOpacity=".8" d="M11 15H3V6h5V1h5l-.023 5A4 4 0 0 0 9 10c0 .232.042.567.127 1.006H11V15z"/>
+      <path fill="#40B6E0"
+            d="M12.25 16h1.5v-1.5h-1.5V16zM13 7a3 3 0 0 0-3 3h1.5c0-.825.675-1.5 1.5-1.5s1.5.675 1.5 1.5c0 1.5-2.25 1.313-2.25 3.75h1.5c0-1.688 2.25-1.875 2.25-3.75a3 3 0 0 0-3-3z"/>
+    </g>
+  </svg>
+);
+
 const Folder = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
     <path d="M9 5a2.51 2.51 0 0 0-2.5-2H1v11h14V5z"/>
@@ -69,4 +80,21 @@ const ChevronDown = () => (
   </svg>
 );
 
-export { JsFile, JsonFile, YmlFile, Folder, ChevronUp, ChevronDown }
+const getFileIcon = (filename: string): (() => JSX.Element) => {
+  if (!filename) return UnknownFile;
+  const position = filename.lastIndexOf(".");
+  if (position < 0) return UnknownFile;
+  const ext = filename.substr(position).toLowerCase();
+  switch (ext) {
+    case ".js":
+      return JsFile;
+    case ".json":
+      return JsFile;
+    case ".yml":
+    case ".yaml":
+      return JsFile;
+  }
+  return JsonFile
+}
+
+export { JsFile, JsonFile, YmlFile, UnknownFile, getFileIcon, Folder, ChevronUp, ChevronDown }

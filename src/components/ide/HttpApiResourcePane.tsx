@@ -1,11 +1,12 @@
 import React from "react";
 import cls from "classnames";
-import SimpleBar from 'simplebar-react';
-import { Classes, Intent, Spinner, SpinnerSize, Tree } from "@blueprintjs/core";
+import Icon, { AimOutlined, MinusOutlined } from "@ant-design/icons";
+import SimpleBar from "simplebar-react";
+import { Classes, Intent, Spinner, SpinnerSize, Tree, TreeNodeInfo } from "@blueprintjs/core";
 import { FastApi } from "@/apis";
 import { request } from "@/utils/request";
+import { Folder, getFileIcon } from "@/utils/IdeaIconUtils";
 import styles from "./HttpApiResourcePane.module.less";
-import { TreeNodeInfo } from "@blueprintjs/core/src/components/tree/treeNode";
 
 const getDataApi = FastApi.HttpApiManage.getHttpApiTree;
 
@@ -46,10 +47,14 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
     return (
       <div className={cls(Classes.DARK, styles.pane)}>
         <div className={cls(styles.flexColumn, styles.head)}>
-          <div className={cls(styles.flexItemColumn)}>111</div>
+          <select className={cls(styles.flexItemColumn, styles.viewSelect)}>
+            <option value="fileView">文件视图</option>
+            <option value="apiView">接口视图</option>
+          </select>
           <div className={cls(styles.flexItemColumnWidthFull)}/>
-          <div className={cls(styles.flexItemColumn)}>222</div>
-          <div className={cls(styles.flexItemColumn)}>333</div>
+          <AimOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <MinusOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+          <div className={cls(styles.flexItemColumn)} style={{ marginRight: 2 }}/>
         </div>
         {loading && <Spinner className={cls(styles.loading)} intent={Intent.PRIMARY} size={SpinnerSize.SMALL}/>}
         <SimpleBar
@@ -97,7 +102,11 @@ const getTreeData = (rawData: Array<SimpleTreeNode<ApiFileResourceRes>>): Array<
     const node: TreeNodeInfo<ApiFileResourceRes> = {
       id: rawNode.id,
       label: attributes.name,
-      icon: isFile ? "document" : "folder-close",
+      icon: (
+        isFile ?
+          <Icon component={getFileIcon(attributes.name)} className={cls(Classes.ICON, styles.folderIcon)}/> :
+          <Icon component={Folder} className={cls(Classes.ICON, styles.folderIcon)}/>
+      ),
       nodeData: attributes,
       isExpanded: false, // TODO 保存状态
       isSelected: false, // TODO 保存状态
