@@ -20,6 +20,11 @@ import styles from "./HttpApiResourcePane.module.less";
 const getDataApi = FastApi.HttpApiManage.getHttpApiTree;
 
 interface HttpApiResourcePaneProps {
+  /** 是否显示当前组件(渲染组件) */
+  show: boolean;
+//  onSelectChange
+//  onOpenFile
+//
 }
 
 interface HttpApiResourcePaneState {
@@ -52,7 +57,9 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
   }
 
   render() {
+    const { show } = this.props;
     const { loading, treeData } = this.state;
+    if (!show) return "";
     return (
       <div className={cls(Classes.DARK, styles.pane)}>
         <div className={cls(styles.flexColumn, styles.head)}>
@@ -87,22 +94,24 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
             onNodeExpand={node => {
               if (node.childNodes && node.childNodes.length <= 0) return;
               node.isExpanded = true;
+              setSingleSelected(treeData, node.id, true);
               this.forceUpdate();
             }}
             onNodeCollapse={node => {
               if (node.childNodes && node.childNodes.length <= 0) return;
-              node.isExpanded = false;
+              collapseAllChildNodes(node);
+              setSingleSelected(treeData, node.id, true);
               this.forceUpdate();
             }}
             onNodeDoubleClick={node => {
               node.isExpanded = !node.isExpanded;
+              if (node.nodeData?.isFile === 0) {
+                // TODO 打开文件
+              }
               this.forceUpdate();
             }}
             onNodeClick={node => {
               setSingleSelected(treeData, node.id, true);
-              if (node.nodeData?.isFile === 0) {
-                // TODO 打开文件
-              }
               this.forceUpdate();
             }}
             // onNodeContextMenu
@@ -110,6 +119,13 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         </SimpleBar>
       </div>
     );
+  }
+}
+
+const collapseAllChildNodes = (rootNode: TreeNodeInfo<ApiFileResourceRes>): void => {
+  rootNode.isExpanded = false;
+  if (rootNode.childNodes && rootNode.childNodes.length > 0) {
+    rootNode.childNodes.forEach(childNode => collapseAllChildNodes(childNode));
   }
 }
 

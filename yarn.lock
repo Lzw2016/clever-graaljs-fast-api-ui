@@ -1173,10 +1173,10 @@ minimist@^1.2.5:
   resolved "https://registry.npm.taobao.org/minimist/download/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
   integrity sha1-Z9ZgFLZqaoqqDAg8X9WN9OTpdgI=
 
-monaco-editor@^0.25.1:
-  version "0.25.1"
-  resolved "https://registry.nlark.com/monaco-editor/download/monaco-editor-0.25.1.tgz?cache=0&sync_timestamp=1623745250375&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fmonaco-editor%2Fdownload%2Fmonaco-editor-0.25.1.tgz#bba1de27d85cfe1cc5536b138371bf7811717d47"
-  integrity sha1-u6HeJ9hc/hzFU2sTg3G/eBFxfUc=
+monaco-editor@^0.25.2:
+  version "0.25.2"
+  resolved "https://registry.nlark.com/monaco-editor/download/monaco-editor-0.25.2.tgz#119e2b15bbd968a1a99c03cac9c329316d7c37e9"
+  integrity sha1-EZ4rFbvZaKGpnAPKycMpMW18N+k=
 
 ms@2.1.2:
   version "2.1.2"
@@ -1326,7 +1326,7 @@ postcss@^8.3.5:
     nanoid "^3.1.23"
     source-map-js "^0.6.2"
 
-prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@^15.5.7, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.npm.taobao.org/prop-types/download/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha1-UsQedbjIfnK52TYOAga5ncv/psU=
@@ -1512,6 +1512,14 @@ react-side-effect@^2.1.0:
   resolved "https://registry.npm.taobao.org/react-side-effect/download/react-side-effect-2.1.1.tgz#66c5701c3e7560ab4822a4ee2742dee215d72eb3"
   integrity sha1-ZsVwHD51YKtIIqTuJ0Le4hXXLrM=
 
+react-split@^2.0.11:
+  version "2.0.11"
+  resolved "https://registry.npm.taobao.org/react-split/download/react-split-2.0.11.tgz#bb032c9884313df2f579ce847bb9eaad11b312ab"
+  integrity sha1-uwMsmIQxPfL1ec6Ee7nqrRGzEqs=
+  dependencies:
+    prop-types "^15.5.7"
+    split.js "^1.6.0"
+
 react-transition-group@^2.9.0:
   version "2.9.0"
   resolved "https://registry.nlark.com/react-transition-group/download/react-transition-group-2.9.0.tgz#df9cdb025796211151a436c69a8f3b97b5b07c8d"
@@ -1674,6 +1682,11 @@ sourcemap-codec@^1.4.4:
   version "1.4.8"
   resolved "https://registry.npm.taobao.org/sourcemap-codec/download/sourcemap-codec-1.4.8.tgz#ea804bd94857402e6992d05a38ef1ae35a9ab4c4"
   integrity sha1-6oBL2UhXQC5pktBaOO8a41qatMQ=
+
+split.js@^1.6.0:
+  version "1.6.4"
+  resolved "https://registry.npm.taobao.org/split.js/download/split.js-1.6.4.tgz#13d47cba53382adef230a53294ce5dacb2a2f2e1"
+  integrity sha1-E9R8ulM4Kt7yMKUylM5drLKi8uE=
 
 state-local@^1.0.6, state-local@^1.0.7:
   version "1.0.7"

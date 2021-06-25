@@ -37,8 +37,10 @@ import styles from "./Workbench.module.less";
 // }
 
 enum LeftPanelEnum {
-  /** 接口文件 */
+  /** Http接口 */
   Interface,
+  /** 定时任务 */
+  TimedTask,
   /** 自定义扩展 */
   Expand,
   /** 初始化脚本 */
@@ -168,6 +170,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     const { leftPanel } = this.state;
     if (panel === LeftPanelEnum.Interface) {
       this.setState({ leftPanel: leftPanel === LeftPanelEnum.Interface ? undefined : LeftPanelEnum.Interface });
+    } else if (panel === LeftPanelEnum.TimedTask) {
+      this.setState({ leftPanel: leftPanel === LeftPanelEnum.TimedTask ? undefined : LeftPanelEnum.TimedTask });
     } else if (panel === LeftPanelEnum.Expand) {
       this.setState({ leftPanel: leftPanel === LeftPanelEnum.Expand ? undefined : LeftPanelEnum.Expand });
     } else if (panel === LeftPanelEnum.Initialization) {
@@ -255,19 +259,29 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
               className={cls(styles.flexItemRow, styles.verticalTabsItem, { [styles.verticalTabsItemActive]: leftPanel === LeftPanelEnum.Interface })}
               onClick={() => this.toggleLeftPanel(LeftPanelEnum.Interface)}
             >
-              接口文件<FolderFilled/>
+              接口列表
+              <FolderFilled/>
+            </div>
+            <div
+              className={cls(styles.flexItemRow, styles.verticalTabsItem, { [styles.verticalTabsItemActive]: leftPanel === LeftPanelEnum.TimedTask })}
+              onClick={() => this.toggleLeftPanel(LeftPanelEnum.TimedTask)}
+            >
+              定时任务
+              <FolderFilled/>
             </div>
             <div
               className={cls(styles.flexItemRow, styles.verticalTabsItem, { [styles.verticalTabsItemActive]: leftPanel === LeftPanelEnum.Expand })}
               onClick={() => this.toggleLeftPanel(LeftPanelEnum.Expand)}
             >
-              自定义扩展<FolderFilled/>
+              自定义扩展
+              <FolderFilled/>
             </div>
             <div
               className={cls(styles.flexItemRow, styles.verticalTabsItem, { [styles.verticalTabsItemActive]: leftPanel === LeftPanelEnum.Initialization })}
               onClick={() => this.toggleLeftPanel(LeftPanelEnum.Initialization)}
             >
-              初始化脚本<FolderFilled/>
+              初始化脚本
+              <FolderFilled/>
             </div>
             <div className={styles.flexItemRowHeightFull}/>
           </div>
@@ -286,7 +300,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                   maxSize={512}
                   onStopResize={e => this.setLayoutSize({ leftSize: (e.domElement as any)?.offsetWidth })}
                 >
-                  <HttpApiResourcePane/>
+                  <HttpApiResourcePane show={hasValue(leftPanel)}/>
                 </ReflexElement>
                 <ReflexSplitter
                   propagate={true}
