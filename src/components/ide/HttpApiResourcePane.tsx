@@ -20,8 +20,6 @@ import styles from "./HttpApiResourcePane.module.less";
 const getDataApi = FastApi.HttpApiManage.getHttpApiTree;
 
 interface HttpApiResourcePaneProps {
-  /** 是否显示当前组件(渲染组件) */
-  show: boolean;
 //  onSelectChange
 //  onOpenFile
 //
@@ -57,9 +55,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
   }
 
   render() {
-    const { show } = this.props;
     const { loading, treeData } = this.state;
-    if (!show) return "";
     return (
       <div className={cls(Classes.DARK, styles.pane)}>
         <div className={cls(styles.flexColumn, styles.head)}>

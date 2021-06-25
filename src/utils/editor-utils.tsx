@@ -1,4 +1,4 @@
-import * as MonacoApi from "monaco-editor/esm/vs/editor/editor.api";
+import * as MonacoApi from "monaco-editor";
 import { TypeEnum, variableTypeOf } from "@/utils/typeof";
 import ideaDraculaTheme from "@/assets/idea-dracula-theme.json";
 import ideaLightTheme from "@/assets/idea-light-theme.json";

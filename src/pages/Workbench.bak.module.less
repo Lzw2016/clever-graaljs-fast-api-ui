@@ -1,0 +1,401 @@
+@import "/src/assets/variables";
+
+.leftResizerStyle {
+  &:global(.reflex-splitter), &:hover {
+    width: 5px !important;
+    box-sizing: border-box !important;
+    background: @borderColor !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: 4px solid @paneBgColor !important;
+    border-right: none !important;
+    cursor: ew-resize !important;
+    //z-index: 999 !important;
+  }
+}
+
+.leftResizerHideStyle {
+  display: none !important;
+}
+
+.rightResizerStyle {
+  &:global(.reflex-splitter), &:hover {
+    width: 5px !important;
+    box-sizing: border-box !important;
+    background: @borderColor !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: 4px solid @paneBgColor !important;
+    cursor: ew-resize !important;
+    //z-index: 999 !important;
+  }
+}
+
+.rightResizerHideStyle {
+  display: none !important;
+}
+
+.verticalTabsItem {
+  width: 100%;
+  padding: 6px 0;
+  color: @fontColor;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.2;
+  //cursor: pointer;
+  letter-spacing: 2px;
+  text-align: center;
+  user-select: none;
+
+  span {
+    font-size: 14px;
+    position: relative;
+    left: -1px;
+    color: @iconColor;
+  }
+
+  &:hover {
+    background-color: @toolItemHoverBgColor;
+  }
+}
+
+.verticalTabsItemActive {
+  color: @fontActiveColor !important;
+  background-color: @toolItemActiveBgColor !important;
+}
+
+.horizontalTabsFirst {
+  margin-left: @toolWidth;
+}
+
+.horizontalTabsItem {
+  height: 100%;
+  padding: 4px 6px 2px 6px;
+  color: @fontColor;
+  font-size: 13px;
+  font-weight: 400;
+  //cursor: pointer;
+  letter-spacing: 2px;
+  text-align: center;
+  user-select: none;
+
+  span {
+    font-size: 14px;
+    color: @iconColor;
+    padding-right: 2px;
+  }
+
+  &:hover {
+    background-color: @toolItemHoverBgColor;
+  }
+}
+
+.horizontalTabsItemActive {
+  color: @fontActiveColor !important;
+  background-color: @toolItemActiveBgColor !important;
+}
+
+.statusTabsFirst {
+  margin-left: @toolWidth;
+}
+
+.statusTabsItem {
+  height: 100%;
+  padding: 4px 6px;
+  color: @fontColor;
+  font-size: 12px;
+  //cursor: pointer;
+  letter-spacing: 2px;
+  text-align: center;
+  user-select: none;
+}
+
+.splitTabsResizerStyle {
+  &:global(.reflex-splitter), &:hover {
+    height: @toolHeight + 2px !important;
+    box-sizing: border-box !important;
+    background: @splitBgColor !important;
+    border-top: 1px solid @borderColor !important;
+    border-bottom: 1px solid @borderColor !important;
+    border-left: none !important;
+    border-right: none !important;
+    cursor: ns-resize !important;
+    //z-index: 999 !important;
+  }
+}
+
+.splitTabsResizerHideStyle {
+  display: none !important;
+}
+
+.splitTabsLabel {
+  height: 100%;
+  box-sizing: border-box;
+  color: @fontColor;
+  font-size: 13px;
+  user-select: none;
+  padding: 4px 8px 4px 4px;
+}
+
+.splitTabsItem {
+  height: 100%;
+  box-sizing: border-box;
+  color: @fontColor;
+  font-size: 12px;
+  user-select: none;
+  cursor: default !important;
+
+  &:hover {
+    background-color: @splitHoverBgColor !important;
+  }
+}
+
+.splitTabsItemLabel {
+  display: inline-block;
+  padding: 5px 4px 6px 8px;
+}
+
+.splitTabsItemClose {
+  display: inline-block;
+  margin-right: 4px;
+  font-size: 12px;
+  border-radius: 8px;
+  color: @splitIconColor;
+  //cursor: pointer;
+
+  svg {
+    padding: 2px;
+  }
+
+  &:hover {
+    color: @splitHoverBgColor !important;
+    background-color: @splitIconHoverColor !important;
+  }
+}
+
+.splitTabsItemActive {
+  color: @fontColor;
+  border-bottom: 2px solid @splitBottomColor !important;
+}
+
+.fileTabsItem {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 4px 8px 2px 8px;
+  color: @fileTabsColor;
+  font-size: 14px;
+  user-select: none;
+  cursor: default !important;
+
+  &:hover {
+    color: @fontColor !important;
+    background-color: @fileTabsHoverBgColor !important;
+  }
+}
+
+.fileTabsItemClose {
+  //font-size: 13px;
+  border-radius: 8px;
+  color: @fileTabsCloseIconColor;
+  margin-left: 2px;
+  //cursor: pointer;
+
+  svg {
+    padding: 3px;
+  }
+
+  &:hover {
+    color: @fileTabsCloseIconHoverColor !important;
+    background-color: @fileTabsCloseIconHoverBgColor !important;
+  }
+}
+
+.fileTabsItemType {
+  font-size: 14px;
+  color: @fileTabsTypeIconColor;
+  padding-right: 3px;
+}
+
+.fileTabsItemActive {
+  color: @fileTabsActiveColor;
+  background-color: @fileTabsActiveBgColor;
+  border-bottom: 2px solid @fileTabsBottomColor !important;
+}
+
+.icon {
+  height: @toolHeight - 2px;
+  margin: 2px 0;
+  padding: 3px 4px;
+  border-radius: 2px;
+  font-size: 16px;
+  color: @iconColor;
+  //cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    background-color: @toolItemIconHoverBgColor;
+  }
+
+  &:active {
+    background-color: @toolItemIconActiveBgColor;
+  }
+
+  &:focus {
+    outline: unset !important;
+  }
+}
+
+.iconDisable {
+  color: @fontDisableColor !important;
+  cursor: default !important;
+
+  &:hover {
+    background-color: @toolBgColor !important;
+  }
+}
+
+.topMenu {
+  height: @toolHeight + 4px;
+  box-sizing: border-box;
+  background-color: @toolBgColor;
+  border-bottom: 1px solid @splitColor;
+}
+
+.topStatus {
+  height: @toolHeight + 4px;
+  box-sizing: border-box;
+  background-color: @toolBgColor;
+  border-bottom: 1px solid @borderColor;
+}
+
+.bottomTabs {
+  height: @toolHeight;
+  box-sizing: border-box;
+  background-color: @toolBgColor;
+  border-top: 1px solid @borderColor;
+}
+
+.bottomStatus {
+  height: @toolHeight;
+  box-sizing: border-box;
+  background-color: @toolBgColor;
+  border-top: 1px solid @splitColor;
+}
+
+.leftTabs {
+  width: @toolWidth;
+  box-sizing: border-box;
+  background-color: @toolBgColor;
+  border-right: 1px solid @borderColor;
+}
+
+.rightTabs {
+  width: @toolWidth;
+  box-sizing: border-box;
+  background-color: @toolBgColor;
+  border-left: 1px solid @borderColor;
+}
+
+.leftPane {
+  box-sizing: border-box;
+  background-color: @paneBgColor;
+}
+
+.leftPaneHide {
+  background-color: #313335 !important;
+}
+
+.rightPane {
+  box-sizing: border-box;
+  background-color: @paneBgColor;
+}
+
+.rightPaneHide {
+  background-color: @editorBgColor !important;
+}
+
+.bottomPane {
+  box-sizing: border-box;
+  background-color: @paneBgColor;
+}
+
+.bottomPaneHide {
+  background-color: @editorBgColor !important;
+}
+
+.editorPane {
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
+  background-color: @editorBgColor;
+}
+
+.editorTabs {
+  height: @toolHeight + 4px;
+  background-color: @editorTabsBgColor;
+  border-bottom: 1px solid @editorTabsBottomColor;
+}
+
+.editorWrapper {
+  width: 100%;
+  height: 100%;
+  background-color: @editorBgColor;
+}
+
+.editor {
+  width: 100%;
+  height: 100%;
+
+  :global(.monaco-editor.vs-dark) {
+    :global(.overflow-guard .margin .margin-view-overlays) {
+      box-sizing: border-box;
+      border-right: 1px solid @editorSplitRightColor !important;
+    }
+
+    :global(.editor-widget.suggest-widget) {
+      z-index: 999 !important;
+    }
+  }
+}
+
+.logoImg {
+  height: @toolHeight - 2px;
+  margin-left: 8px;
+}
+
+.logoText {
+  padding: 3px;
+  color: @fontColor;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  user-select: none;
+}
+
+.logoTextVersion {
+  padding: 8px 0 3px 0;
+  font-size: 10px;
+  font-weight: normal;
+  color: @versionColor;
+  user-select: none;
+}
+
+.fileResourcePath {
+  padding: 5px 0;
+  height: 100%;
+  font-size: 14px;
+  color: @fontColor !important;
+}
+
+.fileModify {
+  color: @fileModifyColor !important;
+}
+
+.bottomTabsIcon {
+  height: @toolHeight - 4px;
+  font-size: 14px;
+  border-radius: 2px;
+  margin: 2px 0;
+  padding: 3px 4px;
+}

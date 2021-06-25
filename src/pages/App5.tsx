@@ -10,7 +10,7 @@ interface AppState {
 class App extends React.Component<AppProps, AppState> {
   render() {
     return (
-      <HttpApiResourcePane show={true}/>
+      <HttpApiResourcePane/>
     );
   }
 }

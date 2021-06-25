@@ -1,227 +1,7 @@
 @import "/src/assets/variables";
 
-.leftResizerStyle {
-  &:global(.reflex-splitter), &:hover {
-    width: 5px !important;
-    box-sizing: border-box !important;
-    background: @borderColor !important;
-    border-top: none !important;
-    border-bottom: none !important;
-    border-left: 4px solid @paneBgColor !important;
-    border-right: none !important;
-    cursor: ew-resize !important;
-    //z-index: 999 !important;
-  }
-}
-
-.leftResizerHideStyle {
-  display: none !important;
-}
-
-.rightResizerStyle {
-  &:global(.reflex-splitter), &:hover {
-    width: 5px !important;
-    box-sizing: border-box !important;
-    background: @borderColor !important;
-    border-top: none !important;
-    border-bottom: none !important;
-    border-left: none !important;
-    border-right: 4px solid @paneBgColor !important;
-    cursor: ew-resize !important;
-    //z-index: 999 !important;
-  }
-}
-
-.rightResizerHideStyle {
-  display: none !important;
-}
-
-.verticalTabsItem {
-  width: 100%;
-  padding: 6px 0;
-  color: @fontColor;
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.2;
-  //cursor: pointer;
-  letter-spacing: 2px;
-  text-align: center;
-  user-select: none;
-
-  span {
-    font-size: 14px;
-    position: relative;
-    left: -1px;
-    color: @iconColor;
-  }
-
-  &:hover {
-    background-color: @toolItemHoverBgColor;
-  }
-}
-
-.verticalTabsItemActive {
-  color: @fontActiveColor !important;
-  background-color: @toolItemActiveBgColor !important;
-}
-
-.horizontalTabsFirst {
-  margin-left: @toolWidth;
-}
-
-.horizontalTabsItem {
-  height: 100%;
-  padding: 4px 6px 2px 6px;
-  color: @fontColor;
-  font-size: 13px;
-  font-weight: 400;
-  //cursor: pointer;
-  letter-spacing: 2px;
-  text-align: center;
-  user-select: none;
-
-  span {
-    font-size: 14px;
-    color: @iconColor;
-    padding-right: 2px;
-  }
-
-  &:hover {
-    background-color: @toolItemHoverBgColor;
-  }
-}
-
-.horizontalTabsItemActive {
-  color: @fontActiveColor !important;
-  background-color: @toolItemActiveBgColor !important;
-}
-
-.statusTabsFirst {
-  margin-left: @toolWidth;
-}
-
-.statusTabsItem {
-  height: 100%;
-  padding: 4px 6px;
-  color: @fontColor;
-  font-size: 12px;
-  //cursor: pointer;
-  letter-spacing: 2px;
-  text-align: center;
-  user-select: none;
-}
-
-.splitTabsResizerStyle {
-  &:global(.reflex-splitter), &:hover {
-    height: @toolHeight + 2px !important;
-    box-sizing: border-box !important;
-    background: @splitBgColor !important;
-    border-top: 1px solid @borderColor !important;
-    border-bottom: 1px solid @borderColor !important;
-    border-left: none !important;
-    border-right: none !important;
-    cursor: ns-resize !important;
-    //z-index: 999 !important;
-  }
-}
-
-.splitTabsResizerHideStyle {
-  display: none !important;
-}
-
-.splitTabsLabel {
-  height: 100%;
-  box-sizing: border-box;
-  color: @fontColor;
-  font-size: 13px;
-  user-select: none;
-  padding: 4px 8px 4px 4px;
-}
-
-.splitTabsItem {
-  height: 100%;
-  box-sizing: border-box;
-  color: @fontColor;
-  font-size: 12px;
-  user-select: none;
-  cursor: default !important;
-
-  &:hover {
-    background-color: @splitHoverBgColor !important;
-  }
-}
-
-.splitTabsItemLabel {
-  display: inline-block;
-  padding: 5px 4px 6px 8px;
-}
-
-.splitTabsItemClose {
-  display: inline-block;
-  margin-right: 4px;
-  font-size: 12px;
-  border-radius: 8px;
-  color: @splitIconColor;
-  //cursor: pointer;
-
-  svg {
-    padding: 2px;
-  }
-
-  &:hover {
-    color: @splitHoverBgColor !important;
-    background-color: @splitIconHoverColor !important;
-  }
-}
-
-.splitTabsItemActive {
-  color: @fontColor;
-  border-bottom: 2px solid @splitBottomColor !important;
-}
-
-.fileTabsItem {
-  height: 100%;
-  box-sizing: border-box;
-  padding: 4px 8px 2px 8px;
-  color: @fileTabsColor;
-  font-size: 14px;
-  user-select: none;
-  cursor: default !important;
-
-  &:hover {
-    color: @fontColor !important;
-    background-color: @fileTabsHoverBgColor !important;
-  }
-}
-
-.fileTabsItemClose {
-  //font-size: 13px;
-  border-radius: 8px;
-  color: @fileTabsCloseIconColor;
-  margin-left: 2px;
-  //cursor: pointer;
-
-  svg {
-    padding: 3px;
-  }
-
-  &:hover {
-    color: @fileTabsCloseIconHoverColor !important;
-    background-color: @fileTabsCloseIconHoverBgColor !important;
-  }
-}
-
-.fileTabsItemType {
-  font-size: 14px;
-  color: @fileTabsTypeIconColor;
-  padding-right: 3px;
-}
-
-.fileTabsItemActive {
-  color: @fileTabsActiveColor;
-  background-color: @fileTabsActiveBgColor;
-  border-bottom: 2px solid @fileTabsBottomColor !important;
-}
+@topMenuHeight: @toolHeight + 4px;
+@topStatusHeight: @toolHeight + 4px;
 
 .icon {
   height: @toolHeight - 2px;
@@ -230,7 +10,6 @@
   border-radius: 2px;
   font-size: 16px;
   color: @iconColor;
-  //cursor: pointer;
   user-select: none;
 
   &:hover {
@@ -255,64 +34,263 @@
   }
 }
 
+// -------------------------------------------------------------------------------- TopMenu
+
 .topMenu {
-  height: @toolHeight + 4px;
+  position: absolute;
+  height: @topMenuHeight;
+  width: 100%;
+  top: 0;
+  left: 0;
   box-sizing: border-box;
   background-color: @toolBgColor;
   border-bottom: 1px solid @splitColor;
+  align-items: center;
+  z-index: 999;
 }
 
+.topMenuLogoImg {
+  height: @toolHeight - 2px;
+  margin-left: 8px;
+}
+
+.topMenuLogoText {
+  padding: 3px;
+  color: @fontColor;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  user-select: none;
+}
+
+.topMenuLogoTextVersion {
+  padding: 8px 0 3px 0;
+  font-size: 10px;
+  font-weight: normal;
+  color: @versionColor;
+  user-select: none;
+}
+
+// -------------------------------------------------------------------------------- TopStatus
+
 .topStatus {
-  height: @toolHeight + 4px;
+  position: absolute;
+  height: @topStatusHeight;
+  width: 100%;
+  top: @topMenuHeight;
+  left: 0;
   box-sizing: border-box;
   background-color: @toolBgColor;
   border-bottom: 1px solid @borderColor;
+  align-items: center;
+  z-index: 999;
 }
 
+.topStatusFileResourcePath {
+  padding: 5px 0;
+  height: 100%;
+  font-size: 14px;
+  color: @fontColor !important;
+}
+
+.topStatusFileModify {
+  color: @fileModifyColor !important;
+}
+
+// -------------------------------------------------------------------------------- BottomTabs
+
 .bottomTabs {
+  position: absolute;
   height: @toolHeight;
+  width: 100%;
+  bottom: @toolHeight;
+  left: 0;
   box-sizing: border-box;
   background-color: @toolBgColor;
   border-top: 1px solid @borderColor;
+  align-items: center;
+  z-index: 999;
 }
 
+.bottomTabsFirst {
+  margin-left: @toolWidth;
+}
+
+.bottomTabsItem {
+  height: 100%;
+  padding: 4px 6px 2px 6px;
+  color: @fontColor;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-align: center;
+  user-select: none;
+
+  span {
+    font-size: 14px;
+    color: @iconColor;
+    padding-right: 2px;
+  }
+
+  &:hover {
+    background-color: @toolItemHoverBgColor;
+  }
+}
+
+.bottomTabsItemActive {
+  color: @fontActiveColor;
+  background-color: @toolItemActiveBgColor;
+}
+
+// -------------------------------------------------------------------------------- BottomStatus
+
 .bottomStatus {
+  position: absolute;
   height: @toolHeight;
+  width: 100%;
+  bottom: 0;
+  left: 0;
   box-sizing: border-box;
   background-color: @toolBgColor;
   border-top: 1px solid @splitColor;
+  align-items: center;
+  z-index: 999;
 }
 
+.bottomStatusFirst {
+  margin-left: @toolWidth;
+}
+
+.bottomStatusItem {
+  height: 100%;
+  padding: 4px 6px;
+  color: @fontColor;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-align: center;
+  user-select: none;
+}
+
+// -------------------------------------------------------------------------------- LeftTabs
+
 .leftTabs {
+  position: absolute;
   width: @toolWidth;
+  height: unset !important;
+  top: @topMenuHeight + @topStatusHeight;
+  bottom: @toolHeight * 2;
+  left: 0;
   box-sizing: border-box;
   background-color: @toolBgColor;
   border-right: 1px solid @borderColor;
+  align-items: center;
+  z-index: 999;
 }
 
+.leftTabsItem {
+  width: 100%;
+  padding: 6px 0;
+  color: @fontColor;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 2px;
+  text-align: center;
+  user-select: none;
+
+  span {
+    font-size: 14px;
+    position: relative;
+    left: -1px;
+    color: @iconColor;
+  }
+
+  &:hover {
+    background-color: @toolItemHoverBgColor;
+  }
+}
+
+.leftTabsItemActive {
+  color: @fontActiveColor !important;
+  background-color: @toolItemActiveBgColor !important;
+}
+
+// -------------------------------------------------------------------------------- RightTabs
+
 .rightTabs {
+  position: absolute;
   width: @toolWidth;
+  height: unset !important;
+  top: @topMenuHeight + @topStatusHeight;
+  bottom: @toolHeight * 2;
+  right: 0;
   box-sizing: border-box;
   background-color: @toolBgColor;
   border-left: 1px solid @borderColor;
+  align-items: center;
+  z-index: 999;
 }
 
-.leftPane {
+.rightTabsItem {
+  width: 100%;
+  padding: 6px 0;
+  color: @fontColor;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 2px;
+  text-align: center;
+  user-select: none;
+
+  span {
+    font-size: 14px;
+    position: relative;
+    left: -1px;
+    color: @iconColor;
+  }
+
+  &:hover {
+    background-color: @toolItemHoverBgColor;
+  }
+}
+
+.rightTabsItemActive {
+  color: @fontActiveColor !important;
+  background-color: @toolItemActiveBgColor !important;
+}
+
+// -------------------------------------------------------------------------------- Center
+
+.center {
+  position: absolute;
+  top: @topMenuHeight + @topStatusHeight;
+  bottom: @toolHeight * 2;
+  left: @toolHeight;
+  right: @toolHeight;
+}
+
+// -------------------------------------------------------------------------------- VerticalSplit
+
+.verticalSplit {
+  display: flex;
+  flex-direction: column;
+}
+
+.verticalSplitGutter {
+  width: 100%;
+  height: @toolHeight + 2px !important;
   box-sizing: border-box;
-  background-color: @paneBgColor;
+  background-color: @splitBgColor;
+  border-top: 1px solid @borderColor;
+  border-bottom: 1px solid @borderColor;
+  border-left: none;
+  border-right: none;
+  cursor: ns-resize !important;
+  z-index: 999;
 }
 
-.leftPaneHide {
-  background-color: #313335 !important;
-}
-
-.rightPane {
-  box-sizing: border-box;
-  background-color: @paneBgColor;
-}
-
-.rightPaneHide {
-  background-color: @editorBgColor !important;
+.verticalSplitHideGutter .verticalSplitGutter {
+  display: none;
 }
 
 .bottomPane {
@@ -320,15 +298,47 @@
   background-color: @paneBgColor;
 }
 
-.bottomPaneHide {
-  background-color: @editorBgColor !important;
+// -------------------------------------------------------------------------------- HorizontalSplit
+
+.horizontalSplit {
+  display: flex;
+  flex-direction: row;
 }
 
-.editorPane {
-  width: 100%;
+.horizontalSplitGutter {
   height: 100%;
-  overflow: hidden !important;
-  background-color: @editorBgColor;
+  width: 16px !important;
+  margin: 0 -8px;
+  background: none;
+  opacity: 0;
+  box-sizing: border-box;
+  border: none;
+  cursor: ew-resize !important;
+  z-index: 999;
+}
+
+.horizontalLeftSplitHideGutter {
+  .leftSplitGutter {
+    display: none;
+  }
+}
+
+.horizontalRightSplitHideGutter {
+  .rightSplitGutter {
+    display: none;
+  }
+}
+
+.leftPane {
+  box-sizing: border-box;
+  background-color: @paneBgColor;
+  border-right: 1px solid @borderColor;
+}
+
+.rightPane {
+  box-sizing: border-box;
+  background-color: @paneBgColor;
+  border-left: 1px solid @borderColor;
 }
 
 .editorTabs {
@@ -337,9 +347,51 @@
   border-bottom: 1px solid @editorTabsBottomColor;
 }
 
+.fileTabsItem {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 4px 8px 2px 8px;
+  color: @fileTabsColor;
+  font-size: 14px;
+  user-select: none;
+  cursor: default !important;
+
+  &:hover {
+    color: @fontColor !important;
+    background-color: @fileTabsHoverBgColor !important;
+  }
+}
+
+.fileTabsItemClose {
+  border-radius: 8px;
+  color: @fileTabsCloseIconColor;
+  margin-left: 2px;
+
+  svg {
+    padding: 3px;
+  }
+
+  &:hover {
+    color: @fileTabsCloseIconHoverColor !important;
+    background-color: @fileTabsCloseIconHoverBgColor !important;
+  }
+}
+
+.fileTabsItemActive {
+  color: @fileTabsActiveColor;
+  background-color: @fileTabsActiveBgColor;
+  border-bottom: 2px solid @fileTabsBottomColor !important;
+}
+
+.fileTabsItemType {
+  font-size: 14px;
+  color: @fileTabsTypeIconColor;
+  padding-right: 3px;
+}
+
 .editorWrapper {
   width: 100%;
-  height: 100%;
+  height: calc(100% - (@toolHeight + 4px)) !important;
   background-color: @editorBgColor;
 }
 
@@ -357,45 +409,4 @@
       z-index: 999 !important;
     }
   }
-}
-
-.logoImg {
-  height: @toolHeight - 2px;
-  margin-left: 8px;
-}
-
-.logoText {
-  padding: 3px;
-  color: @fontColor;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.2;
-  user-select: none;
-}
-
-.logoTextVersion {
-  padding: 8px 0 3px 0;
-  font-size: 10px;
-  font-weight: normal;
-  color: @versionColor;
-  user-select: none;
-}
-
-.fileResourcePath {
-  padding: 5px 0;
-  height: 100%;
-  font-size: 14px;
-  color: @fontColor !important;
-}
-
-.fileModify {
-  color: @fileModifyColor !important;
-}
-
-.bottomTabsIcon {
-  height: @toolHeight - 4px;
-  font-size: 14px;
-  border-radius: 2px;
-  margin: 2px 0;
-  padding: 3px 4px;
 }
