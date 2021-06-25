@@ -189,24 +189,22 @@ class App extends React.Component<AppProps, AppState> {
             }}
           >
             <div className={cls({ [styles.hide]: !left })}/>
-            <div>
-              <Editor
-                // wrapperClassName={cls(styles.flexItemRowHeightFull, styles.editorWrapper)}
-                // className={styles.editor}
-                // width={"100%"}
-                // height={"100%"}
-                defaultLanguage={languageEnum.javascript}
-                defaultValue={""}
-                theme={"light"}
-                options={editorDefOptions}
-                loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
-                onMount={(editor, monaco) => {
-                  this.editor = editor;
-                  this.editor.layout();
-                  initKeyBinding(editor, monaco);
-                }}
-              />
-            </div>
+            <Editor
+              // wrapperClassName={cls(styles.flexItemRowHeightFull, styles.editorWrapper)}
+              // className={styles.editor}
+              // width={"100%"}
+              // height={"100%"}
+              defaultLanguage={languageEnum.javascript}
+              defaultValue={""}
+              theme={"light"}
+              options={editorDefOptions}
+              loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
+              onMount={(editor, monaco) => {
+                this.editor = editor;
+                this.editor.layout();
+                initKeyBinding(editor, monaco);
+              }}
+            />
             <div className={cls({ [styles.hide]: !right })}/>
           </Split>
           <div className={cls({ [styles.hide]: !bottom })}/>
