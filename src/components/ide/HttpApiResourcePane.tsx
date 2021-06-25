@@ -101,6 +101,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
             }}
             onNodeDoubleClick={node => {
               node.isExpanded = !node.isExpanded;
+              if (!node.isExpanded) collapseAllChildNodes(node);
               if (node.nodeData?.isFile === 0) {
                 // TODO 打开文件
               }
