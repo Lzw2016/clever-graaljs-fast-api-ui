@@ -27,7 +27,7 @@ interface SimpleTreeNode<T = any> {
   /**
    * 子节点
    */
-  children: Array<SimpleTreeNode<T>>;
+  children?: Array<SimpleTreeNode<T>>;
   /**
    * 绑定到节点的对象
    */

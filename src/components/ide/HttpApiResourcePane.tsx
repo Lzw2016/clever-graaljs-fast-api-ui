@@ -99,7 +99,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
               this.forceUpdate();
             }}
             onNodeClick={node => {
-              node.isSelected = true;
+              setSingleSelected(treeData, node.id, true);
               if (node.nodeData?.isFile === 0) {
                 // TODO 打开文件
               }
@@ -111,6 +111,20 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
       </div>
     );
   }
+}
+
+const setSingleSelected = (tree: Array<TreeNodeInfo<ApiFileResourceRes>>, id: any, isSelected: boolean): void => {
+  const setSelected = (node: TreeNodeInfo<ApiFileResourceRes>) => {
+    if (node.id === id) {
+      node.isSelected = isSelected;
+    } else {
+      node.isSelected = !isSelected;
+    }
+    if (node.childNodes && node.childNodes.length > 0) {
+      node.childNodes.forEach(childNode => setSelected(childNode));
+    }
+  }
+  tree.forEach(node => setSelected(node));
 }
 
 const getTreeData = (rawData: Array<SimpleTreeNode<ApiFileResourceRes>>): Array<TreeNodeInfo<ApiFileResourceRes>> => {
@@ -130,7 +144,7 @@ const getTreeData = (rawData: Array<SimpleTreeNode<ApiFileResourceRes>>): Array<
       isExpanded: false, // TODO 保存状态
       isSelected: false, // TODO 保存状态
     };
-    if (!isFile && rawNode.children?.length > 0) {
+    if (!isFile && rawNode.children && rawNode.children.length > 0) {
       node.childNodes = [];
       rawNode.children.forEach(childRawNode => {
         node.childNodes?.push(transformNode(childRawNode));
