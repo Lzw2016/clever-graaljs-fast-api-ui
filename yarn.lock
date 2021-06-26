@@ -388,6 +388,11 @@
   resolved "https://registry.nlark.com/@types/node/download/@types/node-14.17.3.tgz#6d327abaa4be34a74e421ed6409a0ae2f47f4c3d"
   integrity sha1-bTJ6uqS+NKdOQh7WQJoK4vR/TD0=
 
+"@types/numeral@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.nlark.com/@types/numeral/download/@types/numeral-2.0.1.tgz#f7270a16c643d5796199b2a03d1f28595d38f687"
+  integrity sha1-9ycKFsZD1XlhmbKgPR8oWV049oc=
+
 "@types/prop-types@*":
   version "15.7.3"
   resolved "https://registry.nlark.com/@types/prop-types/download/@types/prop-types-15.7.3.tgz#2ab0d5da2e5815f94b0b9d4b95d1e5f243ab2ca7"
@@ -1219,6 +1224,11 @@ normalize.css@^8.0.1:
   version "8.0.1"
   resolved "https://registry.npm.taobao.org/normalize.css/download/normalize.css-8.0.1.tgz#9b98a208738b9cc2634caacbc42d131c97487bf3"
   integrity sha1-m5iiCHOLnMJjTKrLxC0THJdIe/M=
+
+numeral@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.npm.taobao.org/numeral/download/numeral-2.0.6.tgz#4ad080936d443c2561aed9f2197efffe25f4e506"
+  integrity sha1-StCAk21EPCVhrtnyGX7//iX05QY=
 
 object-assign@^4.1.1:
   version "4.1.1"

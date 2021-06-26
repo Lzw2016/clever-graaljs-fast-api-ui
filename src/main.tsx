@@ -14,6 +14,9 @@ import "react-reflex/styles.css";
 import "simplebar/dist/simplebar.min.css";
 import "@/assets/global.less";
 
+// 取消默认的浏览器自带右键
+window.oncontextmenu = e => e.preventDefault();
+
 dayjs.locale("zh-cn");
 loader.config({
   paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.25.2/min/vs" },

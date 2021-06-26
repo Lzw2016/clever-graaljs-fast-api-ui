@@ -14,10 +14,12 @@ import SimpleBar from "simplebar-react";
 import { Classes, Intent, Spinner, SpinnerSize, Tree, TreeNodeInfo } from "@blueprintjs/core";
 import { FastApi } from "@/apis";
 import { request } from "@/utils/request";
+import { componentStateKey, fastApiStore } from "@/utils/storage";
 import { Folder, getFileIcon } from "@/utils/IdeaIconUtils";
 import styles from "./HttpApiResourcePane.module.less";
 
 const getDataApi = FastApi.HttpApiManage.getHttpApiTree;
+
 
 interface HttpApiResourcePaneProps {
 //  onSelectChange
@@ -26,36 +28,80 @@ interface HttpApiResourcePaneProps {
 }
 
 interface HttpApiResourcePaneState {
+  /** 数据加载状态 */
   loading: boolean;
+  /** 树数据 */
   treeData: Array<TreeNodeInfo<ApiFileResourceRes>>;
+  /** 已展开的节点ID */
+  expandedIds: Set<TreeNodeInfo["id"]>;
+  /** 当前选择的节点ID */
+  selectedId: TreeNodeInfo["id"];
+}
+
+// 读取组件状态
+const storageState: Partial<HttpApiResourcePaneState> = await fastApiStore.getItem(componentStateKey.HttpApiResourcePaneState) ?? {};
+// 组件状态默认值
+const defaultState: HttpApiResourcePaneState = {
+  loading: true,
+  treeData: [],
+  expandedIds: new Set(),
+  selectedId: "",
+  ...storageState,
 }
 
 class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, HttpApiResourcePaneState> {
-  static defaultState: HttpApiResourcePaneState = {
-    loading: true,
-    treeData: [],
-  }
-
   constructor(props: HttpApiResourcePaneProps) {
     super(props);
-    this.state = { ...HttpApiResourcePane.defaultState };
+    this.state = { ...defaultState };
   }
 
+  // 组件挂载后
   public componentDidMount() {
     this.reLoadTreeData();
   }
 
+  // 组件将要被卸载
+  public componentWillUnmount() {
+    this.saveState();
+  }
+
+  /** 重新加载数据 */
   public reLoadTreeData() {
     request.get(getDataApi)
       .then(treeData => {
-        treeData = getTreeData(treeData);
+        treeData = transformTreeData(treeData);
         this.setState({ treeData });
       })
       .finally(() => this.setState({ loading: false }));
   }
 
+  /** 保存组件状态 */
+  public saveState(): void {
+    const { loading, treeData, expandedIds, ...other } = this.state;
+    treeData.forEach(node => forEachTreeNode(node, n => {
+      if (!expandedIds.has(n.id)) expandedIds.delete(n.id);
+    }));
+    fastApiStore.setItem(
+      componentStateKey.HttpApiResourcePaneState,
+      { expandedIds, ...other },
+    ).finally();
+  }
+
+  private fillTreeState(treeData: Array<TreeNodeInfo<ApiFileResourceRes>>): void {
+    const { expandedIds, selectedId } = this.state;
+    const fillTreeNodeState = (node: TreeNodeInfo<ApiFileResourceRes>) => {
+      node.isSelected = selectedId === node.id;
+      node.isExpanded = expandedIds.has(node.id);
+      if (node.childNodes && node.childNodes.length > 0) {
+        node.childNodes.forEach(childNode => fillTreeNodeState(childNode));
+      }
+    };
+    treeData.forEach(node => fillTreeNodeState(node));
+  }
+
   render() {
-    const { loading, treeData } = this.state;
+    const { loading, treeData, expandedIds } = this.state;
+    this.fillTreeState(treeData);
     return (
       <div className={cls(Classes.DARK, styles.pane)}>
         <div className={cls(styles.flexColumn, styles.head)}>
@@ -89,26 +135,27 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
             contents={treeData}
             onNodeExpand={node => {
               if (node.childNodes && node.childNodes.length <= 0) return;
-              node.isExpanded = true;
-              setSingleSelected(treeData, node.id, true);
-              this.forceUpdate();
+              expandedIds.add(node.id);
+              this.setState({ selectedId: node.id });
             }}
             onNodeCollapse={node => {
               if (node.childNodes && node.childNodes.length <= 0) return;
-              collapseAllChildNodes(node);
-              setSingleSelected(treeData, node.id, true);
-              this.forceUpdate();
+              forEachTreeNode(node, n => expandedIds.delete(n.id));
+              this.setState({ selectedId: node.id });
             }}
             onNodeDoubleClick={node => {
-              node.isExpanded = !node.isExpanded;
-              if (!node.isExpanded) collapseAllChildNodes(node);
+              if (node.isExpanded) {
+                forEachTreeNode(node, n => expandedIds.delete(n.id));
+              } else {
+                expandedIds.add(node.id);
+              }
               if (node.nodeData?.isFile === 0) {
                 // TODO 打开文件
               }
-              this.forceUpdate();
+              this.setState({ selectedId: node.id });
             }}
             onNodeClick={node => {
-              setSingleSelected(treeData, node.id, true);
+              this.setState({ selectedId: node.id });
               this.forceUpdate();
             }}
             // onNodeContextMenu
@@ -119,28 +166,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
   }
 }
 
-const collapseAllChildNodes = (rootNode: TreeNodeInfo<ApiFileResourceRes>): void => {
-  rootNode.isExpanded = false;
-  if (rootNode.childNodes && rootNode.childNodes.length > 0) {
-    rootNode.childNodes.forEach(childNode => collapseAllChildNodes(childNode));
-  }
-}
-
-const setSingleSelected = (tree: Array<TreeNodeInfo<ApiFileResourceRes>>, id: any, isSelected: boolean): void => {
-  const setSelected = (node: TreeNodeInfo<ApiFileResourceRes>) => {
-    if (node.id === id) {
-      node.isSelected = isSelected;
-    } else {
-      node.isSelected = !isSelected;
-    }
-    if (node.childNodes && node.childNodes.length > 0) {
-      node.childNodes.forEach(childNode => setSelected(childNode));
-    }
-  }
-  tree.forEach(node => setSelected(node));
-}
-
-const getTreeData = (rawData: Array<SimpleTreeNode<ApiFileResourceRes>>): Array<TreeNodeInfo<ApiFileResourceRes>> => {
+const transformTreeData = (rawData: Array<SimpleTreeNode<ApiFileResourceRes>>): Array<TreeNodeInfo<ApiFileResourceRes>> => {
   const treeData: Array<TreeNodeInfo<ApiFileResourceRes>> = [];
   const transformNode = (rawNode: SimpleTreeNode<ApiFileResourceRes>): TreeNodeInfo<ApiFileResourceRes> => {
     const attributes = rawNode.attributes;
@@ -154,19 +180,25 @@ const getTreeData = (rawData: Array<SimpleTreeNode<ApiFileResourceRes>>): Array<
           <Icon component={Folder} className={cls(Classes.ICON, styles.folderIcon)}/>
       ),
       nodeData: attributes,
-      isExpanded: false, // TODO 保存状态
-      isSelected: false, // TODO 保存状态
+      isExpanded: false,
+      isSelected: false,
     };
     if (!isFile && rawNode.children && rawNode.children.length > 0) {
       node.childNodes = [];
-      rawNode.children.forEach(childRawNode => {
-        node.childNodes?.push(transformNode(childRawNode));
-      });
+      rawNode.children.forEach(childRawNode => node.childNodes?.push(transformNode(childRawNode)));
     }
     return node;
   };
   rawData.forEach(rawNode => treeData.push(transformNode(rawNode)));
   return treeData;
+};
+
+const forEachTreeNode = (node: TreeNodeInfo<ApiFileResourceRes>, callBack: (n: TreeNodeInfo<ApiFileResourceRes>) => void): void => {
+  if (!callBack) return;
+  callBack(node);
+  if (node.childNodes && node.childNodes.length > 0) {
+    node.childNodes.forEach(callBack);
+  }
 };
 
 export type { HttpApiResourcePaneProps, HttpApiResourcePaneState };
