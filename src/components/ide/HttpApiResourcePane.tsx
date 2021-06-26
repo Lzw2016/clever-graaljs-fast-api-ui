@@ -89,6 +89,15 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
       request.get(getDataApi)
         .then(treeData => {
           treeData = transformTreeData(treeData);
+          const { onSelectChange } = this.props;
+          if (onSelectChange) {
+            const { selectedId } = this.state;
+            let selectNode: TreeNodeInfo<ApiFileResourceRes> | undefined;
+            (treeData as Array<TreeNodeInfo<ApiFileResourceRes>>).forEach(node => forEachTreeNode(node, n => {
+              if (n.nodeData?.fileResourceId === selectedId) selectNode = n;
+            }));
+            if (selectNode) onSelectChange(selectNode);
+          }
           this.setState({ treeData });
         })
         .finally(() => this.setState({ loading: false }));
@@ -141,15 +150,37 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           onClick={() => {
             if (noValue(openFileId)) return;
             if (selectedId === openFileId) return;
-            let openNode: TreeNodeInfo<ApiFileResourceRes> | undefined;
+            let selectNode: TreeNodeInfo<ApiFileResourceRes> | undefined;
             treeData.forEach(node => forEachTreeNode(node, n => {
-              if (n.nodeData?.fileResourceId === openFileId) openNode = n;
+              if (n.nodeData?.fileResourceId === openFileId) selectNode = n;
             }));
-            if (openNode) {
-              if (onSelectChange) onSelectChange(openNode);
+            if (selectNode) {
+              if (onSelectChange) onSelectChange(selectNode);
               this.setState({ selectedId: openFileId! });
             }
           }}
+        />
+        <SearchOutlined
+          className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}
+        />
+        {
+          nodeNameSort === "ASC" &&
+          <SortAscendingOutlined
+            className={cls(styles.flexItemColumn, styles.icon)}
+            onClick={() => this.setState({ nodeNameSort: "DESC" })}
+          />
+        }
+        {
+          nodeNameSort === "DESC" &&
+          <SortDescendingOutlined
+            className={cls(styles.flexItemColumn, styles.icon)}
+            onClick={() => this.setState({ nodeNameSort: "ASC" })}
+          />
+        }
+        <ReloadOutlined
+          className={cls(styles.flexItemColumn, styles.icon)}
+          style={{ fontSize: 14, padding: 3 }}
+          onClick={() => this.reLoadTreeData()}
         />
         <ColumnHeightOutlined
           className={cls(styles.flexItemColumn, styles.icon)}
@@ -166,28 +197,6 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
             expandedIds.clear();
             this.forceUpdate();
           }}
-        />
-        {
-          nodeNameSort === "ASC" &&
-          <SortAscendingOutlined
-            className={cls(styles.flexItemColumn, styles.icon)}
-            onClick={() => this.setState({ nodeNameSort: "DESC" })}
-          />
-        }
-        {
-          nodeNameSort === "DESC" &&
-          <SortDescendingOutlined
-            className={cls(styles.flexItemColumn, styles.icon)}
-            onClick={() => this.setState({ nodeNameSort: "ASC" })}
-          />
-        }
-        <SearchOutlined
-          className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}
-        />
-        <ReloadOutlined
-          className={cls(styles.flexItemColumn, styles.icon)}
-          style={{ fontSize: 14, padding: 3 }}
-          onClick={() => this.reLoadTreeData()}
         />
         <MinusOutlined
           className={cls(styles.flexItemColumn, styles.icon, { [styles.iconDisable]: noValue(onHidePanel) })}

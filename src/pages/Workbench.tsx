@@ -19,7 +19,7 @@ import Icon, {
   UnlockOutlined,
   WechatOutlined
 } from "@ant-design/icons";
-import { Intent, Spinner, SpinnerSize } from "@blueprintjs/core";
+import { Intent, Spinner, SpinnerSize, TreeNodeInfo } from "@blueprintjs/core";
 import * as MonacoApi from "monaco-editor";
 import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
@@ -47,19 +47,21 @@ interface WorkbenchProps {
 }
 
 interface WorkbenchState extends LayoutSize {
+  /** 当前选中的API文件 */
+  selectApiFileResource?: TreeNodeInfo<ApiFileResourceRes>;
 }
 
-class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
-  static defaultState: WorkbenchState = {
-    bottomPanel: BottomPanelEnum.GlobalConfig,
-    vSplitSize: [80, 20],
-    vSplitCollapsedSize: [80, 20],
-    leftPanel: LeftPanelEnum.Interface,
-    rightPanel: RightPanelEnum.JDBC,
-    hSplitSize: [15, 75, 10],
-    hSplitCollapsedSize: [15, 75, 10],
-  };
+const defaultState: WorkbenchState = {
+  bottomPanel: BottomPanelEnum.GlobalConfig,
+  vSplitSize: [80, 20],
+  vSplitCollapsedSize: [80, 20],
+  leftPanel: LeftPanelEnum.Interface,
+  rightPanel: RightPanelEnum.JDBC,
+  hSplitSize: [15, 75, 10],
+  hSplitCollapsedSize: [15, 75, 10],
+};
 
+class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   /** 编辑器实例 */
   private editor: MonacoApi.editor.IStandaloneCodeEditor | undefined;
   /** 编辑器大小自适应 */
@@ -67,7 +69,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
 
   constructor(props: Readonly<WorkbenchProps>) {
     super(props);
-    this.state = { ...Workbench.defaultState };
+    this.state = { ...defaultState };
   }
 
   // 组件挂载后
@@ -105,7 +107,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   // 切换左侧布局区域隐藏/显示
-  public toggleLeftPanel(panel: LeftPanelEnum) {
+  public toggleLeftPanel(panel?: LeftPanelEnum) {
     const { leftPanel, rightPanel } = this.state;
     let newLeftPanel: LeftPanelEnum | undefined;
     if (panel === LeftPanelEnum.Interface) {
@@ -122,7 +124,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   // 切换右侧布局区域隐藏/显示
-  public toggleRightPanel(panel: RightPanelEnum) {
+  public toggleRightPanel(panel?: RightPanelEnum) {
     const { leftPanel, rightPanel } = this.state;
     let newRightPanel: RightPanelEnum | undefined;
     if (panel === RightPanelEnum.JDBC) {
@@ -170,6 +172,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getTopStatus() {
+    const { selectApiFileResource } = this.state;
     return (
       <>
         <div className={cls(styles.flexItemColumn)} style={{ width: 3 }}/>
@@ -179,17 +182,32 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)} style={{ margin: "0 8px 0 4px", fontWeight: "bold" }}>
           [default]
         </div>
-        <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
-          /clever-graaljs/clever-graaljs-data-jdbc/src/builtin/
-          <span className={styles.topStatusFileModify}>JdbcDatabaseTest.js</span>
-        </div>
-        <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
-          <ArrowRightOutlined style={{ fontSize: 10, padding: "0 8px 0 8px" }}/>
-        </div>
-        <SettingOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ fontSize: 14, padding: "4px 4px" }}/>
-        <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
-          [GET] /api/aaa/bbb/ccc/ddd
-        </div>
+        {
+          selectApiFileResource?.nodeData &&
+          <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
+            {
+              selectApiFileResource.nodeData?.isFile === 1 ?
+                (<>{selectApiFileResource.nodeData?.path}<span className={styles.topStatusFileModify}> {selectApiFileResource.nodeData?.name}</span></>) :
+                (selectApiFileResource.nodeData?.path! + selectApiFileResource.nodeData?.name!)
+            }
+          </div>
+        }
+        {
+          selectApiFileResource?.nodeData?.httpApiId &&
+          <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
+            <ArrowRightOutlined style={{ fontSize: 10, padding: "0 8px 0 8px" }}/>
+          </div>
+        }
+        {
+          selectApiFileResource?.nodeData?.httpApiId &&
+          <SettingOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ fontSize: 14, padding: "4px 4px" }}/>
+        }
+        {
+          selectApiFileResource?.nodeData?.httpApiId &&
+          <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
+            &nbsp;[{selectApiFileResource.nodeData?.requestMethod}]&nbsp;{selectApiFileResource.nodeData?.requestMapping}
+          </div>
+        }
         <div className={cls(styles.flexItemColumnWidthFull)}/>
         <IconFont type="icon-run" className={cls(styles.flexItemColumn, styles.icon)} style={{ color: "#499C54" }}/>
         <IconFont type="icon-save" className={cls(styles.flexItemColumn, styles.icon)}/>
@@ -391,8 +409,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
       <>
         <HttpApiResourcePane
           // openFileId={}
-          // onHidePanel={}
-          // onSelectChange={}
+          onHidePanel={() => this.toggleLeftPanel()}
+          onSelectChange={node => this.setState({ selectApiFileResource: node })}
           // onOpenFile={}
         />
       </>
