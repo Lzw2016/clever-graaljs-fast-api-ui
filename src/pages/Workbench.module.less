@@ -5,7 +5,7 @@
 
 .icon {
   height: @toolHeight - 2px;
-  margin: 2px 0;
+  margin: 1px 0;
   padding: 3px 4px;
   border-radius: 2px;
   font-size: 16px;
@@ -278,13 +278,13 @@
 
 .verticalSplitGutter {
   width: 100%;
-  height: @toolHeight + 2px !important;
+
+  height: 16px !important;
+  margin: -12px 0 -4px 0;
+  background: none;
+  opacity: 0;
   box-sizing: border-box;
-  background-color: @splitBgColor;
-  border-top: 1px solid @borderColor;
-  border-bottom: 1px solid @borderColor;
-  border-left: none;
-  border-right: none;
+  border: none;
   cursor: ns-resize !important;
   z-index: 999;
 }
@@ -296,6 +296,67 @@
 .bottomPane {
   box-sizing: border-box;
   background-color: @paneBgColor;
+}
+
+.verticalSplitTabs {
+  width: 100%;
+  height: @toolHeight + 2px;
+  background-color: @splitBgColor;
+  border-top: 1px solid @borderColor;
+  border-bottom: 1px solid @borderColor;
+  border-left: none;
+  border-right: none;
+  box-sizing: border-box;
+}
+
+.verticalSplitTabsLabel {
+  height: 100%;
+  box-sizing: border-box;
+  color: @fontColor;
+  font-size: 13px;
+  user-select: none;
+  padding: 4px 8px 4px 4px;
+}
+
+.verticalSplitTabsItem {
+  height: 100%;
+  box-sizing: border-box;
+  color: @fontColor;
+  font-size: 12px;
+  user-select: none;
+  cursor: default;
+
+  &:hover {
+    background-color: @splitHoverBgColor !important;
+  }
+}
+
+.verticalSplitTabsItemLabel {
+  display: inline-block;
+  padding: 5px 4px 6px 8px;
+}
+
+.verticalSplitTabsItemClose {
+  display: inline-block;
+  margin-right: 4px;
+  font-size: 12px;
+  border-radius: 8px;
+  color: @splitIconColor;
+  //cursor: pointer;
+
+  svg {
+    padding: 2px;
+  }
+
+  &:hover {
+    color: @splitHoverBgColor !important;
+    background-color: @splitIconHoverColor !important;
+  }
+}
+
+.verticalSplitTabsItemActive {
+  color: @fontColor;
+  border-bottom: 2px solid @splitBottomColor !important;
 }
 
 // -------------------------------------------------------------------------------- HorizontalSplit
@@ -340,6 +401,8 @@
   background-color: @paneBgColor;
   border-left: 1px solid @borderColor;
 }
+
+// -------------------------------------------------------------------------------- Editor
 
 .editorTabs {
   height: @toolHeight + 4px;

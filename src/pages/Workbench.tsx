@@ -2,10 +2,6 @@ import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
 import Split from "react-split";
-import * as MonacoApi from "monaco-editor";
-import { hasValue, noValue } from "@/utils/utils";
-import styles from "./Workbench.module.less";
-import ReactDOM from "react-dom";
 import Icon, {
   ApiOutlined,
   ArrowRightOutlined,
@@ -15,91 +11,24 @@ import Icon, {
   GithubOutlined,
   HistoryOutlined,
   LockOutlined,
+  MinusOutlined,
   QqOutlined,
   QuestionCircleOutlined,
   SettingOutlined,
   UnlockOutlined,
   WechatOutlined
 } from "@ant-design/icons";
+import { Intent, Spinner, SpinnerSize } from "@blueprintjs/core";
+import * as MonacoApi from "monaco-editor";
+import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
 import logo from "@/assets/logo.svg";
 import { HttpApiResourcePane } from "@/components/ide";
-import { JsFile, JsonFile, YmlFile } from "@/utils/IdeaIconUtils";
-import Editor from "@monaco-editor/react";
+import { hasValue, noValue } from "@/utils/utils";
+import { ChevronDown, ChevronUp, JsFile, JsonFile, YmlFile } from "@/utils/IdeaIconUtils";
 import { editorDefOptions, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
-import { Intent, Spinner, SpinnerSize } from "@blueprintjs/core";
-
-// enum LayoutPanelEnum {
-//   Left,
-//   Right,
-//   Bottom,
-// }
-
-enum LeftPanelEnum {
-  /** Http接口 */
-  Interface,
-  /** 定时任务 */
-  TimedTask,
-  /** 自定义扩展 */
-  Expand,
-  /** 初始化脚本 */
-  Initialization
-}
-
-enum RightPanelEnum {
-  /** JDBC数据库 */
-  JDBC,
-  /** Redis数据库 */
-  Redis,
-  /** Elasticsearch数据库 */
-  Elasticsearch
-}
-
-enum BottomPanelEnum {
-  /** 接口配置 */
-  Interface,
-  /** 请求配置 */
-  Request,
-  /** 运行结果 */
-  RunResult,
-  /** 全局请求参数 */
-  GlobalConfig,
-  /** 系统事件 */
-  SysEvent,
-}
-
-interface EditorTabItem {
-  /** 顺序(由小到大) */
-  sort: number;
-  /** 文件 */
-  fileResource: FileResource,
-  /** 是否需要保存 */
-  needSave: boolean;
-  /** Http接口 */
-  httpApi?: HttpApi,
-  /** TODO 请求参数(列表) */
-  httpApiRequestParamList?: Array<any>;
-  /** TODO API文档 */
-  httpApiDoc?: any;
-}
-
-/** 布局状态 */
-interface LayoutSize {
-  /** 底部容器显示的叶签 */
-  bottomPanel?: BottomPanelEnum;
-  /** 上下容器Size */
-  vSplitSize: [number, number];
-  /** 上下容器收缩Size */
-  vSplitCollapsedSize: [number, number];
-  /** 左侧容器显示的叶签 */
-  leftPanel?: LeftPanelEnum;
-  /** 右侧容器显示的叶签 */
-  rightPanel?: RightPanelEnum;
-  /** 左中右容器Size */
-  hSplitSize: [number, number, number];
-  /** 左中右容器收缩Size */
-  hSplitCollapsedSize: [number, number, number];
-}
+import { BottomPanelEnum, EditorTabItem, LayoutSize, LeftPanelEnum, RightPanelEnum } from "@/types/workbench-layout";
+import styles from "./Workbench.module.less";
 
 /** 编辑器打开的文件 */
 interface EditorTabsState {
@@ -130,8 +59,6 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     hSplitCollapsedSize: [10, 80, 10],
   };
 
-  // private verticalSplit: Split | null = null;
-  // private horizontalSplit: Split | null = null;
   /** 编辑器实例 */
   private editor: MonacoApi.editor.IStandaloneCodeEditor | undefined;
   /** 编辑器大小自适应 */
@@ -399,6 +326,67 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     );
   }
 
+  private getVSplitTabs() {
+    const { bottomPanel, vSplitSize, vSplitCollapsedSize } = this.state;
+    const sizes = hasValue(bottomPanel) ? vSplitSize : vSplitCollapsedSize;
+    const topSize = sizes[0];
+    return (
+      <div className={cls(styles.verticalSplitTabs, styles.flexColumn)}>
+        <div className={cls(styles.flexItemColumn, styles.verticalSplitTabsLabel)}>接口配置:</div>
+        <div className={cls(styles.flexItemColumn, styles.verticalSplitTabsItem, styles.verticalSplitTabsItemActive)}>
+          <span className={cls(styles.verticalSplitTabsItemLabel)}>叶签1</span>
+          <CloseOutlined className={cls(styles.verticalSplitTabsItemClose)}/>
+        </div>
+        <div className={cls(styles.flexItemColumn, styles.verticalSplitTabsItem)}>
+          <span className={cls(styles.verticalSplitTabsItemLabel)}>叶签2</span>
+          <CloseOutlined className={cls(styles.verticalSplitTabsItemClose)}/>
+        </div>
+        <div className={cls(styles.flexItemColumn, styles.verticalSplitTabsItem)}>
+          <span className={cls(styles.verticalSplitTabsItemLabel)}>叶签3</span>
+          <CloseOutlined className={cls(styles.verticalSplitTabsItemClose)}/>
+        </div>
+        <div className={cls(styles.flexItemColumnWidthFull)}/>
+        {
+          topSize > 20 &&
+          <Icon
+            component={ChevronUp}
+            className={cls(styles.flexItemColumn, styles.icon)}
+            onClick={() => {
+              sizes[0] = 20;
+              sizes[1] = 80;
+              this.forceUpdate();
+            }}
+          />
+        }
+        {
+          topSize <= 18 &&
+          <Icon
+            component={ChevronDown}
+            className={cls(styles.flexItemColumn, styles.icon)}
+            onClick={() => {
+              sizes[0] = 80;
+              sizes[1] = 20;
+              this.forceUpdate();
+            }}
+          />
+        }
+        <MinusOutlined
+          className={cls(styles.flexItemColumn, styles.icon)}
+          onClick={() => this.toggleBottomPanel()}
+        />
+        <div className={cls(styles.flexItemColumn)} style={{ width: 2 }}/>
+      </div>
+    );
+  }
+
+  private getLeftContent() {
+    return (
+      <>
+        <HttpApiResourcePane/>
+      </>
+    );
+  }
+
   private getOpenFilesTabs() {
     return (
       <>
@@ -475,28 +463,16 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           snapOffset={20}
           dragInterval={1}
           gutterSize={0}
+          cursor={"ns-resize"}
           elementStyle={(_, elementSize) => {
             if (elementSize < 1) elementSize = 0;
             if (elementSize > 99) elementSize = 100;
             return { height: `${elementSize}%` };
           }}
-          onDragEnd={lodash.debounce(
-            (sizes) => {
-              // this.editor?.layout()
-              this.setState({ vSplitSize: sizes });
-            },
-            500,
-            { maxWait: 3000 }
-          )}
+          onDragEnd={sizes => this.setState({ vSplitSize: sizes as any })}
           gutter={() => {
             const element = document.createElement("div");
             element.className = cls("gutter gutter-vertical", styles.verticalSplitGutter);
-            ReactDOM.render((
-              <>
-                <span>AAA</span>
-                <span>BBB</span>
-              </>
-            ), element);
             return element;
           }}
         >
@@ -510,20 +486,14 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             sizes={noValue(leftPanel) || noValue(rightPanel) ? hSplitCollapsedSize : hSplitSize}
             minSize={[hasValue(leftPanel) ? 285 : 0, 256, hasValue(rightPanel) ? 128 : 0]}
             maxSize={[512, Infinity, 512]}
-            snapOffset={0}
+            snapOffset={20}
             dragInterval={1}
             gutterSize={0}
+            cursor={"ew-resize"}
             elementStyle={(_, elementSize) => {
               return { width: `${elementSize}%` };
             }}
-            onDragEnd={lodash.debounce(
-              (sizes) => {
-                // this.editor?.layout()
-                this.setState({ hSplitSize: sizes });
-              },
-              500,
-              { maxWait: 3000 }
-            )}
+            onDragEnd={sizes => this.setState({ hSplitSize: sizes as any })}
             gutter={index => {
               const element = document.createElement("div");
               element.className = cls(
@@ -536,7 +506,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             }}
           >
             <div className={cls(styles.leftPane, styles.flexRow, { [styles.hide]: noValue(leftPanel) })}>
-              <HttpApiResourcePane/>
+              {this.getLeftContent()}
             </div>
             <div>
               <div className={cls(styles.editorTabs, styles.flexColumn)}>
@@ -546,7 +516,9 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             </div>
             <div className={cls(styles.rightPane, styles.flexRow, { [styles.hide]: noValue(rightPanel) })}/>
           </Split>
-          <div className={cls(styles.bottomPane, { [styles.hide]: noValue(bottomPanel) })}/>
+          <div className={cls(styles.bottomPane, { [styles.hide]: noValue(bottomPanel) })}>
+            {this.getVSplitTabs()}
+          </div>
         </Split>
       </>
     );

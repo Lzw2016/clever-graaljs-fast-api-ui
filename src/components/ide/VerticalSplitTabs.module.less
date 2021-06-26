@@ -1,0 +1,51 @@
+@import "/src/assets/variables";
+
+.verticalSplitTabsLabel {
+  height: 100%;
+  box-sizing: border-box;
+  color: @fontColor;
+  font-size: 13px;
+  user-select: none;
+  padding: 4px 8px 4px 4px;
+}
+
+.verticalSplitTabsItem {
+  height: 100%;
+  box-sizing: border-box;
+  color: @fontColor;
+  font-size: 12px;
+  user-select: none;
+  cursor: default !important;
+
+  &:hover {
+    background-color: @splitHoverBgColor !important;
+  }
+}
+
+.verticalSplitTabsItemLabel {
+  display: inline-block;
+  padding: 5px 4px 6px 8px;
+}
+
+.verticalSplitTabsItemClose {
+  display: inline-block;
+  margin-right: 4px;
+  font-size: 12px;
+  border-radius: 8px;
+  color: @splitIconColor;
+  //cursor: pointer;
+
+  svg {
+    padding: 2px;
+  }
+
+  &:hover {
+    color: @splitHoverBgColor !important;
+    background-color: @splitIconHoverColor !important;
+  }
+}
+
+.verticalSplitTabsItemActive {
+  color: @fontColor;
+  border-bottom: 2px solid @splitBottomColor !important;
+}
