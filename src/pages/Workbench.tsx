@@ -427,7 +427,6 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
 
   private getOpenFilesTabs() {
     const { openFileMap } = this.state;
-    if (openFileMap.size <= 0) return <div/>;
     const openFiles = lodash.sortBy([...openFileMap.values()], item => item.sort);
     const fileTabs: React.ReactNode[] = [];
     openFiles.forEach(file => {
@@ -451,31 +450,33 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         </div>
       );
     });
-    return (<div className={cls(styles.editorTabs, styles.flexColumn)}>{fileTabs}</div>);
+    return (<div className={cls(styles.editorTabs, styles.flexColumn, { [styles.hide]: fileTabs.length <= 0 })}>{fileTabs}</div>);
+  }
+
+  private getTips() {
+    const { currentEditId } = this.state;
+    return (
+      <div className={cls({ [styles.emptyEditor]: !currentEditId }, { [styles.hide]: currentEditId })}>
+        <p>
+          保存<em>Ctrl + S</em><br/>
+          代码提示<em>Alt + /</em><br/>
+          参数提示<em>Ctrl + P</em><br/>
+          格式化<em>Ctrl + Alt + L</em><br/>
+          复制行<em>Ctrl + D</em><br/>
+          删除行<em>Ctrl + Y</em><br/>
+          向下插入行<em>Shift + Enter</em><br/>
+          向上插入行<em>Ctrl + Shift + Enter</em><br/>
+        </p>
+      </div>
+    );
   }
 
   private getEditor() {
     const { currentEditId, openFileMap } = this.state;
-    if (!currentEditId) {
-      return (
-        <div className={cls(styles.emptyEditor)}>
-          <p>
-            保存<em>Ctrl + S</em><br/>
-            代码提示<em>Alt + /</em><br/>
-            参数提示<em>Ctrl + P</em><br/>
-            格式化<em>Ctrl + Alt + L</em><br/>
-            复制行<em>Ctrl + D</em><br/>
-            删除行<em>Ctrl + Y</em><br/>
-            向下插入行<em>Shift + Enter</em><br/>
-            向上插入行<em>Ctrl + Shift + Enter</em><br/>
-          </p>
-        </div>
-      );
-    }
-    const openFile: EditorTabItem | undefined = openFileMap.get(currentEditId);
+    const openFile: EditorTabItem | undefined = openFileMap.get(currentEditId ?? "");
     return (
       <Editor
-        wrapperClassName={cls(styles.editorWrapper)}
+        wrapperClassName={cls(styles.editorWrapper, { [styles.hide]: !currentEditId })}
         className={styles.editor}
         defaultLanguage={languageEnum.javascript}
         defaultValue={""}
@@ -570,6 +571,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             </div>
             <div>
               {this.getOpenFilesTabs()}
+              {this.getTips()}
               {this.getEditor()}
             </div>
             <div className={cls(styles.rightPane, styles.flexRow, { [styles.hide]: noValue(rightPanel) })}/>
