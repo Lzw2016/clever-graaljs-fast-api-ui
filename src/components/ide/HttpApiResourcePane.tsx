@@ -15,6 +15,7 @@ import Icon, {
   SortDescendingOutlined,
   VerticalAlignMiddleOutlined
 } from "@ant-design/icons";
+import copyToClipboard from "copy-to-clipboard";
 import SimpleBar from "simplebar-react";
 import { Classes, Intent, Menu, MenuDivider, MenuItem, Spinner, SpinnerSize, Tree, TreeNodeInfo } from "@blueprintjs/core";
 import { ContextMenu2 } from "@blueprintjs/popover2";
@@ -134,15 +135,19 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         <MenuItem
           icon={<CopyOutlined className={cls(styles.menuIcon)}/>}
           text="复制名称"
-          disabled={!contextMenuSelectNode}
+          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData}
           onClick={() => {
+            const nodeData = contextMenuSelectNode?.nodeData;
+            if (nodeData) copyToClipboard(nodeData.name);
           }}
         />
         <MenuItem
           icon={<CopyOutlined className={cls(styles.menuIcon)}/>}
           text="复制文件路径"
-          disabled={!contextMenuSelectNode}
+          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData}
           onClick={() => {
+            const nodeData = contextMenuSelectNode?.nodeData;
+            if (nodeData) copyToClipboard(nodeData.path + nodeData.name);
           }}
         />
         <MenuItem
@@ -150,6 +155,8 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           text="复制接口路径"
           disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData || !contextMenuSelectNode.nodeData.requestMapping}
           onClick={() => {
+            const nodeData = contextMenuSelectNode?.nodeData;
+            if (nodeData && nodeData.requestMapping) copyToClipboard(nodeData.requestMapping!);
           }}
         />
         <MenuDivider/>
