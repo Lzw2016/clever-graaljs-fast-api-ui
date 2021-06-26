@@ -176,7 +176,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     return (
       <>
         <div className={cls(styles.flexItemColumn)} style={{ width: 3 }}/>
-        <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)} style={{ paddingTop: 7 }}>
+        <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)} style={{ paddingTop: 6 }}>
           <AppstoreOutlined style={{ fontSize: 16 }}/>
         </div>
         <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)} style={{ margin: "0 8px 0 4px", fontWeight: "bold" }}>
