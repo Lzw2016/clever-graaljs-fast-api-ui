@@ -1,5 +1,6 @@
 import React from "react";
 import cls from "classnames";
+import lodash from "lodash";
 import Icon, {
   AimOutlined,
   ColumnHeightOutlined,
@@ -24,15 +25,19 @@ import { request } from "@/utils/request";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import { Folder, getFileIcon } from "@/utils/IdeaIconUtils";
 import styles from "./HttpApiResourcePane.module.less";
+import { noValue } from "@/utils/utils";
 
 const getDataApi = FastApi.HttpApiManage.getHttpApiTree;
 
 interface HttpApiResourcePaneProps {
-//  onSelectChange
-//  onOpenFile
-//  openFileId
-//  onExpandedPanel
-
+  /** 当前打开的文件ID */
+  openFileId?: string;
+  /** 选择节点变化事件 */
+  onSelectChange?: (node: TreeNodeInfo<ApiFileResourceRes>) => void;
+  /** 打开文件事件 */
+  onOpenFile?: (apiFileResource: ApiFileResourceRes) => void;
+  /** 当前组件点击最小化事件 */
+  onHidePanel?: () => void;
 }
 
 interface HttpApiResourcePaneState {
@@ -46,6 +51,8 @@ interface HttpApiResourcePaneState {
   selectedId: TreeNodeInfo["id"];
   /** 右键菜单选中的Tree节点 */
   contextMenuSelectNode?: TreeNodeInfo<ApiFileResourceRes>;
+  /** 节点名称排序规则 */
+  nodeNameSort: "ASC" | "DESC";
 }
 
 // 读取组件状态
@@ -56,6 +63,7 @@ const defaultState: HttpApiResourcePaneState = {
   treeData: [],
   expandedIds: new Set(),
   selectedId: "",
+  nodeNameSort: "ASC",
   ...storageState,
 }
 
@@ -89,7 +97,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
 
   /** 保存组件状态 */
   public saveState(): void {
-    const { treeData, expandedIds, selectedId } = this.state;
+    const { treeData, expandedIds, selectedId, nodeNameSort } = this.state;
     const allIds = new Set();
     treeData.forEach(node => forEachTreeNode(node, n => allIds.add(n.id)));
     expandedIds.forEach(id => {
@@ -97,24 +105,30 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
     });
     fastApiStore.setItem(
       componentStateKey.HttpApiResourcePaneState,
-      { expandedIds, selectedId },
+      { expandedIds, selectedId, nodeNameSort },
     ).finally();
   }
 
-  private fillTreeState(treeData: Array<TreeNodeInfo<ApiFileResourceRes>>): void {
-    const { expandedIds, selectedId } = this.state;
+  private fillTreeState(treeData: Array<TreeNodeInfo<ApiFileResourceRes>>): Array<TreeNodeInfo<ApiFileResourceRes>> {
+    const { expandedIds, selectedId, nodeNameSort } = this.state;
     const fillTreeNodeState = (node: TreeNodeInfo<ApiFileResourceRes>) => {
       node.isSelected = selectedId === node.id;
       node.isExpanded = expandedIds.has(node.id);
       if (node.childNodes && node.childNodes.length > 0) {
+        node.childNodes = lodash.sortBy(node.childNodes, node => node.label);
+        if (nodeNameSort === "DESC") node.childNodes = node.childNodes.reverse();
         node.childNodes.forEach(childNode => fillTreeNodeState(childNode));
       }
     };
+    treeData = lodash.sortBy(treeData, node => node.label);
+    if (nodeNameSort === "DESC") treeData = treeData.reverse();
     treeData.forEach(node => fillTreeNodeState(node));
+    return treeData;
   }
 
   private getHead() {
-    const { expandedIds, treeData } = this.state;
+    const { openFileId, onHidePanel, onSelectChange } = this.props;
+    const { expandedIds, treeData, selectedId, nodeNameSort } = this.state;
     return (
       <>
         <select className={cls(styles.flexItemColumn, styles.viewSelect)}>
@@ -122,7 +136,21 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           <option value="apiView">接口视图</option>
         </select>
         <div className={cls(styles.flexItemColumnWidthFull)}/>
-        <AimOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+        <AimOutlined
+          className={cls(styles.flexItemColumn, styles.icon, { [styles.iconDisable]: noValue(openFileId) })}
+          onClick={() => {
+            if (noValue(openFileId)) return;
+            if (selectedId === openFileId) return;
+            let openNode: TreeNodeInfo<ApiFileResourceRes> | undefined;
+            treeData.forEach(node => forEachTreeNode(node, n => {
+              if (n.nodeData?.fileResourceId === openFileId) openNode = n;
+            }));
+            if (openNode) {
+              if (onSelectChange) onSelectChange(openNode);
+              this.setState({ selectedId: openFileId! });
+            }
+          }}
+        />
         <ColumnHeightOutlined
           className={cls(styles.flexItemColumn, styles.icon)}
           onClick={() => {
@@ -139,14 +167,22 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
             this.forceUpdate();
           }}
         />
-        <SortAscendingOutlined
-          className={cls(styles.flexItemColumn, styles.icon)}
-        />
-        <SortDescendingOutlined
-          className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}
-        />
+        {
+          nodeNameSort === "ASC" &&
+          <SortAscendingOutlined
+            className={cls(styles.flexItemColumn, styles.icon)}
+            onClick={() => this.setState({ nodeNameSort: "DESC" })}
+          />
+        }
+        {
+          nodeNameSort === "DESC" &&
+          <SortDescendingOutlined
+            className={cls(styles.flexItemColumn, styles.icon)}
+            onClick={() => this.setState({ nodeNameSort: "ASC" })}
+          />
+        }
         <SearchOutlined
-          className={cls(styles.flexItemColumn, styles.icon)}
+          className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}
         />
         <ReloadOutlined
           className={cls(styles.flexItemColumn, styles.icon)}
@@ -154,7 +190,10 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           onClick={() => this.reLoadTreeData()}
         />
         <MinusOutlined
-          className={cls(styles.flexItemColumn, styles.icon)}
+          className={cls(styles.flexItemColumn, styles.icon, { [styles.iconDisable]: noValue(onHidePanel) })}
+          onClick={() => {
+            if (onHidePanel) onHidePanel();
+          }}
         />
         <div className={cls(styles.flexItemColumn)} style={{ marginRight: 2 }}/>
       </>
@@ -244,8 +283,10 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
   }
 
   render() {
-    const { loading, treeData, expandedIds } = this.state;
-    this.fillTreeState(treeData);
+    const { openFileId, onSelectChange, onOpenFile } = this.props;
+    const { loading, expandedIds, selectedId } = this.state;
+    let { treeData, } = this.state;
+    treeData = this.fillTreeState(treeData);
     return (
       <div className={cls(Classes.DARK, styles.panel)}>
         <div className={cls(styles.flexColumn, styles.head)}>
@@ -272,11 +313,13 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
               onNodeExpand={node => {
                 if (node.childNodes && node.childNodes.length <= 0) return;
                 expandedIds.add(node.id);
+                if (onSelectChange && selectedId !== node.id) onSelectChange(node);
                 this.setState({ selectedId: node.id });
               }}
               onNodeCollapse={node => {
                 if (node.childNodes && node.childNodes.length <= 0) return;
                 forEachTreeNode(node, n => expandedIds.delete(n.id));
+                if (onSelectChange && selectedId !== node.id) onSelectChange(node);
                 this.setState({ selectedId: node.id });
               }}
               onNodeDoubleClick={node => {
@@ -285,13 +328,20 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
                 } else {
                   expandedIds.add(node.id);
                 }
-                if (node.nodeData?.isFile === 0) {
-                  // TODO 打开文件
+                if (node.nodeData?.isFile === 1 && onOpenFile && openFileId === node.nodeData?.fileResourceId) {
+                  onOpenFile(node.nodeData);
                 }
+                if (onSelectChange && selectedId !== node.id) onSelectChange(node);
                 this.setState({ selectedId: node.id });
               }}
-              onNodeClick={node => this.setState({ selectedId: node.id })}
-              onNodeContextMenu={node => this.setState({ selectedId: node.id, contextMenuSelectNode: node })}
+              onNodeClick={node => {
+                if (onSelectChange && selectedId !== node.id) onSelectChange(node);
+                this.setState({ selectedId: node.id });
+              }}
+              onNodeContextMenu={node => {
+                if (onSelectChange && selectedId !== node.id) onSelectChange(node);
+                this.setState({ selectedId: node.id, contextMenuSelectNode: node });
+              }}
             />
           </SimpleBar>
         </ContextMenu2>

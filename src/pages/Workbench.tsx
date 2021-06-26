@@ -4,6 +4,7 @@ import lodash from "lodash";
 import Split from "react-split";
 import Icon, {
   ApiOutlined,
+  AppstoreOutlined,
   ArrowRightOutlined,
   CloseOutlined,
   ControlOutlined,
@@ -171,7 +172,13 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   private getTopStatus() {
     return (
       <>
-        <div className={cls(styles.flexItemColumn)} style={{ width: 24 }}/>
+        <div className={cls(styles.flexItemColumn)} style={{ width: 3 }}/>
+        <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)} style={{ paddingTop: 7 }}>
+          <AppstoreOutlined style={{ fontSize: 16 }}/>
+        </div>
+        <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)} style={{ margin: "0 8px 0 4px", fontWeight: "bold" }}>
+          [default]
+        </div>
         <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
           /clever-graaljs/clever-graaljs-data-jdbc/src/builtin/
           <span className={styles.topStatusFileModify}>JdbcDatabaseTest.js</span>
@@ -382,7 +389,12 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   private getLeftContent() {
     return (
       <>
-        <HttpApiResourcePane/>
+        <HttpApiResourcePane
+          // openFileId={}
+          // onHidePanel={}
+          // onSelectChange={}
+          // onOpenFile={}
+        />
       </>
     );
   }
