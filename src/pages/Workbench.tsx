@@ -34,11 +34,11 @@ import styles from "./Workbench.module.less";
 /** 编辑器打开的文件 */
 interface EditorTabsState {
   /** 当前编辑的文件ID */
-  currentItemId: string;
-  /** 当前打开的文件列表 */
+  currentItemId?: string;
+  /** 当前打开的文件列表 Map<fileResourceId, EditorTabItem> */
   tabItems: Map<string, EditorTabItem>;
-  /** 编辑器文件状态 */
-  editorStates: { [fileResourceId: string]: MonacoApi.editor.IEditorViewState };
+  /** 编辑器文件状态 Map<fileResourceId, MonacoApi.editor.IEditorViewState> */
+  editorStates: Map<string, MonacoApi.editor.IEditorViewState>;
   /**  */
   /**  */
 }
@@ -46,12 +46,13 @@ interface EditorTabsState {
 interface WorkbenchProps {
 }
 
-interface WorkbenchState extends LayoutSize {
+interface WorkbenchState extends LayoutSize, EditorTabsState {
   /** 当前选中的API文件 */
   selectApiFileResource?: TreeNodeInfo<ApiFileResourceRes>;
 }
 
 const defaultState: WorkbenchState = {
+  // LayoutSize
   bottomPanel: BottomPanelEnum.GlobalConfig,
   vSplitSize: [80, 20],
   vSplitCollapsedSize: [80, 20],
@@ -59,6 +60,9 @@ const defaultState: WorkbenchState = {
   rightPanel: RightPanelEnum.JDBC,
   hSplitSize: [15, 75, 10],
   hSplitCollapsedSize: [15, 75, 10],
+  // EditorTabsState
+  tabItems: new Map<string, EditorTabItem>(),
+  editorStates: new Map<string, MonacoApi.editor.IEditorViewState>(),
 };
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
@@ -442,6 +446,20 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getEditor() {
+    const { currentItemId } = this.state;
+    if (!currentItemId) {
+      return (
+        <div className={cls(styles.emptyEditor)}>
+          <p>
+            保存<em>Ctrl + S</em><br/>
+            测试<em>Ctrl + Q</em><br/>
+            代码提示<em>Alt + /</em><br/>
+            恢复断点<em>F8</em><br/>
+            步进<em>F6</em>
+          </p>
+        </div>
+      );
+    }
     return (
       <Editor
         wrapperClassName={cls(styles.editorWrapper)}
