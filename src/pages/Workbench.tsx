@@ -1,6 +1,7 @@
 import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
+import qs from "qs";
 import Split from "react-split";
 import Icon, {
   ApiOutlined,
@@ -24,24 +25,14 @@ import * as MonacoApi from "monaco-editor";
 import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
 import logo from "@/assets/logo.svg";
+import { FastApi } from "@/apis";
 import { HttpApiResourcePane } from "@/components/ide";
 import { hasValue, noValue } from "@/utils/utils";
-import { ChevronDown, ChevronUp, JsFile, JsonFile, YmlFile } from "@/utils/IdeaIconUtils";
+import { request } from "@/utils/request";
+import { ChevronDown, ChevronUp, getFileIcon } from "@/utils/IdeaIconUtils";
 import { editorDefOptions, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
-import { BottomPanelEnum, EditorTabItem, LayoutSize, LeftPanelEnum, RightPanelEnum } from "@/types/workbench-layout";
+import { BottomPanelEnum, EditorTabItem, EditorTabsState, LayoutSize, LeftPanelEnum, RightPanelEnum } from "@/types/workbench-layout";
 import styles from "./Workbench.module.less";
-
-/** 编辑器打开的文件 */
-interface EditorTabsState {
-  /** 当前编辑的文件ID */
-  currentItemId?: string;
-  /** 当前打开的文件列表 Map<fileResourceId, EditorTabItem> */
-  tabItems: Map<string, EditorTabItem>;
-  /** 编辑器文件状态 Map<fileResourceId, MonacoApi.editor.IEditorViewState> */
-  editorStates: Map<string, MonacoApi.editor.IEditorViewState>;
-  /**  */
-  /**  */
-}
 
 interface WorkbenchProps {
 }
@@ -61,8 +52,8 @@ const defaultState: WorkbenchState = {
   hSplitSize: [15, 75, 10],
   hSplitCollapsedSize: [15, 75, 10],
   // EditorTabsState
-  tabItems: new Map<string, EditorTabItem>(),
-  editorStates: new Map<string, MonacoApi.editor.IEditorViewState>(),
+  openFileMap: new Map<string, EditorTabItem>(),
+  editorStateMap: new Map<string, MonacoApi.editor.IEditorViewState>(),
 };
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
@@ -409,65 +400,86 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getLeftContent() {
+    const { currentEditId, openFileMap } = this.state;
     return (
       <>
         <HttpApiResourcePane
-          // openFileId={}
+          openFileId={currentEditId}
           onHidePanel={() => this.toggleLeftPanel()}
           onSelectChange={node => this.setState({ selectApiFileResource: node })}
-          // onOpenFile={}
+          onOpenFile={apiFileResource => {
+            if (apiFileResource.isFile !== 1) return;
+            request.get(`${FastApi.HttpApiManage.getHttpApiFileResource}?${qs.stringify({ httpApiId: apiFileResource.httpApiId })}`)
+              .then(data => {
+                if (!data || !data.fileResource || !data.httpApi) return;
+                const fileResource: FileResource = data.fileResource;
+                const httpApi: HttpApi = data.httpApi;
+                const sort = openFileMap.size + 1;
+                openFileMap.set(apiFileResource.fileResourceId, { sort, fileResource, needSave: false, httpApi });
+                this.setState({ currentEditId: fileResource.id });
+              })
+              .finally();
+          }}
         />
       </>
     );
   }
 
   private getOpenFilesTabs() {
-    return (
-      <>
-        <div className={cls(styles.flexItemColumn, styles.fileTabsItem)}>
-          <Icon component={JsFile} className={styles.fileTabsItemType}/>
-          index01.js
-          <CloseOutlined className={styles.fileTabsItemClose}/>
+    const { openFileMap } = this.state;
+    if (openFileMap.size <= 0) return <div/>;
+    const openFiles = lodash.sortBy([...openFileMap.values()], item => item.sort);
+    const fileTabs: React.ReactNode[] = [];
+    openFiles.forEach(file => {
+      fileTabs.push(
+        <div
+          key={file.fileResource.id}
+          className={cls(styles.flexItemColumn, styles.fileTabsItem)}
+          onClick={() => {
+            // console.log("### onClick")
+          }}
+        >
+          <Icon component={getFileIcon(file.fileResource.name)} className={styles.fileTabsItemType}/>
+          {file.fileResource.name}
+          <CloseOutlined
+            className={styles.fileTabsItemClose}
+            onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          />
         </div>
-        <div className={cls(styles.flexItemColumn, styles.fileTabsItem, styles.fileTabsItemActive)}>
-          <Icon component={YmlFile} className={styles.fileTabsItemType}/>
-          index02.js
-          <CloseOutlined className={styles.fileTabsItemClose}/>
-        </div>
-        <div className={cls(styles.flexItemColumn, styles.fileTabsItem)}>
-          <Icon component={JsonFile} className={styles.fileTabsItemType}/>
-          index03.js
-          <CloseOutlined className={styles.fileTabsItemClose}/>
-        </div>
-        <div className={styles.flexItemColumnWidthFull}/>
-        <div className={cls(styles.flexItemColumn)}/>
-      </>
-    );
+      );
+    });
+    return (<div className={cls(styles.editorTabs, styles.flexColumn)}>{fileTabs}</div>);
   }
 
   private getEditor() {
-    const { currentItemId } = this.state;
-    if (!currentItemId) {
+    const { currentEditId, openFileMap } = this.state;
+    if (!currentEditId) {
       return (
         <div className={cls(styles.emptyEditor)}>
           <p>
             保存<em>Ctrl + S</em><br/>
-            测试<em>Ctrl + Q</em><br/>
             代码提示<em>Alt + /</em><br/>
-            恢复断点<em>F8</em><br/>
-            步进<em>F6</em>
+            参数提示<em>Ctrl + P</em><br/>
+            格式化<em>Ctrl + Alt + L</em><br/>
+            复制行<em>Ctrl + D</em><br/>
+            删除行<em>Ctrl + Y</em><br/>
+            向下插入行<em>Shift + Enter</em><br/>
+            向上插入行<em>Ctrl + Shift + Enter</em><br/>
           </p>
         </div>
       );
     }
+    const openFile: EditorTabItem | undefined = openFileMap.get(currentEditId);
     return (
       <Editor
         wrapperClassName={cls(styles.editorWrapper)}
         className={styles.editor}
-        // width={"100%"}
-        // height={"100%"}
         defaultLanguage={languageEnum.javascript}
         defaultValue={""}
+        value={openFile?.fileResource?.content}
         theme={themeEnum.IdeaDracula}
         options={editorDefOptions}
         loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
@@ -557,9 +569,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
               {this.getLeftContent()}
             </div>
             <div>
-              <div className={cls(styles.editorTabs, styles.flexColumn)}>
-                {this.getOpenFilesTabs()}
-              </div>
+              {this.getOpenFilesTabs()}
               {this.getEditor()}
             </div>
             <div className={cls(styles.rightPane, styles.flexRow, { [styles.hide]: noValue(rightPanel) })}/>

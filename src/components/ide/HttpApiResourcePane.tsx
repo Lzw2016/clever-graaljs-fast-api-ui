@@ -21,11 +21,11 @@ import SimpleBar from "simplebar-react";
 import { Classes, Intent, Menu, MenuDivider, MenuItem, Spinner, SpinnerSize, Tree, TreeNodeInfo } from "@blueprintjs/core";
 import { ContextMenu2 } from "@blueprintjs/popover2";
 import { FastApi } from "@/apis";
+import { noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import { Folder, getFileIcon } from "@/utils/IdeaIconUtils";
 import styles from "./HttpApiResourcePane.module.less";
-import { noValue } from "@/utils/utils";
 
 const getDataApi = FastApi.HttpApiManage.getHttpApiTree;
 
@@ -179,7 +179,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         }
         <ReloadOutlined
           className={cls(styles.flexItemColumn, styles.icon)}
-          style={{ fontSize: 14, padding: 3 }}
+          style={{ fontSize: 14, padding: 5 }}
           onClick={() => this.reLoadTreeData()}
         />
         <ColumnHeightOutlined
@@ -332,12 +332,14 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
                 this.setState({ selectedId: node.id });
               }}
               onNodeDoubleClick={node => {
-                if (node.isExpanded) {
-                  forEachTreeNode(node, n => expandedIds.delete(n.id));
-                } else {
-                  expandedIds.add(node.id);
+                if (node.childNodes && node.childNodes.length > 0) {
+                  if (node.isExpanded) {
+                    forEachTreeNode(node, n => expandedIds.delete(n.id));
+                  } else {
+                    expandedIds.add(node.id);
+                  }
                 }
-                if (node.nodeData?.isFile === 1 && onOpenFile && openFileId === node.nodeData?.fileResourceId) {
+                if (node.nodeData?.isFile === 1 && onOpenFile && openFileId !== node.nodeData?.fileResourceId) {
                   onOpenFile(node.nodeData);
                 }
                 if (onSelectChange && selectedId !== node.id) onSelectChange(node);

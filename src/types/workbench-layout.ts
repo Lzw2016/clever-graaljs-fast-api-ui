@@ -1,3 +1,5 @@
+import * as MonacoApi from "monaco-editor";
+
 // enum LayoutPanelEnum {
 //   Left,
 //   Right,
@@ -37,21 +39,6 @@ export enum BottomPanelEnum {
   SysEvent,
 }
 
-export interface EditorTabItem {
-  /** 顺序(由小到大) */
-  sort: number;
-  /** 文件 */
-  fileResource: FileResource,
-  /** 是否需要保存 */
-  needSave: boolean;
-  /** Http接口 */
-  httpApi?: HttpApi,
-  /** TODO 请求参数(列表) */
-  httpApiRequestParamList?: Array<any>;
-  /** TODO API文档 */
-  httpApiDoc?: any;
-}
-
 /** 布局状态 */
 export interface LayoutSize {
   /** 底部容器显示的叶签 */
@@ -68,4 +55,31 @@ export interface LayoutSize {
   hSplitSize: [number, number, number];
   /** 左中右容器收缩Size */
   hSplitCollapsedSize: [number, number, number];
+}
+
+export interface EditorTabItem {
+  /** 顺序(由小到大) */
+  sort: number;
+  /** 文件 */
+  fileResource: FileResource,
+  /** 是否需要保存 */
+  needSave: boolean;
+  /** Http接口 */
+  httpApi?: HttpApi,
+  /** TODO 请求参数(列表) */
+  // httpApiRequestParamList?: Array<any>;
+  /** TODO API文档 */
+  // httpApiDoc?: any;
+}
+
+/** 编辑器打开的文件 */
+export interface EditorTabsState {
+  /** 当前编辑的fileResourceId */
+  currentEditId?: string;
+  /** 当前打开的文件列表 Map<fileResourceId, EditorTabItem> */
+  openFileMap: Map<string, EditorTabItem>;
+  /** 编辑器文件状态 Map<fileResourceId, MonacoApi.editor.IEditorViewState> */
+  editorStateMap: Map<string, MonacoApi.editor.IEditorViewState>;
+  /**  */
+  /**  */
 }

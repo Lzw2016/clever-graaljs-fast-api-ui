@@ -19,10 +19,6 @@
   &:active {
     background-color: @toolItemIconActiveBgColor;
   }
-
-  &:focus {
-    outline: unset !important;
-  }
 }
 
 .iconDisable {
@@ -478,7 +474,7 @@
 // -------------------------------------------------------------------------------- EmptyEditor
 .emptyEditor {
   width: 100%;
-  height: calc(100% - (@toolHeight + 4px));
+  height: 100%;
   background-color: #282828;
   display: flex;
   flex-direction: column;
@@ -487,7 +483,7 @@
   user-select: none;
 
   p {
-    font-size: 20px;
+    font-size: 18px;
     color: #A0A0A0;
 
     em {
