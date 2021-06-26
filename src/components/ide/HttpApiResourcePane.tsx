@@ -3,6 +3,11 @@ import cls from "classnames";
 import Icon, {
   AimOutlined,
   ColumnHeightOutlined,
+  CopyOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  FileAddOutlined,
+  FolderAddOutlined,
   MinusOutlined,
   ReloadOutlined,
   SearchOutlined,
@@ -11,7 +16,8 @@ import Icon, {
   VerticalAlignMiddleOutlined
 } from "@ant-design/icons";
 import SimpleBar from "simplebar-react";
-import { Classes, Intent, Spinner, SpinnerSize, Tree, TreeNodeInfo } from "@blueprintjs/core";
+import { Classes, Intent, Menu, MenuDivider, MenuItem, Spinner, SpinnerSize, Tree, TreeNodeInfo } from "@blueprintjs/core";
+import { ContextMenu2 } from "@blueprintjs/popover2";
 import { FastApi } from "@/apis";
 import { request } from "@/utils/request";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
@@ -19,7 +25,6 @@ import { Folder, getFileIcon } from "@/utils/IdeaIconUtils";
 import styles from "./HttpApiResourcePane.module.less";
 
 const getDataApi = FastApi.HttpApiManage.getHttpApiTree;
-
 
 interface HttpApiResourcePaneProps {
 //  onSelectChange
@@ -36,6 +41,12 @@ interface HttpApiResourcePaneState {
   expandedIds: Set<TreeNodeInfo["id"]>;
   /** 当前选择的节点ID */
   selectedId: TreeNodeInfo["id"];
+  /** 显示右键菜单 */
+  showContextMenu: boolean;
+  /** 右键菜单位置 */
+  contextMenuPosition: [number, number],
+  /** 右键菜单选中的Tree节点 */
+  contextMenuSelectNode?: TreeNodeInfo<ApiFileResourceRes>;
 }
 
 // 读取组件状态
@@ -46,6 +57,8 @@ const defaultState: HttpApiResourcePaneState = {
   treeData: [],
   expandedIds: new Set(),
   selectedId: "",
+  showContextMenu: false,
+  contextMenuPosition: [0, 0],
   ...storageState,
 }
 
@@ -67,17 +80,19 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
 
   /** 重新加载数据 */
   public reLoadTreeData() {
-    request.get(getDataApi)
-      .then(treeData => {
-        treeData = transformTreeData(treeData);
-        this.setState({ treeData });
-      })
-      .finally(() => this.setState({ loading: false }));
+    this.setState({ loading: true }, () => {
+      request.get(getDataApi)
+        .then(treeData => {
+          treeData = transformTreeData(treeData);
+          this.setState({ treeData });
+        })
+        .finally(() => this.setState({ loading: false }));
+    });
   }
 
   /** 保存组件状态 */
   public saveState(): void {
-    const { loading, treeData, expandedIds, ...other } = this.state;
+    const { loading, treeData, expandedIds, showContextMenu, contextMenuPosition, ...other } = this.state;
     treeData.forEach(node => forEachTreeNode(node, n => {
       if (!expandedIds.has(n.id)) expandedIds.delete(n.id);
     }));
@@ -99,8 +114,82 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
     treeData.forEach(node => fillTreeNodeState(node));
   }
 
+  private getContextMenu() {
+    const { expandedIds, contextMenuSelectNode } = this.state;
+    return (
+      <Menu className={cls(styles.menu)}>
+        <MenuItem
+          icon={<FileAddOutlined className={cls(styles.menuIcon)}/>}
+          text="新增文件"
+          onClick={() => {
+          }}
+        />
+        <MenuItem
+          icon={<FolderAddOutlined className={cls(styles.menuIcon)}/>}
+          text="新增文件夹"
+          onClick={() => {
+          }}
+        />
+        <MenuDivider/>
+        <MenuItem
+          icon={<CopyOutlined className={cls(styles.menuIcon)}/>}
+          text="复制名称"
+          disabled={!contextMenuSelectNode}
+          onClick={() => {
+          }}
+        />
+        <MenuItem
+          icon={<CopyOutlined className={cls(styles.menuIcon)}/>}
+          text="复制文件路径"
+          disabled={!contextMenuSelectNode}
+          onClick={() => {
+          }}
+        />
+        <MenuItem
+          icon={<CopyOutlined className={cls(styles.menuIcon)}/>}
+          text="复制接口路径"
+          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData || !contextMenuSelectNode.nodeData.requestMapping}
+          onClick={() => {
+          }}
+        />
+        <MenuDivider/>
+        <MenuItem
+          icon={<DeleteOutlined className={cls(styles.menuIcon)}/>}
+          text="删除"
+          disabled={!contextMenuSelectNode}
+          onClick={() => {
+          }}
+        />
+        <MenuItem
+          icon={<EditOutlined className={cls(styles.menuIcon)}/>}
+          text="重命名"
+          disabled={!contextMenuSelectNode}
+          onClick={() => {
+          }}
+        />
+        <MenuDivider/>
+        <MenuItem
+          icon={<ColumnHeightOutlined className={cls(styles.menuIcon)}/>}
+          text="展开子节点"
+          disabled={!contextMenuSelectNode || !contextMenuSelectNode.childNodes || contextMenuSelectNode.childNodes.length <= 0}
+          onClick={() => {
+            if (contextMenuSelectNode) {
+              forEachTreeNode(contextMenuSelectNode, n => expandedIds.add(n.id));
+              this.forceUpdate();
+            }
+          }}
+        />
+        <MenuItem
+          icon={<ReloadOutlined className={cls(styles.menuIcon)}/>}
+          text="刷新"
+          onClick={() => this.reLoadTreeData()}
+        />
+      </Menu>
+    );
+  }
+
   render() {
-    const { loading, treeData, expandedIds } = this.state;
+    const { loading, treeData, expandedIds, showContextMenu, contextMenuPosition } = this.state;
     this.fillTreeState(treeData);
     return (
       <div className={cls(Classes.DARK, styles.pane)}>
@@ -125,42 +214,49 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           <div className={cls(styles.flexItemColumn)} style={{ marginRight: 2 }}/>
         </div>
         {loading && <Spinner className={cls(styles.loading)} intent={Intent.PRIMARY} size={SpinnerSize.SMALL}/>}
-        <SimpleBar
+        <ContextMenu2
           className={cls(styles.center, { [styles.hide]: loading })}
-          autoHide={false}
-          scrollbarMinSize={48}
+          content={this.getContextMenu()}
+          onContextMenu={e => {
+            if ((e?.target as any)?.className === "simplebar-content-wrapper") {
+              this.setState({ contextMenuSelectNode: undefined });
+            }
+          }}
         >
-          <Tree
-            className={cls(styles.fileTree)}
-            contents={treeData}
-            onNodeExpand={node => {
-              if (node.childNodes && node.childNodes.length <= 0) return;
-              expandedIds.add(node.id);
-              this.setState({ selectedId: node.id });
-            }}
-            onNodeCollapse={node => {
-              if (node.childNodes && node.childNodes.length <= 0) return;
-              forEachTreeNode(node, n => expandedIds.delete(n.id));
-              this.setState({ selectedId: node.id });
-            }}
-            onNodeDoubleClick={node => {
-              if (node.isExpanded) {
-                forEachTreeNode(node, n => expandedIds.delete(n.id));
-              } else {
+          <SimpleBar
+            style={{ height: "100%", width: "100%" }}
+            autoHide={false}
+            scrollbarMinSize={48}
+          >
+            <Tree
+              className={cls(styles.fileTree)}
+              contents={treeData}
+              onNodeExpand={node => {
+                if (node.childNodes && node.childNodes.length <= 0) return;
                 expandedIds.add(node.id);
-              }
-              if (node.nodeData?.isFile === 0) {
-                // TODO 打开文件
-              }
-              this.setState({ selectedId: node.id });
-            }}
-            onNodeClick={node => {
-              this.setState({ selectedId: node.id });
-              this.forceUpdate();
-            }}
-            // onNodeContextMenu
-          />
-        </SimpleBar>
+                this.setState({ selectedId: node.id });
+              }}
+              onNodeCollapse={node => {
+                if (node.childNodes && node.childNodes.length <= 0) return;
+                forEachTreeNode(node, n => expandedIds.delete(n.id));
+                this.setState({ selectedId: node.id });
+              }}
+              onNodeDoubleClick={node => {
+                if (node.isExpanded) {
+                  forEachTreeNode(node, n => expandedIds.delete(n.id));
+                } else {
+                  expandedIds.add(node.id);
+                }
+                if (node.nodeData?.isFile === 0) {
+                  // TODO 打开文件
+                }
+                this.setState({ selectedId: node.id });
+              }}
+              onNodeClick={node => this.setState({ selectedId: node.id })}
+              onNodeContextMenu={node => this.setState({ selectedId: node.id, contextMenuSelectNode: node })}
+            />
+          </SimpleBar>
+        </ContextMenu2>
       </div>
     );
   }

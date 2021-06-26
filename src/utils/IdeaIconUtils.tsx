@@ -67,6 +67,16 @@ const Folder = () => (
   </svg>
 );
 
+const AddFile = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+    <g fill="#9AA7B0" fillRule="evenodd">
+      <path fillOpacity=".8" d="M7 1L3 5h4z"/>
+      <path fillOpacity=".8" d="M10 14v1H3V6h5V1h5v6h-3v3H7v4h3z"/>
+      <path d="M13 11h3v2h-3v3h-2v-3H8v-2h3V8h2v3z"/>
+    </g>
+  </svg>
+);
+
 const ChevronUp = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
     <path fillRule="evenodd" clipRule="evenodd" d="M8 6.04042L3.02022 11.0202L2.31311 10.3131L7.64645 4.97976L8.35355 4.97976L13.6869 10.3131L12.9798 11.0202L8 6.04042Z"
@@ -97,4 +107,4 @@ const getFileIcon = (filename: string): (() => JSX.Element) => {
   return JsonFile
 }
 
-export { JsFile, JsonFile, YmlFile, UnknownFile, getFileIcon, Folder, ChevronUp, ChevronDown }
+export { JsFile, JsonFile, YmlFile, UnknownFile, getFileIcon, AddFile, Folder, ChevronUp, ChevronDown }

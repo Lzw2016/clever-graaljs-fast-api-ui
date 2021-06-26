@@ -1,5 +1,63 @@
 @import "/src/assets/variables";
 
+:global {
+  .bp3-popover2-transition-container {
+    z-index: 999999 !important;
+  }
+
+  .bp3-popover2.bp3-dark, .bp3-dark .bp3-popover2 {
+    box-shadow: unset !important;
+  }
+
+  .bp3-menu {
+    color: @fontColor !important;
+    background-color: @paneBgColor !important;
+    box-sizing: border-box !important;
+    border-radius: 0 !important;
+    border: 1px solid @contextMenuBorderColor !important;
+    padding: 0 !important;
+  }
+
+  .bp3-menu-item {
+    padding: 2px 4px !important;
+    border-radius: 0 !important;
+  }
+
+  .bp3-dark .bp3-menu-item:hover, .bp3-dark .bp3-submenu .bp3-popover-target.bp3-popover-open > .bp3-menu-item, .bp3-submenu .bp3-dark .bp3-popover-target.bp3-popover-open > .bp3-menu-item {
+    background-color: @contextMenuItemHoverColor !important;
+  }
+
+  .bp3-dark .bp3-menu-item.bp3-disabled svg {
+    color: rgba(167, 182, 194, 0.6) !important;
+  }
+}
+
+:global {
+  .bp3-tree-node-label {
+    color: @fontColor !important;
+  }
+
+  .bp3-tree-node-content {
+    height: 22px !important;
+  }
+
+  .bp3-tree-node-caret {
+    padding: 2px 1px !important;
+  }
+
+  .bp3-tree-node-caret, .bp3-tree-node-caret-none {
+    min-width: 20px !important;
+  }
+
+  .bp3-tree-node .bp3-tree-node-content:hover {
+    background-color: #0D293E !important;
+  }
+
+  .bp3-tree-node.bp3-tree-node-selected > .bp3-tree-node-content {
+    background-color: #4B6EAF !important;
+  }
+}
+
 .pane {
   overflow: hidden;
   height: 100%;
@@ -7,7 +65,7 @@
 }
 
 .head {
-  height: @toolHeight;
+  height: @toolHeight + 4px;
   color: @fontColor;
   background-color: @splitBgColor;
   align-items: center;
@@ -57,32 +115,6 @@
 
 .fileTree {
   font-size: 14px;
-
-  :global {
-    .bp3-tree-node-label {
-      color: @fontColor;
-    }
-
-    .bp3-tree-node-content {
-      height: 22px;
-    }
-
-    .bp3-tree-node-caret {
-      padding: 2px 1px;
-    }
-
-    .bp3-tree-node-caret, .bp3-tree-node-caret-none {
-      min-width: 20px;
-    }
-
-    .bp3-tree-node .bp3-tree-node-content:hover {
-      background-color: #0D293E;
-    }
-
-    .bp3-tree-node.bp3-tree-node-selected > .bp3-tree-node-content {
-      background-color: #4B6EAF !important;
-    }
-  }
 }
 
 .folderIcon {
@@ -109,8 +141,8 @@
 
 .icon {
   height: @toolHeight - 4px;
-  margin: 2px 2px;
-  padding: 2px;
+  margin: 1px;
+  padding: 3px 4px;
   border-radius: 2px;
   font-size: 16px;
   color: @iconColor;
@@ -132,5 +164,18 @@
 
   &:hover {
     background-color: unset !important;
+  }
+}
+
+.menu {
+  box-sizing: border-box;
+}
+
+.menuIcon {
+  padding: 2px 0;
+  font-size: 16px;
+
+  svg {
+    color: @iconColor;
   }
 }

@@ -280,6 +280,19 @@
     classnames "^2.2"
     tslib "~1.13.0"
 
+"@blueprintjs/popover2@^0.11.0":
+  version "0.11.0"
+  resolved "https://registry.nlark.com/@blueprintjs/popover2/download/@blueprintjs/popover2-0.11.0.tgz#c9f9e4f755323bf1c5a43299adc4fc2e2c88b472"
+  integrity sha1-yfnk91UyO/HFpDKZrcT8LiyItHI=
+  dependencies:
+    "@blueprintjs/core" "^3.46.0"
+    "@popperjs/core" "^2.5.4"
+    classnames "^2.2"
+    dom4 "^2.1.5"
+    react-popper "^2.2.4"
+    resize-observer-polyfill "^1.5.1"
+    tslib "~1.13.0"
+
 "@ctrl/tinycolor@^3.4.0":
   version "3.4.0"
   resolved "https://registry.npm.taobao.org/@ctrl/tinycolor/download/@ctrl/tinycolor-3.4.0.tgz#c3c5ae543c897caa9c2a68630bed355be5f9990f"
@@ -308,6 +321,11 @@
     "@monaco-editor/loader" "^1.1.0"
     prop-types "^15.7.2"
     state-local "^1.0.7"
+
+"@popperjs/core@^2.5.4":
+  version "2.9.2"
+  resolved "https://registry.npm.taobao.org/@popperjs/core/download/@popperjs/core-2.9.2.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40popperjs%2Fcore%2Fdownload%2F%40popperjs%2Fcore-2.9.2.tgz#adea7b6953cbb34651766b0548468e743c6a2353"
+  integrity sha1-rep7aVPLs0ZRdmsFSEaOdDxqI1M=
 
 "@rollup/plugin-commonjs@^19.0.0":
   version "19.0.0"
@@ -1401,7 +1419,7 @@ react-draggable@^4.4.3:
     classnames "^2.2.5"
     prop-types "^15.6.0"
 
-react-fast-compare@^3.1.1:
+react-fast-compare@^3.0.1, react-fast-compare@^3.1.1:
   version "3.2.0"
   resolved "https://registry.npm.taobao.org/react-fast-compare/download/react-fast-compare-3.2.0.tgz#641a9da81b6a6320f270e89724fb45a0b39e43bb"
   integrity sha1-ZBqdqBtqYyDycOiXJPtFoLOeQ7s=
@@ -1452,6 +1470,14 @@ react-popper@^1.3.7:
     popper.js "^1.14.4"
     prop-types "^15.6.1"
     typed-styles "^0.0.7"
+    warning "^4.0.2"
+
+react-popper@^2.2.4:
+  version "2.2.5"
+  resolved "https://registry.npm.taobao.org/react-popper/download/react-popper-2.2.5.tgz#1214ef3cec86330a171671a4fbcbeeb65ee58e96"
+  integrity sha1-EhTvPOyGMwoXFnGk+8vutl7ljpY=
+  dependencies:
+    react-fast-compare "^3.0.1"
     warning "^4.0.2"
 
 react-redux@^7.2.0:

@@ -55,8 +55,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     vSplitCollapsedSize: [80, 20],
     leftPanel: LeftPanelEnum.Interface,
     rightPanel: RightPanelEnum.JDBC,
-    hSplitSize: [10, 80, 10],
-    hSplitCollapsedSize: [10, 80, 10],
+    hSplitSize: [15, 75, 10],
+    hSplitCollapsedSize: [15, 75, 10],
   };
 
   /** 编辑器实例 */
@@ -484,7 +484,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             )}
             direction={"horizontal"}
             sizes={noValue(leftPanel) || noValue(rightPanel) ? hSplitCollapsedSize : hSplitSize}
-            minSize={[hasValue(leftPanel) ? 285 : 0, 256, hasValue(rightPanel) ? 128 : 0]}
+            minSize={[hasValue(leftPanel) ? 300 : 0, 256, hasValue(rightPanel) ? 128 : 0]}
             maxSize={[512, Infinity, 512]}
             snapOffset={20}
             dragInterval={1}
