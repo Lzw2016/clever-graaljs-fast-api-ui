@@ -1,6 +1,6 @@
 @import "/src/assets/variables";
 
-.pane {
+.panel {
   overflow: hidden;
   height: 100%;
 }
@@ -31,17 +31,18 @@
       }
 
       &.simplebar-vertical {
-        width: 12px;
+        width: 10px;
       }
 
       .simplebar-scrollbar {
-        width: 12px;
+        width: 10px;
         right: 0;
 
         &:before {
           background-color: @scrollBarColor;
           border-radius: 0;
-          opacity: 0.6;
+          opacity: 1;
+          right: 0;
         }
       }
     }

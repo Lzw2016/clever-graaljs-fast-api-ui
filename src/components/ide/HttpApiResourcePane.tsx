@@ -30,7 +30,9 @@ const getDataApi = FastApi.HttpApiManage.getHttpApiTree;
 interface HttpApiResourcePaneProps {
 //  onSelectChange
 //  onOpenFile
-//
+//  openFileId
+//  onExpandedPanel
+
 }
 
 interface HttpApiResourcePaneState {
@@ -88,9 +90,11 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
   /** 保存组件状态 */
   public saveState(): void {
     const { treeData, expandedIds, selectedId } = this.state;
-    treeData.forEach(node => forEachTreeNode(node, n => {
-      if (!expandedIds.has(n.id)) expandedIds.delete(n.id);
-    }));
+    const allIds = new Set();
+    treeData.forEach(node => forEachTreeNode(node, n => allIds.add(n.id)));
+    expandedIds.forEach(id => {
+      if (!allIds.has(id)) expandedIds.delete(id);
+    });
     fastApiStore.setItem(
       componentStateKey.HttpApiResourcePaneState,
       { expandedIds, selectedId },
@@ -107,6 +111,54 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
       }
     };
     treeData.forEach(node => fillTreeNodeState(node));
+  }
+
+  private getHead() {
+    const { expandedIds, treeData } = this.state;
+    return (
+      <>
+        <select className={cls(styles.flexItemColumn, styles.viewSelect)}>
+          <option value="fileView">文件视图</option>
+          <option value="apiView">接口视图</option>
+        </select>
+        <div className={cls(styles.flexItemColumnWidthFull)}/>
+        <AimOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+        <ColumnHeightOutlined
+          className={cls(styles.flexItemColumn, styles.icon)}
+          onClick={() => {
+            treeData.forEach(node => forEachTreeNode(node, n => {
+              if (n.nodeData?.isFile === 0) expandedIds.add(n.id);
+            }));
+            this.forceUpdate();
+          }}
+        />
+        <VerticalAlignMiddleOutlined
+          className={cls(styles.flexItemColumn, styles.icon)}
+          onClick={() => {
+            expandedIds.clear();
+            this.forceUpdate();
+          }}
+        />
+        <SortAscendingOutlined
+          className={cls(styles.flexItemColumn, styles.icon)}
+        />
+        <SortDescendingOutlined
+          className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}
+        />
+        <SearchOutlined
+          className={cls(styles.flexItemColumn, styles.icon)}
+        />
+        <ReloadOutlined
+          className={cls(styles.flexItemColumn, styles.icon)}
+          style={{ fontSize: 14, padding: 3 }}
+          onClick={() => this.reLoadTreeData()}
+        />
+        <MinusOutlined
+          className={cls(styles.flexItemColumn, styles.icon)}
+        />
+        <div className={cls(styles.flexItemColumn)} style={{ marginRight: 2 }}/>
+      </>
+    );
   }
 
   private getContextMenu() {
@@ -175,7 +227,9 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           disabled={!contextMenuSelectNode || !contextMenuSelectNode.childNodes || contextMenuSelectNode.childNodes.length <= 0}
           onClick={() => {
             if (contextMenuSelectNode) {
-              forEachTreeNode(contextMenuSelectNode, n => expandedIds.add(n.id));
+              forEachTreeNode(contextMenuSelectNode, n => {
+                if (n.nodeData?.isFile === 0) expandedIds.add(n.id);
+              });
               this.forceUpdate();
             }
           }}
@@ -193,26 +247,9 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
     const { loading, treeData, expandedIds } = this.state;
     this.fillTreeState(treeData);
     return (
-      <div className={cls(Classes.DARK, styles.pane)}>
+      <div className={cls(Classes.DARK, styles.panel)}>
         <div className={cls(styles.flexColumn, styles.head)}>
-          <select className={cls(styles.flexItemColumn, styles.viewSelect)}>
-            <option value="fileView">文件视图</option>
-            <option value="apiView">接口视图</option>
-          </select>
-          <div className={cls(styles.flexItemColumnWidthFull)}/>
-          <AimOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
-          <ColumnHeightOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
-          <VerticalAlignMiddleOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
-          <SortAscendingOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
-          <SortDescendingOutlined className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
-          <SearchOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
-          <ReloadOutlined
-            className={cls(styles.flexItemColumn, styles.icon)}
-            style={{ fontSize: 14, padding: 3 }}
-            onClick={() => this.reLoadTreeData()}
-          />
-          <MinusOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
-          <div className={cls(styles.flexItemColumn)} style={{ marginRight: 2 }}/>
+          {this.getHead()}
         </div>
         {loading && <Spinner className={cls(styles.loading)} intent={Intent.PRIMARY} size={SpinnerSize.SMALL}/>}
         <ContextMenu2
