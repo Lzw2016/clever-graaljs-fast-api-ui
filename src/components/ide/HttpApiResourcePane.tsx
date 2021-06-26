@@ -42,10 +42,6 @@ interface HttpApiResourcePaneState {
   expandedIds: Set<TreeNodeInfo["id"]>;
   /** 当前选择的节点ID */
   selectedId: TreeNodeInfo["id"];
-  /** 显示右键菜单 */
-  showContextMenu: boolean;
-  /** 右键菜单位置 */
-  contextMenuPosition: [number, number],
   /** 右键菜单选中的Tree节点 */
   contextMenuSelectNode?: TreeNodeInfo<ApiFileResourceRes>;
 }
@@ -58,8 +54,6 @@ const defaultState: HttpApiResourcePaneState = {
   treeData: [],
   expandedIds: new Set(),
   selectedId: "",
-  showContextMenu: false,
-  contextMenuPosition: [0, 0],
   ...storageState,
 }
 
@@ -93,13 +87,13 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
 
   /** 保存组件状态 */
   public saveState(): void {
-    const { loading, treeData, expandedIds, showContextMenu, contextMenuPosition, ...other } = this.state;
+    const { treeData, expandedIds, selectedId } = this.state;
     treeData.forEach(node => forEachTreeNode(node, n => {
       if (!expandedIds.has(n.id)) expandedIds.delete(n.id);
     }));
     fastApiStore.setItem(
       componentStateKey.HttpApiResourcePaneState,
-      { expandedIds, ...other },
+      { expandedIds, selectedId },
     ).finally();
   }
 
@@ -196,7 +190,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
   }
 
   render() {
-    const { loading, treeData, expandedIds, showContextMenu, contextMenuPosition } = this.state;
+    const { loading, treeData, expandedIds } = this.state;
     this.fillTreeState(treeData);
     return (
       <div className={cls(Classes.DARK, styles.pane)}>
