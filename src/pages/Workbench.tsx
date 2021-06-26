@@ -359,7 +359,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           />
         }
         {
-          topSize <= 18 &&
+          topSize <= 20 &&
           <Icon
             component={ChevronDown}
             className={cls(styles.flexItemColumn, styles.icon)}
