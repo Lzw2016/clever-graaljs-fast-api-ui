@@ -57,9 +57,28 @@ export interface LayoutSize {
   hSplitCollapsedSize: [number, number, number];
 }
 
+export interface TopStatusFileInfo {
+  /** 资源文件id */
+  fileResourceId: string;
+  /** 数据类型：0-文件夹，1-文件 */
+  isFile: 0 | 1;
+  /** 文件路径(以"/"结束) */
+  path: string;
+  /** 文件名称 */
+  name: string;
+  /** HTTP接口id */
+  httpApiId?: string;
+  /** http请求路径 */
+  requestMapping?: string;
+  /** http请求method，ALL GET HEAD POST PUT DELETE CONNECT OPTIONS TRACE PATCH */
+  requestMethod?: RequestMethod;
+}
+
 export interface EditorTabItem {
   /** 顺序(由小到大) */
   sort: number;
+  /** 最后编辑时间 */
+  lastEditTime: number;
   /** 文件 */
   fileResource: FileResource,
   /** 是否需要保存 */

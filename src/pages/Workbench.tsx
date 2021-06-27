@@ -20,7 +20,7 @@ import Icon, {
   UnlockOutlined,
   WechatOutlined
 } from "@ant-design/icons";
-import { Intent, Spinner, SpinnerSize, TreeNodeInfo } from "@blueprintjs/core";
+import { Intent, ProgressBar, Spinner, SpinnerSize } from "@blueprintjs/core";
 import * as MonacoApi from "monaco-editor";
 import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
@@ -31,18 +31,21 @@ import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { ChevronDown, ChevronUp, getFileIcon } from "@/utils/IdeaIconUtils";
 import { editorDefOptions, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
-import { BottomPanelEnum, EditorTabItem, EditorTabsState, LayoutSize, LeftPanelEnum, RightPanelEnum } from "@/types/workbench-layout";
+import { BottomPanelEnum, EditorTabItem, EditorTabsState, LayoutSize, LeftPanelEnum, RightPanelEnum, TopStatusFileInfo } from "@/types/workbench-layout";
 import styles from "./Workbench.module.less";
 
 interface WorkbenchProps {
 }
 
 interface WorkbenchState extends LayoutSize, EditorTabsState {
-  /** 当前选中的API文件 */
-  selectApiFileResource?: TreeNodeInfo<ApiFileResourceRes>;
+  /** 数据加载状态 */
+  editorLoading: boolean;
+  /** HttpApiTree当前选中的节点 */
+  topStatusFileInfo?: TopStatusFileInfo;
 }
 
 const defaultState: WorkbenchState = {
+  editorLoading: false,
   // LayoutSize
   bottomPanel: BottomPanelEnum.GlobalConfig,
   vSplitSize: [80, 20],
@@ -77,7 +80,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     window.removeEventListener("resize", this.editorResize);
   }
 
-  // 切换底部布局区域隐藏/显示
+  /** 切换底部布局区域隐藏/显示 */
   public toggleBottomPanel(panel?: BottomPanelEnum) {
     const { bottomPanel, vSplitSize, vSplitCollapsedSize } = this.state;
     let newBottomPanel: BottomPanelEnum | undefined;
@@ -101,7 +104,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     this.setState({ bottomPanel: newBottomPanel, vSplitCollapsedSize });
   }
 
-  // 切换左侧布局区域隐藏/显示
+  /** 切换左侧布局区域隐藏/显示 */
   public toggleLeftPanel(panel?: LeftPanelEnum) {
     const { leftPanel, rightPanel } = this.state;
     let newLeftPanel: LeftPanelEnum | undefined;
@@ -118,7 +121,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     this.setState({ leftPanel: newLeftPanel, hSplitCollapsedSize });
   }
 
-  // 切换右侧布局区域隐藏/显示
+  /** 切换右侧布局区域隐藏/显示 */
   public toggleRightPanel(panel?: RightPanelEnum) {
     const { leftPanel, rightPanel } = this.state;
     let newRightPanel: RightPanelEnum | undefined;
@@ -131,6 +134,46 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     }
     const hSplitCollapsedSize = this.calculateHSplitCollapsedSize(leftPanel, newRightPanel);
     this.setState({ rightPanel: newRightPanel, hSplitCollapsedSize });
+  }
+
+  /** 设置当前编辑的文件ID */
+  public setCurrentEditId(fileResourceId?: string, httpApiId?: string) {
+    if (!fileResourceId) return;
+    const { openFileMap } = this.state;
+    const openFile = openFileMap.get(fileResourceId);
+    if (openFile) {
+      openFile.lastEditTime = lodash.now();
+      this.setState({ currentEditId: fileResourceId });
+      return;
+    }
+    if (!httpApiId) return;
+    const url = `${FastApi.HttpApiManage.getHttpApiFileResource}?${qs.stringify({ httpApiId })}`;
+    this.setState({ editorLoading: true });
+    request.get(url).then(data => {
+      if (!data || !data.fileResource || !data.httpApi) return;
+      const fileResource: FileResource = data.fileResource;
+      const httpApi: HttpApi = data.httpApi;
+      const sort = openFileMap.size + 1;
+      openFileMap.set(fileResource.id, { sort, lastEditTime: lodash.now(), fileResource, needSave: false, httpApi });
+      this.setState({ currentEditId: fileResource.id });
+    }).finally(() => this.setState({ editorLoading: false }));
+  }
+
+  /** 关闭打开的文件 */
+  public closeEditFile(fileResourceId?: string) {
+    if (!fileResourceId) return;
+    const { openFileMap } = this.state;
+    if (!openFileMap.has(fileResourceId)) return;
+    openFileMap.delete(fileResourceId);
+    let editId: string | undefined;
+    let lastEditTime: number = 0;
+    openFileMap.forEach((item, fileResourceId) => {
+      if (item.lastEditTime > lastEditTime) {
+        lastEditTime = item.lastEditTime;
+        editId = fileResourceId;
+      }
+    });
+    this.setState({ currentEditId: editId });
   }
 
   private calculateHSplitCollapsedSize(leftPanel: LeftPanelEnum | undefined, rightPanel: RightPanelEnum | undefined): [number, number, number] {
@@ -167,7 +210,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getTopStatus() {
-    const { selectApiFileResource } = this.state;
+    const { topStatusFileInfo } = this.state;
     return (
       <>
         <div className={cls(styles.flexItemColumn)} style={{ width: 3 }}/>
@@ -178,29 +221,36 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           [default]
         </div>
         {
-          selectApiFileResource?.nodeData &&
+          topStatusFileInfo &&
           <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
             {
-              selectApiFileResource.nodeData?.isFile === 1 ?
-                (<>{selectApiFileResource.nodeData?.path}<span className={styles.topStatusFileModify}> {selectApiFileResource.nodeData?.name}</span></>) :
-                (selectApiFileResource.nodeData?.path! + selectApiFileResource.nodeData?.name!)
+              topStatusFileInfo.isFile === 1 ?
+                (
+                  <>
+                    {topStatusFileInfo.path}
+                    <span className={styles.topStatusFileModify}>
+                      {topStatusFileInfo.name}
+                    </span>
+                  </>
+                ) :
+                (topStatusFileInfo.path + topStatusFileInfo.name)
             }
           </div>
         }
         {
-          selectApiFileResource?.nodeData?.httpApiId &&
+          topStatusFileInfo?.httpApiId &&
           <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
             <ArrowRightOutlined style={{ fontSize: 10, padding: "0 8px 0 8px" }}/>
           </div>
         }
         {
-          selectApiFileResource?.nodeData?.httpApiId &&
+          topStatusFileInfo?.httpApiId &&
           <SettingOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ fontSize: 14, padding: "4px 4px" }}/>
         }
         {
-          selectApiFileResource?.nodeData?.httpApiId &&
+          topStatusFileInfo?.httpApiId &&
           <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
-            &nbsp;[{selectApiFileResource.nodeData?.requestMethod}]&nbsp;{selectApiFileResource.nodeData?.requestMapping}
+            &nbsp;[{topStatusFileInfo.requestMethod}]&nbsp;{topStatusFileInfo.requestMapping}
           </div>
         }
         <div className={cls(styles.flexItemColumnWidthFull)}/>
@@ -217,6 +267,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getBottomStatus() {
+    const { editorLoading } = this.state;
     return (
       <>
         <div className={cls(styles.flexItemColumn, styles.bottomStatusFirst)}/>
@@ -224,6 +275,10 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           正在检查更新，请稍候...
         </div>
         <div className={cls(styles.flexItemColumnWidthFull)}/>
+        {
+          editorLoading &&
+          <ProgressBar className={cls(styles.flexItemColumn, styles.bottomProgressBar)} intent={Intent.NONE}/>
+        }
         <div className={cls(styles.flexItemColumn, styles.bottomStatusItem)}/>
       </>
     );
@@ -400,43 +455,76 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getLeftContent() {
-    const { currentEditId, openFileMap } = this.state;
+    const { leftPanel, currentEditId } = this.state;
     return (
       <>
         <HttpApiResourcePane
+          className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.Interface })}
           openFileId={currentEditId}
           onHidePanel={() => this.toggleLeftPanel()}
-          onSelectChange={node => this.setState({ selectApiFileResource: node })}
+          onSelectChange={node => {
+            const apiFileResource = node.nodeData;
+            if (!apiFileResource) {
+              this.setState({ topStatusFileInfo: undefined });
+              return;
+            }
+            this.setState({
+              topStatusFileInfo: {
+                fileResourceId: apiFileResource.fileResourceId,
+                isFile: apiFileResource.isFile,
+                path: apiFileResource.path,
+                name: apiFileResource.name,
+                httpApiId: apiFileResource.httpApiId,
+                requestMapping: apiFileResource.requestMapping,
+                requestMethod: apiFileResource.requestMethod,
+              }
+            });
+          }}
           onOpenFile={apiFileResource => {
             if (apiFileResource.isFile !== 1) return;
-            request.get(`${FastApi.HttpApiManage.getHttpApiFileResource}?${qs.stringify({ httpApiId: apiFileResource.httpApiId })}`)
-              .then(data => {
-                if (!data || !data.fileResource || !data.httpApi) return;
-                const fileResource: FileResource = data.fileResource;
-                const httpApi: HttpApi = data.httpApi;
-                const sort = openFileMap.size + 1;
-                openFileMap.set(apiFileResource.fileResourceId, { sort, fileResource, needSave: false, httpApi });
-                this.setState({ currentEditId: fileResource.id });
-              })
-              .finally();
+            this.setCurrentEditId(apiFileResource.fileResourceId, apiFileResource.httpApiId);
           }}
         />
+        <div className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.TimedTask })}>
+          TimedTask
+        </div>
+        <div className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.Expand })}>
+          Expand
+        </div>
+        <div className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.Initialization })}>
+          Initialization
+        </div>
+      </>
+    );
+  }
+
+  private getRightContent() {
+    const { rightPanel } = this.state;
+    return (
+      <>
+        <div className={cls({ [styles.hide]: rightPanel !== RightPanelEnum.JDBC })}>
+          JDBC
+        </div>
+        <div className={cls({ [styles.hide]: rightPanel !== RightPanelEnum.Redis })}>
+          Redis
+        </div>
+        <div className={cls({ [styles.hide]: rightPanel !== RightPanelEnum.Elasticsearch })}>
+          Elasticsearch
+        </div>
       </>
     );
   }
 
   private getOpenFilesTabs() {
-    const { openFileMap } = this.state;
+    const { currentEditId, openFileMap } = this.state;
     const openFiles = lodash.sortBy([...openFileMap.values()], item => item.sort);
     const fileTabs: React.ReactNode[] = [];
     openFiles.forEach(file => {
       fileTabs.push(
         <div
           key={file.fileResource.id}
-          className={cls(styles.flexItemColumn, styles.fileTabsItem)}
-          onClick={() => {
-            // console.log("### onClick")
-          }}
+          className={cls(styles.flexItemColumn, styles.fileTabsItem, { [styles.fileTabsItemActive]: currentEditId === file.fileResource.id })}
+          onClick={() => this.setCurrentEditId(file.fileResource.id)}
         >
           <Icon component={getFileIcon(file.fileResource.name)} className={styles.fileTabsItemType}/>
           {file.fileResource.name}
@@ -445,6 +533,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             onClick={e => {
               e.preventDefault();
               e.stopPropagation();
+              this.closeEditFile(file.fileResource.id);
             }}
           />
         </div>
@@ -574,7 +663,9 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
               {this.getTips()}
               {this.getEditor()}
             </div>
-            <div className={cls(styles.rightPane, styles.flexRow, { [styles.hide]: noValue(rightPanel) })}/>
+            <div className={cls(styles.rightPane, styles.flexRow, { [styles.hide]: noValue(rightPanel) })}>
+              {this.getRightContent()}
+            </div>
           </Split>
           <div className={cls(styles.bottomPane, { [styles.hide]: noValue(bottomPanel) })}>
             {this.getVSplitTabs()}

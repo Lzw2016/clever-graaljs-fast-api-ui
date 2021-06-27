@@ -30,6 +30,8 @@ import styles from "./HttpApiResourcePane.module.less";
 const getDataApi = FastApi.HttpApiManage.getHttpApiTree;
 
 interface HttpApiResourcePaneProps {
+  /** 自定义样式 */
+  className?: string;
   /** 当前打开的文件ID */
   openFileId?: string;
   /** 选择节点变化事件 */
@@ -292,12 +294,12 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
   }
 
   render() {
-    const { openFileId, onSelectChange, onOpenFile } = this.props;
+    const { className, openFileId, onSelectChange, onOpenFile } = this.props;
     const { loading, expandedIds, selectedId } = this.state;
     let { treeData, } = this.state;
     treeData = this.fillTreeState(treeData);
     return (
-      <div className={cls(Classes.DARK, styles.panel)}>
+      <div className={cls(Classes.DARK, styles.panel, className)}>
         <div className={cls(styles.flexColumn, styles.head)}>
           {this.getHead()}
         </div>
