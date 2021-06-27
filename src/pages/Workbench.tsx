@@ -210,7 +210,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getTopStatus() {
-    const { topStatusFileInfo } = this.state;
+    const { topStatusFileInfo, openFileMap } = this.state;
+    const needSave = topStatusFileInfo && openFileMap.get(topStatusFileInfo.fileResourceId)?.needSave;
     return (
       <>
         <div className={cls(styles.flexItemColumn)} style={{ width: 3 }}/>
@@ -228,7 +229,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                 (
                   <>
                     {topStatusFileInfo.path}
-                    <span className={styles.topStatusFileModify}>
+                    <span className={cls({ [styles.topStatusFileModify]: needSave })}>
                       {topStatusFileInfo.name}
                     </span>
                   </>
@@ -527,7 +528,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           onClick={() => this.setCurrentEditId(file.fileResource.id)}
         >
           <Icon component={getFileIcon(file.fileResource.name)} className={styles.fileTabsItemType}/>
-          {file.fileResource.name}
+          <span className={cls({ [styles.fileTabsItemModify]: file.needSave })}>{file.fileResource.name}</span>
           <CloseOutlined
             className={styles.fileTabsItemClose}
             onClick={e => {
@@ -578,6 +579,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           this.editor.layout();
           initKeyBinding(editor, monaco);
         }}
+        // onChange={(value, ev) => {
+        // }}
       />
     );
   }
