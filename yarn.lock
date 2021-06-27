@@ -306,19 +306,19 @@
     gud "^1.0.0"
     warning "^4.0.3"
 
-"@monaco-editor/loader@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.nlark.com/@monaco-editor/loader/download/@monaco-editor/loader-1.1.0.tgz#24106ea29201f2fd1d8eeb769b4d067c77d7e7b5"
-  integrity sha1-JBBuopIB8v0djut2m00GfHfX57U=
+"@monaco-editor/loader@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.nlark.com/@monaco-editor/loader/download/@monaco-editor/loader-1.1.1.tgz#37db648c81a86946d0febd391de00df9c28a0a3d"
+  integrity sha1-N9tkjIGoaUbQ/r05HeAN+cKKCj0=
   dependencies:
     state-local "^1.0.6"
 
-"@monaco-editor/react@^4.2.0":
-  version "4.2.0"
-  resolved "https://registry.nlark.com/@monaco-editor/react/download/@monaco-editor/react-4.2.0.tgz#55bb8e533f43aa4cdc0cb0e0a7cbaf5e6bfe204d"
-  integrity sha1-VbuOUz9DqkzcDLDgp8uvXmv+IE0=
+"@monaco-editor/react@^4.2.1":
+  version "4.2.1"
+  resolved "https://registry.nlark.com/@monaco-editor/react/download/@monaco-editor/react-4.2.1.tgz#75cb6e85e3640e05887a14005c370e46bd71256b"
+  integrity sha1-dctuheNkDgWIehQAXDcORr1xJWs=
   dependencies:
-    "@monaco-editor/loader" "^1.1.0"
+    "@monaco-editor/loader" "^1.1.1"
     prop-types "^15.7.2"
     state-local "^1.0.7"
 

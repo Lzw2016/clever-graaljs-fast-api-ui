@@ -66,22 +66,17 @@ const defaultState: WorkbenchState = {
   hSplitCollapsedSize: [15, 75, 10],
   // EditorTabsState
   openFileMap: new Map<string, EditorTabItem>(),
-  editorStateMap: new Map<string, MonacoApi.editor.ICodeEditorViewState>(),
 };
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   /** 编辑器实例 */
   private editor: MonacoApi.editor.IStandaloneCodeEditor | undefined;
-  /** 编辑器空编辑器状态 */
-  private editorEmptyViewState: MonacoApi.editor.ICodeEditorViewState | null = null;
   /** 编辑器大小自适应 */
   private editorResize = lodash.debounce(() => this.editor?.layout(), 500, { maxWait: 3000 });
   /** 保存当前编辑的文件 */
-  private saveCurrentEditFile = lodash.debounce((changed: boolean, editorStateMap: EditorTabsState["editorStateMap"], openFile: EditorTabItem, editorValue?: string) => {
+  private saveCurrentEditFile = lodash.debounce((changed: boolean, openFile: EditorTabItem, editorValue?: string) => {
     if (!this.editor) return; // TODO 错误提示
     openFile.fileResource.content = editorValue ?? "";
-    const editorViewState = this.editor.saveViewState();
-    editorStateMap.set(openFile.fileResource.id, editorViewState);
     if (openFile.needSave !== changed) {
       openFile.needSave = changed;
       this.forceUpdate();
@@ -180,8 +175,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   /** 设置当前编辑器编辑的文件 */
   public setCurrentEditId(fileResourceId?: string, httpApiId?: string) {
     if (!fileResourceId) return;
-    const { currentEditId, openFileMap, editorStateMap } = this.state;
-    if (currentEditId && this.editor) editorStateMap.set(fileResourceId, this.editor.saveViewState());
+    const { currentEditId, openFileMap } = this.state;
     const openFile = openFileMap.get(fileResourceId);
     if (openFile) {
       openFile.lastEditTime = lodash.now();
@@ -198,7 +192,6 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
       const sort = openFileMap.size + 1;
       const openFile: EditorTabItem = { sort, lastEditTime: lodash.now(), fileResource, rawContent: fileResource.content, needSave: false, httpApi };
       openFileMap.set(fileResource.id, openFile);
-      editorStateMap.set(fileResource.id, this.editorEmptyViewState);
       this.setState({ currentEditId: fileResource.id, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
     }).finally(() => this.setState({ getApiFileResourceLoading: false }));
   }
@@ -206,13 +199,12 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   /** 关闭打开的文件 */
   public closeEditFile(fileResourceId?: string) {
     if (!fileResourceId) return;
-    const { openFileMap, editorStateMap } = this.state;
+    const { openFileMap } = this.state;
     let { topStatusFileInfo } = this.state;
     const closeFile = openFileMap.get(fileResourceId);
     if (!closeFile) return;
     // if(closeFile.needSave) {} // TODO 提示是否强行关闭
     openFileMap.delete(fileResourceId);
-    editorStateMap.delete(fileResourceId);
     let editFile: EditorTabItem | undefined;
     let lastEditTime: number = 0;
     openFileMap.forEach((item, fileResourceId) => {
@@ -632,15 +624,15 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         options={editorDefOptions}
         language={getLanguage(openFile?.fileResource.name)}
         value={openFile?.fileResource?.content}
-        saveViewState={false}
+        saveViewState={true}
         path={openFile?.fileResource ? (openFile.fileResource.path + openFile.fileResource.name) : "/empty.js"}
         keepCurrentModel={true}
         onMount={(editor, monaco) => {
+          initEditorConfig(editor);
+          initKeyBinding(editor, monaco);
           this.editor = editor;
           this.editor.layout();
-          this.editorEmptyViewState = this.editor.saveViewState();
           this.editor.onDidFocusEditorText(this.setTopStatusFileInfo);
-          initEditorConfig(editor);
           this.editor.addCommand(
             MonacoApi.KeyMod.CtrlCmd | MonacoApi.KeyCode.KEY_S,
             () => {
@@ -650,15 +642,13 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
               this.saveFileResource(file);
             },
           );
-          initKeyBinding(editor, monaco);
-          (window as any).a = editor;
         }}
         onChange={value => {
-          const { currentEditId, openFileMap, editorStateMap } = this.state;
+          const { currentEditId, openFileMap } = this.state;
           const openFile: EditorTabItem | undefined = openFileMap.get(currentEditId ?? "");
           if (!openFile) return; // TODO 错误提示
           const changed = (openFile.rawContent !== value);
-          this.saveCurrentEditFile(changed, editorStateMap, openFile, value);
+          this.saveCurrentEditFile(changed, openFile, value);
         }}
       />
     );
@@ -759,15 +749,6 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
 
   public render() {
     console.log("### render", this.state);
-    const { currentEditId, editorStateMap } = this.state;
-    if (currentEditId) {
-      const viewState = editorStateMap.get(currentEditId);
-      if (viewState) {
-        // if(!this.editor) {} // TODO 错误提示
-        this.editor?.restoreViewState(viewState);
-        // console.log("### viewState", JSON.stringify(viewState));
-      }
-    }
     return this.getLayout();
   }
 }

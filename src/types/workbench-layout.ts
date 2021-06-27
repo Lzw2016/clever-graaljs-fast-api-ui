@@ -1,5 +1,3 @@
-import * as MonacoApi from "monaco-editor";
-
 // enum LayoutPanelEnum {
 //   Left,
 //   Right,
@@ -107,8 +105,6 @@ export interface EditorTabsState {
   currentEditId?: string;
   /** 当前打开的文件列表 Map<fileResourceId, EditorTabItem> */
   openFileMap: Map<string, EditorTabItem>;
-  /** 编辑器文件状态 Map<fileResourceId, MonacoApi.editor.ICodeEditorViewState> */
-  editorStateMap: Map<string, MonacoApi.editor.ICodeEditorViewState | null>;
   /**  */
   /**  */
 }
