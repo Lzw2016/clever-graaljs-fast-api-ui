@@ -30,7 +30,7 @@ import { HttpApiResourcePane } from "@/components/ide";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { ChevronDown, ChevronUp, getFileIcon } from "@/utils/IdeaIconUtils";
-import { editorDefOptions, initEditorConfig, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
+import { editorDefOptions, getLanguage, initEditorConfig, initKeyBinding, themeEnum } from "@/utils/editor-utils";
 import {
   BottomPanelEnum,
   EditorTabItem,
@@ -81,7 +81,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     if (!this.editor) return; // TODO 错误提示
     openFile.fileResource.content = editorValue ?? "";
     const editorViewState = this.editor.saveViewState();
-    if (editorViewState) editorStateMap.set(openFile.fileResource.id, editorViewState);
+    editorStateMap.set(openFile.fileResource.id, editorViewState);
     if (openFile.needSave !== changed) {
       openFile.needSave = changed;
       this.forceUpdate();
@@ -180,7 +180,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   /** 设置当前编辑器编辑的文件 */
   public setCurrentEditId(fileResourceId?: string, httpApiId?: string) {
     if (!fileResourceId) return;
-    const { openFileMap, editorStateMap } = this.state;
+    const { currentEditId, openFileMap, editorStateMap } = this.state;
+    if (currentEditId && this.editor) editorStateMap.set(fileResourceId, this.editor.saveViewState());
     const openFile = openFileMap.get(fileResourceId);
     if (openFile) {
       openFile.lastEditTime = lodash.now();
@@ -205,12 +206,13 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   /** 关闭打开的文件 */
   public closeEditFile(fileResourceId?: string) {
     if (!fileResourceId) return;
-    const { openFileMap } = this.state;
+    const { openFileMap, editorStateMap } = this.state;
     let { topStatusFileInfo } = this.state;
     const closeFile = openFileMap.get(fileResourceId);
     if (!closeFile) return;
     // if(closeFile.needSave) {} // TODO 提示是否强行关闭
     openFileMap.delete(fileResourceId);
+    editorStateMap.delete(fileResourceId);
     let editFile: EditorTabItem | undefined;
     let lastEditTime: number = 0;
     openFileMap.forEach((item, fileResourceId) => {
@@ -619,9 +621,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getEditor() {
-    const { currentEditId, openFileMap, editorStateMap } = this.state;
+    const { currentEditId, openFileMap } = this.state;
     const openFile: EditorTabItem | undefined = openFileMap.get(currentEditId ?? "");
-    const viewState = editorStateMap.get(currentEditId ?? "");
     return (
       <Editor
         wrapperClassName={cls(styles.editorWrapper, { [styles.hide]: !currentEditId })}
@@ -629,7 +630,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         theme={themeEnum.IdeaDracula}
         loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
         options={editorDefOptions}
-        language={languageEnum.javascript}
+        language={getLanguage(openFile?.fileResource.name)}
         value={openFile?.fileResource?.content}
         saveViewState={false}
         path={openFile?.fileResource ? (openFile.fileResource.path + openFile.fileResource.name) : "/empty.js"}
@@ -650,6 +651,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             },
           );
           initKeyBinding(editor, monaco);
+          (window as any).a = editor;
         }}
         onChange={value => {
           const { currentEditId, openFileMap, editorStateMap } = this.state;
@@ -757,6 +759,15 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
 
   public render() {
     console.log("### render", this.state);
+    const { currentEditId, editorStateMap } = this.state;
+    if (currentEditId) {
+      const viewState = editorStateMap.get(currentEditId);
+      if (viewState) {
+        // if(!this.editor) {} // TODO 错误提示
+        this.editor?.restoreViewState(viewState);
+        // console.log("### viewState", JSON.stringify(viewState));
+      }
+    }
     return this.getLayout();
   }
 }

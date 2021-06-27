@@ -34,9 +34,11 @@ const themeEnum = {
  * 语言枚举
  */
 const languageEnum = {
+  typescript: "typescript",
   javascript: "javascript",
   xml: "xml",
   json: "json",
+  yaml: "yaml",
 };
 
 /**
@@ -231,7 +233,29 @@ const initEditorConfig = (editor: MonacoApi.editor.IStandaloneCodeEditor) => {
   editor.getModel()?.setEOL(MonacoApi.editor.EndOfLineSequence.LF);
 }
 
+const getLanguage = (filename?: string): string => {
+  if (!filename) return languageEnum.javascript;
+  const position = filename.lastIndexOf(".");
+  if (position < 0) return languageEnum.javascript;
+  const ext = filename.substr(position).toLowerCase();
+  switch (ext) {
+    case ".ts":
+    case ".d.ts":
+      return languageEnum.typescript;
+    case ".js":
+      return languageEnum.javascript;
+    case ".json":
+      return languageEnum.json;
+    case ".xml":
+      return languageEnum.xml;
+    case ".yml":
+    case ".yaml":
+      return languageEnum.yaml;
+  }
+  return languageEnum.javascript
+}
+
 // AppContext.initEditorViewState = editorInstance.saveViewState();
 // editorInstance.onDidChangeModelContent(lodash.debounce(AppContext.fileContentChange, 100, { maxWait: 350 }));
 
-export { themeEnum, languageEnum, editorDefOptions, registerTheme, initMonaco, initKeyBinding, initEditorConfig };
+export { themeEnum, languageEnum, editorDefOptions, registerTheme, initMonaco, initKeyBinding, initEditorConfig, getLanguage };
