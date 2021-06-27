@@ -17,6 +17,14 @@ import "@/assets/global.less";
 
 // 取消默认的浏览器自带右键
 window.oncontextmenu = e => e.preventDefault();
+// 禁用浏览器快捷键
+document.onkeydown = e => {
+  let preventDefault = false;
+  // 判断 Ctrl + S
+  if (e.ctrlKey && e.key.toUpperCase() === "S") preventDefault = true;
+  // 警用浏览器默认行为
+  if (preventDefault) e.preventDefault();
+}
 
 dayjs.locale("zh-cn");
 loader.config({

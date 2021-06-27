@@ -50,9 +50,9 @@ const editorDefOptions: MonacoApi.editor.IStandaloneEditorConstructionOptions = 
   scrollbar: {
     vertical: "visible",
     horizontal: "visible",
-    verticalScrollbarSize: 8,
-    horizontalScrollbarSize: 8,
-    arrowSize: 16,
+    verticalScrollbarSize: 12,
+    horizontalScrollbarSize: 12,
+    arrowSize: 24,
   },
   fixedOverflowWidgets: true,
   // overflowWidgetsDomNode: window.document.body,
@@ -224,8 +224,14 @@ const initKeyBinding = (editor: MonacoApi.editor.IStandaloneCodeEditor, monaco: 
   // );
 };
 
+/**
+ * 初始化编辑器实例
+ */
+const initEditorConfig = (editor: MonacoApi.editor.IStandaloneCodeEditor) => {
+  editor.getModel()?.setEOL(MonacoApi.editor.EndOfLineSequence.LF);
+}
 
 // AppContext.initEditorViewState = editorInstance.saveViewState();
 // editorInstance.onDidChangeModelContent(lodash.debounce(AppContext.fileContentChange, 100, { maxWait: 350 }));
 
-export { themeEnum, languageEnum, editorDefOptions, registerTheme, initMonaco, initKeyBinding };
+export { themeEnum, languageEnum, editorDefOptions, registerTheme, initMonaco, initKeyBinding, initEditorConfig };

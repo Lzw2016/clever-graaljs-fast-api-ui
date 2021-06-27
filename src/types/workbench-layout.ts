@@ -57,6 +57,14 @@ export interface LayoutSize {
   hSplitCollapsedSize: [number, number, number];
 }
 
+/** 各种加载状态 */
+export interface WorkbenchLoading {
+  /** 数据加载状态 */
+  getApiFileResourceLoading: boolean;
+  /** 保存文件Loading */
+  saveFileResourceLoading: boolean;
+}
+
 export interface TopStatusFileInfo {
   /** 资源文件id */
   fileResourceId: string;
@@ -81,6 +89,8 @@ export interface EditorTabItem {
   lastEditTime: number;
   /** 文件 */
   fileResource: FileResource,
+  /** 文件原始内容 */
+  rawContent: string;
   /** 是否需要保存 */
   needSave: boolean;
   /** Http接口 */
@@ -97,8 +107,21 @@ export interface EditorTabsState {
   currentEditId?: string;
   /** 当前打开的文件列表 Map<fileResourceId, EditorTabItem> */
   openFileMap: Map<string, EditorTabItem>;
-  /** 编辑器文件状态 Map<fileResourceId, MonacoApi.editor.IEditorViewState> */
-  editorStateMap: Map<string, MonacoApi.editor.IEditorViewState>;
+  /** 编辑器文件状态 Map<fileResourceId, MonacoApi.editor.ICodeEditorViewState> */
+  editorStateMap: Map<string, MonacoApi.editor.ICodeEditorViewState | null>;
   /**  */
   /**  */
+}
+
+/** 数据转换 */
+export function transformEditorTabItem2TopStatusFileInfo(editorTabItem: EditorTabItem): TopStatusFileInfo {
+  return {
+    fileResourceId: editorTabItem.fileResource.id,
+    isFile: editorTabItem.fileResource.isFile,
+    path: editorTabItem.fileResource.path,
+    name: editorTabItem.fileResource.name,
+    httpApiId: editorTabItem.httpApi?.id,
+    requestMapping: editorTabItem.httpApi?.requestMapping,
+    requestMethod: editorTabItem.httpApi?.requestMethod,
+  };
 }

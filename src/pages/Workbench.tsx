@@ -30,22 +30,32 @@ import { HttpApiResourcePane } from "@/components/ide";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { ChevronDown, ChevronUp, getFileIcon } from "@/utils/IdeaIconUtils";
-import { editorDefOptions, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
-import { BottomPanelEnum, EditorTabItem, EditorTabsState, LayoutSize, LeftPanelEnum, RightPanelEnum, TopStatusFileInfo } from "@/types/workbench-layout";
+import { editorDefOptions, initEditorConfig, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
+import {
+  BottomPanelEnum,
+  EditorTabItem,
+  EditorTabsState,
+  LayoutSize,
+  LeftPanelEnum,
+  RightPanelEnum,
+  TopStatusFileInfo,
+  transformEditorTabItem2TopStatusFileInfo,
+  WorkbenchLoading
+} from "@/types/workbench-layout";
 import styles from "./Workbench.module.less";
 
 interface WorkbenchProps {
 }
 
-interface WorkbenchState extends LayoutSize, EditorTabsState {
-  /** 数据加载状态 */
-  editorLoading: boolean;
+interface WorkbenchState extends WorkbenchLoading, LayoutSize, EditorTabsState {
   /** HttpApiTree当前选中的节点 */
   topStatusFileInfo?: TopStatusFileInfo;
 }
 
 const defaultState: WorkbenchState = {
-  editorLoading: false,
+  // WorkbenchLoading
+  getApiFileResourceLoading: false,
+  saveFileResourceLoading: false,
   // LayoutSize
   bottomPanel: BottomPanelEnum.GlobalConfig,
   vSplitSize: [80, 20],
@@ -56,14 +66,45 @@ const defaultState: WorkbenchState = {
   hSplitCollapsedSize: [15, 75, 10],
   // EditorTabsState
   openFileMap: new Map<string, EditorTabItem>(),
-  editorStateMap: new Map<string, MonacoApi.editor.IEditorViewState>(),
+  editorStateMap: new Map<string, MonacoApi.editor.ICodeEditorViewState>(),
 };
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   /** 编辑器实例 */
   private editor: MonacoApi.editor.IStandaloneCodeEditor | undefined;
+  /** 编辑器空编辑器状态 */
+  private editorEmptyViewState: MonacoApi.editor.ICodeEditorViewState | null = null;
   /** 编辑器大小自适应 */
   private editorResize = lodash.debounce(() => this.editor?.layout(), 500, { maxWait: 3000 });
+  /** 保存当前编辑的文件 */
+  private saveCurrentEditFile = lodash.debounce((changed: boolean, editorStateMap: EditorTabsState["editorStateMap"], openFile: EditorTabItem, editorValue?: string) => {
+    if (!this.editor) return; // TODO 错误提示
+    openFile.fileResource.content = editorValue ?? "";
+    const editorViewState = this.editor.saveViewState();
+    if (editorViewState) editorStateMap.set(openFile.fileResource.id, editorViewState);
+    if (openFile.needSave !== changed) {
+      openFile.needSave = changed;
+      this.forceUpdate();
+    }
+  }, 150, { maxWait: 1000 });
+  /** 更新TopStatusFileInfo */
+  private setTopStatusFileInfo = () => {
+    const { currentEditId, openFileMap, topStatusFileInfo } = this.state;
+    const openFile = openFileMap.get(currentEditId ?? "");
+    if (!openFile) return;
+    if (topStatusFileInfo && openFile.fileResource.id === topStatusFileInfo.fileResourceId) return;
+    this.setState({ topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
+  };
+  /** 保存文件到服务器 */
+  private saveFileResource = lodash.debounce((file: EditorTabItem) => {
+    this.setState({ saveFileResourceLoading: true });
+    request.put(FastApi.FileResourceManage.saveFileContent, { id: file.fileResource.id, content: file.fileResource.content })
+      .then((fileResource: FileResource) => {
+        file.needSave = false;
+        file.rawContent = fileResource.content;
+        this.forceUpdate();
+      }).finally(() => this.setState({ saveFileResourceLoading: false }));
+  }, 150, { maxWait: 1000 });
 
   constructor(props: Readonly<WorkbenchProps>) {
     super(props);
@@ -136,44 +177,50 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     this.setState({ rightPanel: newRightPanel, hSplitCollapsedSize });
   }
 
-  /** 设置当前编辑的文件ID */
+  /** 设置当前编辑器编辑的文件 */
   public setCurrentEditId(fileResourceId?: string, httpApiId?: string) {
     if (!fileResourceId) return;
-    const { openFileMap } = this.state;
+    const { openFileMap, editorStateMap } = this.state;
     const openFile = openFileMap.get(fileResourceId);
     if (openFile) {
       openFile.lastEditTime = lodash.now();
-      this.setState({ currentEditId: fileResourceId });
+      this.setState({ currentEditId: fileResourceId, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
       return;
     }
     if (!httpApiId) return;
     const url = `${FastApi.HttpApiManage.getHttpApiFileResource}?${qs.stringify({ httpApiId })}`;
-    this.setState({ editorLoading: true });
+    this.setState({ getApiFileResourceLoading: true });
     request.get(url).then(data => {
       if (!data || !data.fileResource || !data.httpApi) return;
       const fileResource: FileResource = data.fileResource;
       const httpApi: HttpApi = data.httpApi;
       const sort = openFileMap.size + 1;
-      openFileMap.set(fileResource.id, { sort, lastEditTime: lodash.now(), fileResource, needSave: false, httpApi });
-      this.setState({ currentEditId: fileResource.id });
-    }).finally(() => this.setState({ editorLoading: false }));
+      const openFile: EditorTabItem = { sort, lastEditTime: lodash.now(), fileResource, rawContent: fileResource.content, needSave: false, httpApi };
+      openFileMap.set(fileResource.id, openFile);
+      editorStateMap.set(fileResource.id, this.editorEmptyViewState);
+      this.setState({ currentEditId: fileResource.id, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
+    }).finally(() => this.setState({ getApiFileResourceLoading: false }));
   }
 
   /** 关闭打开的文件 */
   public closeEditFile(fileResourceId?: string) {
     if (!fileResourceId) return;
     const { openFileMap } = this.state;
-    if (!openFileMap.has(fileResourceId)) return;
+    let { topStatusFileInfo } = this.state;
+    const closeFile = openFileMap.get(fileResourceId);
+    if (!closeFile) return;
+    // if(closeFile.needSave) {} // TODO 提示是否强行关闭
     openFileMap.delete(fileResourceId);
-    let editId: string | undefined;
+    let editFile: EditorTabItem | undefined;
     let lastEditTime: number = 0;
     openFileMap.forEach((item, fileResourceId) => {
       if (item.lastEditTime > lastEditTime) {
         lastEditTime = item.lastEditTime;
-        editId = fileResourceId;
+        editFile = item;
       }
     });
-    this.setState({ currentEditId: editId });
+    if (editFile) topStatusFileInfo = transformEditorTabItem2TopStatusFileInfo(editFile);
+    this.setState({ currentEditId: editFile?.fileResource.id, topStatusFileInfo });
   }
 
   private calculateHSplitCollapsedSize(leftPanel: LeftPanelEnum | undefined, rightPanel: RightPanelEnum | undefined): [number, number, number] {
@@ -268,7 +315,10 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getBottomStatus() {
-    const { editorLoading } = this.state;
+    const { getApiFileResourceLoading, saveFileResourceLoading } = this.state;
+    let loadingText = "";
+    if (getApiFileResourceLoading) loadingText = "加载API数据...";
+    else if (saveFileResourceLoading) loadingText = "保存文件...";
     return (
       <>
         <div className={cls(styles.flexItemColumn, styles.bottomStatusFirst)}/>
@@ -277,8 +327,15 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         </div>
         <div className={cls(styles.flexItemColumnWidthFull)}/>
         {
-          editorLoading &&
-          <ProgressBar className={cls(styles.flexItemColumn, styles.bottomProgressBar)} intent={Intent.NONE}/>
+          (getApiFileResourceLoading || saveFileResourceLoading) &&
+          (
+            <>
+              <div className={cls(styles.flexItemColumn, styles.bottomStatusItem, styles.bottomLoadingText)}>
+                <span>{loadingText}</span>
+              </div>
+              <ProgressBar className={cls(styles.flexItemColumn, styles.bottomLoadingProgressBar)} intent={Intent.NONE}/>
+            </>
+          )
         }
         <div className={cls(styles.flexItemColumn, styles.bottomStatusItem)}/>
       </>
@@ -562,25 +619,45 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getEditor() {
-    const { currentEditId, openFileMap } = this.state;
+    const { currentEditId, openFileMap, editorStateMap } = this.state;
     const openFile: EditorTabItem | undefined = openFileMap.get(currentEditId ?? "");
+    const viewState = editorStateMap.get(currentEditId ?? "");
     return (
       <Editor
         wrapperClassName={cls(styles.editorWrapper, { [styles.hide]: !currentEditId })}
         className={styles.editor}
-        defaultLanguage={languageEnum.javascript}
-        defaultValue={""}
-        value={openFile?.fileResource?.content}
         theme={themeEnum.IdeaDracula}
-        options={editorDefOptions}
         loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
+        options={editorDefOptions}
+        language={languageEnum.javascript}
+        value={openFile?.fileResource?.content}
+        saveViewState={false}
+        path={openFile?.fileResource ? (openFile.fileResource.path + openFile.fileResource.name) : "/empty.js"}
+        keepCurrentModel={true}
         onMount={(editor, monaco) => {
           this.editor = editor;
           this.editor.layout();
+          this.editorEmptyViewState = this.editor.saveViewState();
+          this.editor.onDidFocusEditorText(this.setTopStatusFileInfo);
+          initEditorConfig(editor);
+          this.editor.addCommand(
+            MonacoApi.KeyMod.CtrlCmd | MonacoApi.KeyCode.KEY_S,
+            () => {
+              const { currentEditId, openFileMap } = this.state;
+              const file: EditorTabItem | undefined = openFileMap.get(currentEditId ?? "");
+              if (!file) return; // TODO 错误提示
+              this.saveFileResource(file);
+            },
+          );
           initKeyBinding(editor, monaco);
         }}
-        // onChange={(value, ev) => {
-        // }}
+        onChange={value => {
+          const { currentEditId, openFileMap, editorStateMap } = this.state;
+          const openFile: EditorTabItem | undefined = openFileMap.get(currentEditId ?? "");
+          if (!openFile) return; // TODO 错误提示
+          const changed = (openFile.rawContent !== value);
+          this.saveCurrentEditFile(changed, editorStateMap, openFile, value);
+        }}
       />
     );
   }

@@ -163,12 +163,18 @@
   padding: 4px 6px;
   color: @fontColor;
   font-size: 12px;
-  letter-spacing: 2px;
   text-align: center;
   user-select: none;
 }
 
-.bottomProgressBar {
+.bottomLoadingText {
+  transform: scale(0.8, 0.8);
+  transform-origin: right;
+  padding-right: 0;
+  margin-right: 0;
+}
+
+.bottomLoadingProgressBar {
   height: 5px !important;
   width: 152px !important;
 }
@@ -371,7 +377,7 @@
 .horizontalSplitGutter {
   height: 100%;
   width: 16px !important;
-  margin: 0 -8px;
+  margin: 0 -12px 0 -4px;
   background: none;
   opacity: 0;
   box-sizing: border-box;

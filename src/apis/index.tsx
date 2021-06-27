@@ -9,6 +9,7 @@ const FastApi = {
   },
   FileResourceManage: {
     getFileResource: `${serverHost}/file_resource_manage/file_resource`,
+    saveFileContent: `${serverHost}/file_resource_manage/save_file_content`,
   },
 };
 
