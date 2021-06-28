@@ -8,7 +8,7 @@ export enum LeftPanelEnum {
   /** 资源文件 */
   ResourceFile,
   /** Http接口 */
-  Interface,
+  HttpApi,
   /** 定时任务 */
   TimedTask,
   /** 自定义扩展 */

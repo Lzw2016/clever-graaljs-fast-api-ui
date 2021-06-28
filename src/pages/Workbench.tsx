@@ -61,7 +61,7 @@ const defaultState: WorkbenchState = {
   bottomPanel: BottomPanelEnum.GlobalConfig,
   vSplitSize: [80, 20],
   vSplitCollapsedSize: [80, 20],
-  leftPanel: LeftPanelEnum.Interface,
+  leftPanel: LeftPanelEnum.HttpApi,
   rightPanel: RightPanelEnum.JDBC,
   hSplitSize: [15, 75, 10],
   hSplitCollapsedSize: [15, 75, 10],
@@ -147,8 +147,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     let newLeftPanel: LeftPanelEnum | undefined;
     if (panel === LeftPanelEnum.ResourceFile) {
       newLeftPanel = (leftPanel === LeftPanelEnum.ResourceFile ? undefined : LeftPanelEnum.ResourceFile);
-    } else if (panel === LeftPanelEnum.Interface) {
-      newLeftPanel = (leftPanel === LeftPanelEnum.Interface ? undefined : LeftPanelEnum.Interface);
+    } else if (panel === LeftPanelEnum.HttpApi) {
+      newLeftPanel = (leftPanel === LeftPanelEnum.HttpApi ? undefined : LeftPanelEnum.HttpApi);
     } else if (panel === LeftPanelEnum.TimedTask) {
       newLeftPanel = (leftPanel === LeftPanelEnum.TimedTask ? undefined : LeftPanelEnum.TimedTask);
     } else if (panel === LeftPanelEnum.Extend) {
@@ -243,6 +243,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     this.setState({ currentEditId: editFile?.fileResource.id, topStatusFileInfo });
   }
 
+  /** 计算水平分隔面板大小 */
   private calculateHSplitCollapsedSize(leftPanel: LeftPanelEnum | undefined, rightPanel: RightPanelEnum | undefined): [number, number, number] {
     const { hSplitSize, hSplitCollapsedSize } = this.state;
     if (hasValue(leftPanel)) {
@@ -257,6 +258,21 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     }
     hSplitCollapsedSize[1] = 100 - hSplitCollapsedSize[0] - hSplitCollapsedSize[2];
     return hSplitCollapsedSize;
+  }
+
+  private getLeftPanel(): LeftPanelEnum | undefined {
+    let { leftPanel } = this.state;
+    const { currentEditId, openFileMap } = this.state;
+    if (hasValue(leftPanel) && currentEditId) {
+      const openFile = openFileMap.get(currentEditId);
+      const module = openFile?.fileResource?.module;
+      if (module === 0) leftPanel = LeftPanelEnum.Extend;
+      else if (module === 1) leftPanel = LeftPanelEnum.ResourceFile;
+      else if (module === 2) leftPanel = LeftPanelEnum.Initialization;
+      else if (module === 3) leftPanel = LeftPanelEnum.HttpApi;
+      else if (module === 4) leftPanel = LeftPanelEnum.TimedTask;
+    }
+    return leftPanel;
   }
 
   private getTopMenu() {
@@ -419,8 +435,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           <FolderFilled/>
         </div>
         <div
-          className={cls(styles.flexItemRow, styles.leftTabsItem, { [styles.leftTabsItemActive]: leftPanel === LeftPanelEnum.Interface })}
-          onClick={() => this.toggleLeftPanel(LeftPanelEnum.Interface)}
+          className={cls(styles.flexItemRow, styles.leftTabsItem, { [styles.leftTabsItemActive]: leftPanel === LeftPanelEnum.HttpApi })}
+          onClick={() => this.toggleLeftPanel(LeftPanelEnum.HttpApi)}
         >
           接口列表
           <FolderFilled/>
@@ -547,7 +563,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           ResourceFile
         </div>
         <HttpApiResourcePane
-          className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.Interface })}
+          className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.HttpApi })}
           openFileId={currentEditId}
           onHidePanel={() => this.toggleLeftPanel()}
           onSelectChange={node => {
@@ -636,7 +652,13 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         <div
           key={file.fileResource.id}
           className={cls(styles.flexItemColumn, styles.fileTabsItem, { [styles.fileTabsItemActive]: currentEditId === file.fileResource.id })}
-          onClick={() => this.setCurrentEditHttpApiFile(file.fileResource.id)}
+          onClick={() => {
+            if (file.fileResource.module === 3) {
+              this.setCurrentEditHttpApiFile(file.fileResource.id)
+            } else {
+              this.setCurrentEditFile(file.fileResource.id)
+            }
+          }}
         >
           <Icon component={getFileIcon(file.fileResource.name)} className={styles.fileTabsItemType}/>
           <span className={cls({ [styles.fileTabsItemModify]: file.needSave })}>{file.fileResource.name}</span>
