@@ -132,7 +132,7 @@ const initMonaco = (monaco: typeof MonacoApi) => {
     target: monaco.languages.typescript.ScriptTarget.ES2020,
     allowNonTsExtensions: true,
     noLib: false,
-    // lib: [],
+    lib: ["es5", "es2015", "es2016", "es2017", "es2018", "es2019", "es2020", "es2021", "esnext"],
   });
   // TODO 加载扩展lib定义
   // monaco.languages.typescript.javascriptDefaults.addExtraLib(libSource, libUri);
