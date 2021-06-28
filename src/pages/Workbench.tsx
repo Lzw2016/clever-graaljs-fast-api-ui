@@ -11,7 +11,6 @@ import Icon, {
   ControlOutlined,
   FolderFilled,
   GithubOutlined,
-  HistoryOutlined,
   LockOutlined,
   MinusOutlined,
   QqOutlined,
@@ -29,7 +28,7 @@ import { FastApi } from "@/apis";
 import { HttpApiResourcePane } from "@/components/ide";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
-import { ChevronDown, ChevronUp, getFileIcon } from "@/utils/IdeaIconUtils";
+import { ChevronDown, ChevronUp, Execute, Find, getFileIcon, History, MenuSaveAll } from "@/utils/IdeaIconUtils";
 import { editorDefOptions, getLanguage, initEditorConfig, initKeyBinding, themeEnum } from "@/utils/editor-utils";
 import {
   BottomPanelEnum,
@@ -43,6 +42,7 @@ import {
   WorkbenchLoading
 } from "@/types/workbench-layout";
 import styles from "./Workbench.module.less";
+import ExtendResourcePane from "@/components/ide/ExtendResourcePane";
 
 interface WorkbenchProps {
 }
@@ -56,6 +56,7 @@ const defaultState: WorkbenchState = {
   // WorkbenchLoading
   getApiFileResourceLoading: false,
   saveFileResourceLoading: false,
+  getFileResourceLoading: false,
   // LayoutSize
   bottomPanel: BottomPanelEnum.GlobalConfig,
   vSplitSize: [80, 20],
@@ -150,8 +151,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
       newLeftPanel = (leftPanel === LeftPanelEnum.Interface ? undefined : LeftPanelEnum.Interface);
     } else if (panel === LeftPanelEnum.TimedTask) {
       newLeftPanel = (leftPanel === LeftPanelEnum.TimedTask ? undefined : LeftPanelEnum.TimedTask);
-    } else if (panel === LeftPanelEnum.Expand) {
-      newLeftPanel = (leftPanel === LeftPanelEnum.Expand ? undefined : LeftPanelEnum.Expand);
+    } else if (panel === LeftPanelEnum.Extend) {
+      newLeftPanel = (leftPanel === LeftPanelEnum.Extend ? undefined : LeftPanelEnum.Extend);
     } else if (panel === LeftPanelEnum.Initialization) {
       newLeftPanel = (leftPanel === LeftPanelEnum.Initialization ? undefined : LeftPanelEnum.Initialization);
     }
@@ -174,12 +175,13 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     this.setState({ rightPanel: newRightPanel, hSplitCollapsedSize });
   }
 
-  /** 设置当前编辑器编辑的文件 */
-  public setCurrentEditId(fileResourceId?: string, httpApiId?: string) {
+  /** 设置当前编辑器编辑的HttpApi文件 */
+  public setCurrentEditHttpApiFile(fileResourceId?: string, httpApiId?: string) {
     if (!fileResourceId) return;
     const { currentEditId, openFileMap } = this.state;
     const openFile = openFileMap.get(fileResourceId);
     if (openFile) {
+      if (currentEditId === fileResourceId) return;
       openFile.lastEditTime = lodash.now();
       this.setState({ currentEditId: fileResourceId, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
       return;
@@ -196,6 +198,28 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
       openFileMap.set(fileResource.id, openFile);
       this.setState({ currentEditId: fileResource.id, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
     }).finally(() => this.setState({ getApiFileResourceLoading: false }));
+  }
+
+  /** 设置当前编辑器编辑的文件 */
+  public setCurrentEditFile(fileResourceId?: string) {
+    if (!fileResourceId) return;
+    const { currentEditId, openFileMap } = this.state;
+    const openFile = openFileMap.get(fileResourceId);
+    if (openFile) {
+      if (currentEditId === fileResourceId) return;
+      openFile.lastEditTime = lodash.now();
+      this.setState({ currentEditId: fileResourceId, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
+      return;
+    }
+    const url = `${FastApi.FileResourceManage.getFileResource}?${qs.stringify({ id: fileResourceId })}`;
+    this.setState({ getFileResourceLoading: true });
+    request.get(url).then((fileResource: FileResource) => {
+      if (!fileResource) return; // TODO 文件不存在错误提示
+      const sort = openFileMap.size + 1;
+      const openFile: EditorTabItem = { sort, lastEditTime: lodash.now(), fileResource, rawContent: fileResource.content, needSave: false };
+      openFileMap.set(fileResource.id, openFile);
+      this.setState({ currentEditId: fileResource.id, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
+    }).finally(() => this.setState({ getFileResourceLoading: false }));
   }
 
   /** 关闭打开的文件 */
@@ -298,12 +322,12 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           </div>
         }
         <div className={cls(styles.flexItemColumnWidthFull)}/>
-        <IconFont type="icon-run" className={cls(styles.flexItemColumn, styles.icon)} style={{ color: "#499C54" }}/>
-        <IconFont type="icon-save" className={cls(styles.flexItemColumn, styles.icon)}/>
+        <Icon component={Execute} className={cls(styles.flexItemColumn, styles.icon)}/>
+        <Icon component={MenuSaveAll} className={cls(styles.flexItemColumn, styles.icon)}/>
         <LockOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
         <UnlockOutlined className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
-        <IconFont type="icon-search" className={cls(styles.flexItemColumn, styles.icon)}/>
-        <HistoryOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+        <Icon component={Find} className={cls(styles.flexItemColumn, styles.icon)}/>
+        <Icon component={History} className={cls(styles.flexItemColumn, styles.icon)}/>
         <IconFont type="icon-keyboard" className={cls(styles.flexItemColumn, styles.icon)} style={{ fontSize: 20, padding: "1px 2px" }}/>
         <div className={cls(styles.flexItemColumn)} style={{ marginRight: 16 }}/>
       </>
@@ -313,8 +337,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   private getBottomStatus() {
     const { getApiFileResourceLoading, saveFileResourceLoading } = this.state;
     let loadingText = "";
-    if (getApiFileResourceLoading) loadingText = "加载API数据...";
-    else if (saveFileResourceLoading) loadingText = "保存文件...";
+    if (getApiFileResourceLoading) loadingText = "加载API数据";
+    else if (saveFileResourceLoading) loadingText = "保存文件";
     return (
       <>
         <div className={cls(styles.flexItemColumn, styles.bottomStatusFirst)}/>
@@ -409,8 +433,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           <FolderFilled/>
         </div>
         <div
-          className={cls(styles.flexItemRow, styles.leftTabsItem, { [styles.leftTabsItemActive]: leftPanel === LeftPanelEnum.Expand })}
-          onClick={() => this.toggleLeftPanel(LeftPanelEnum.Expand)}
+          className={cls(styles.flexItemRow, styles.leftTabsItem, { [styles.leftTabsItemActive]: leftPanel === LeftPanelEnum.Extend })}
+          onClick={() => this.toggleLeftPanel(LeftPanelEnum.Extend)}
         >
           自定义扩展
           <FolderFilled/>
@@ -546,15 +570,39 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           }}
           onOpenFile={apiFileResource => {
             if (apiFileResource.isFile !== 1) return;
-            this.setCurrentEditId(apiFileResource.fileResourceId, apiFileResource.httpApiId);
+            this.setCurrentEditHttpApiFile(apiFileResource.fileResourceId, apiFileResource.httpApiId);
           }}
         />
         <div className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.TimedTask })}>
           TimedTask
         </div>
-        <div className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.Expand })}>
-          Expand
-        </div>
+        <ExtendResourcePane
+          className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.Extend })}
+          openFileId={currentEditId}
+          onHidePanel={() => this.toggleLeftPanel()}
+          onSelectChange={node => {
+            const resource = node.nodeData;
+            if (!resource) {
+              this.setState({ topStatusFileInfo: undefined });
+              return;
+            }
+            this.setState({
+              topStatusFileInfo: {
+                fileResourceId: resource.id,
+                isFile: resource.isFile,
+                path: resource.path,
+                name: resource.name,
+                httpApiId: undefined,
+                requestMapping: undefined,
+                requestMethod: undefined,
+              }
+            });
+          }}
+          onOpenFile={resource => {
+            if (resource.isFile !== 1) return;
+            this.setCurrentEditFile(resource.id);
+          }}
+        />
         <div className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.Initialization })}>
           Initialization
         </div>
@@ -588,7 +636,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         <div
           key={file.fileResource.id}
           className={cls(styles.flexItemColumn, styles.fileTabsItem, { [styles.fileTabsItemActive]: currentEditId === file.fileResource.id })}
-          onClick={() => this.setCurrentEditId(file.fileResource.id)}
+          onClick={() => this.setCurrentEditHttpApiFile(file.fileResource.id)}
         >
           <Icon component={getFileIcon(file.fileResource.name)} className={styles.fileTabsItemType}/>
           <span className={cls({ [styles.fileTabsItemModify]: file.needSave })}>{file.fileResource.name}</span>

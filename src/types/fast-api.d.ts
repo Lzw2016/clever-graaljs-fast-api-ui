@@ -1,4 +1,12 @@
 type RequestMethod = "ALL" | "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "CONNECT" | "OPTIONS" | "TRACE" | "PATCH";
+/** 所属模块：0-自定义扩展，1-资源文件，2-初始化脚本，3-HTTP API，4-定时任务 */
+type FileResourceModule = 0 | 1 | 2 | 3 | 4;
+/** 数据类型：0-文件夹，1-文件 */
+type IsFile = 0 | 1;
+/** 读写权限：0-可读可写，1-只读 */
+type ReadOnly = 0 | 1;
+/** 0-启用，1-禁用 */
+type Disable = 0 | 1;
 
 /** Fast-Api全局环境 */
 interface FastApiGlobalEnv {
@@ -45,6 +53,10 @@ interface FileResource {
    */
   namespace: string;
   /**
+   * 所属模块：0-自定义扩展，1-资源文件，2-初始化脚本，3-HTTP API，4-定时任务
+   */
+  module: FileResourceModule;
+  /**
    * 文件路径(以"/"结束)
    */
   path: string;
@@ -59,11 +71,11 @@ interface FileResource {
   /**
    * 数据类型：0-文件夹，1-文件
    */
-  isFile: 0 | 1;
+  isFile: IsFile;
   /**
    * 读写权限：0-可读可写，1-只读
    */
-  readOnly: 0 | 1;
+  readOnly: ReadOnly;
   /**
    * 说明
    */
@@ -103,7 +115,7 @@ interface HttpApi {
   /**
    * 禁用http请求：0-启用，1-禁用
    */
-  disableRequest: 0 | 1;
+  disableRequest: Disable;
   /**
    * 创建时间
    */
@@ -125,6 +137,10 @@ interface FileResourceHistory {
    */
   namespace: string;
   /**
+   * 所属模块：0-自定义扩展，1-资源文件，2-初始化脚本，3-HTTP API，4-定时任务
+   */
+  module: FileResourceModule;
+  /**
    * 文件路径(以"/"结束)
    */
   path: string;
@@ -137,17 +153,9 @@ interface FileResourceHistory {
    */
   content: string;
   /**
-   * 说明
-   */
-  description: string;
-  /**
    * 创建时间
    */
   createAt: string;
-  /**
-   * 更新时间
-   */
-  updateAt: string;
 }
 
 /** HTTP接口树节点(文件纬度) */
@@ -163,7 +171,7 @@ interface ApiFileResourceRes {
   /**
    * 父级编号(资源文件id)
    */
-  parentFileResourceId: string;
+  parentFileResourceId?: string;
   /**
    * 命名空间
    */
@@ -179,11 +187,11 @@ interface ApiFileResourceRes {
   /**
    * 数据类型：0-文件夹，1-文件
    */
-  isFile: 0 | 1;
+  isFile: IsFile;
   /**
    * 读写权限：0-可读可写，1-只读
    */
-  readOnly: 0 | 1;
+  readOnly: ReadOnly;
   /**
    * http请求路径
    */
@@ -195,7 +203,7 @@ interface ApiFileResourceRes {
   /**
    * 禁用http请求：0-启用，1-禁用
    */
-  disableRequest?: 0 | 1;
+  disableRequest?: Disable;
 }
 
 /** HTTP接口树节点(请求路径纬度) */
@@ -227,11 +235,11 @@ interface ApiRequestMappingRes {
   /**
    * 数据类型：0-文件夹，1-文件
    */
-  isFile: 0 | 1;
+  isFile: IsFile;
   /**
    * 读写权限：0-可读可写，1-只读
    */
-  readOnly: 0 | 1;
+  readOnly: ReadOnly;
   /**
    * http请求路径
    */
@@ -243,5 +251,40 @@ interface ApiRequestMappingRes {
   /**
    * 禁用http请求：0-启用，1-禁用
    */
-  disableRequest: 0 | 1;
+  disableRequest: Disable;
+}
+
+interface FileResourceTreeNodeRes {
+  /**
+   * 主键id
+   */
+  id: string;
+  /**
+   * 父级编号(资源文件id)
+   */
+  parentFileResourceId?: string;
+  /**
+   * 命名空间
+   */
+  namespace: string;
+  /**
+   * 所属模块：0-自定义扩展，1-资源文件，2-初始化脚本，3-HTTP API，4-定时任务
+   */
+  module: FileResourceModule;
+  /**
+   * 文件路径(以"/"结束)
+   */
+  path: string;
+  /**
+   * 文件名称
+   */
+  name: string;
+  /**
+   * 数据类型：0-文件夹，1-文件
+   */
+  isFile: IsFile;
+  /**
+   * 读写权限：0-可读可写，1-只读
+   */
+  readOnly: ReadOnly;
 }

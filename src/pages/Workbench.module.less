@@ -19,6 +19,10 @@
   &:active {
     background-color: @toolItemIconActiveBgColor;
   }
+
+  //svg, svg g, svg g path, svg g rect {
+  //  fill: @iconColor;
+  //}
 }
 
 .iconDisable {
@@ -27,6 +31,10 @@
 
   &:hover {
     background-color: @toolBgColor !important;
+  }
+
+  svg, svg g, svg g path, svg g rect {
+    fill: @fontDisableColor !important;
   }
 }
 
@@ -42,7 +50,7 @@
   background-color: @toolBgColor;
   border-bottom: 1px solid @splitColor;
   align-items: center;
-  z-index: 999;
+  z-index: 9;
 }
 
 .topMenuLogoImg {
@@ -79,7 +87,7 @@
   background-color: @toolBgColor;
   border-bottom: 1px solid @borderColor;
   align-items: center;
-  z-index: 999;
+  z-index: 9;
 }
 
 .topStatusFileResourcePath {
@@ -106,7 +114,7 @@
   background-color: @toolBgColor;
   border-top: 1px solid @borderColor;
   align-items: center;
-  z-index: 999;
+  z-index: 9;
 }
 
 .bottomTabsFirst {
@@ -151,7 +159,7 @@
   background-color: @toolBgColor;
   border-top: 1px solid @splitColor;
   align-items: center;
-  z-index: 999;
+  z-index: 9;
 }
 
 .bottomStatusFirst {
@@ -192,7 +200,7 @@
   background-color: @toolBgColor;
   border-right: 1px solid @borderColor;
   align-items: center;
-  z-index: 999;
+  z-index: 9;
 }
 
 .leftTabsItem {
@@ -236,7 +244,7 @@
   background-color: @toolBgColor;
   border-left: 1px solid @borderColor;
   align-items: center;
-  z-index: 999;
+  z-index: 9;
 }
 
 .rightTabsItem {

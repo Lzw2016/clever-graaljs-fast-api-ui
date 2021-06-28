@@ -13,40 +13,40 @@ import { noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import { AddFile, AddFolder, CollapseAll, Copy, EditSource, ExpandAll, Find, Folder, getFileIcon, Locate, Refresh, Remove } from "@/utils/IdeaIconUtils";
-import styles from "./HttpApiResourcePane.module.less";
+import styles from "./ExtendResourcePane.module.less";
 
-interface HttpApiResourcePaneProps {
+interface ExtendResourcePaneProps {
   /** 自定义样式 */
   className?: string;
   /** 当前打开的文件ID */
   openFileId?: string;
   /** 选择节点变化事件 */
-  onSelectChange?: (node: TreeNodeInfo<ApiFileResourceRes>) => void;
+  onSelectChange?: (node: TreeNodeInfo<FileResourceTreeNodeRes>) => void;
   /** 打开文件事件 */
-  onOpenFile?: (apiFileResource: ApiFileResourceRes) => void;
+  onOpenFile?: (resource: FileResourceTreeNodeRes) => void;
   /** 当前组件点击最小化事件 */
   onHidePanel?: () => void;
 }
 
-interface HttpApiResourcePaneState {
+interface ExtendResourcePaneState {
   /** 数据加载状态 */
   loading: boolean;
   /** 树数据 */
-  treeData: Array<TreeNodeInfo<ApiFileResourceRes>>;
+  treeData: Array<TreeNodeInfo<FileResourceTreeNodeRes>>;
   /** 已展开的节点ID */
   expandedIds: Set<TreeNodeInfo["id"]>;
   /** 当前选择的节点ID */
   selectedId: TreeNodeInfo["id"];
   /** 右键菜单选中的Tree节点 */
-  contextMenuSelectNode?: TreeNodeInfo<ApiFileResourceRes>;
+  contextMenuSelectNode?: TreeNodeInfo<FileResourceTreeNodeRes>;
   /** 节点名称排序规则 */
   nodeNameSort: "ASC" | "DESC";
 }
 
 // 读取组件状态
-const storageState: Partial<HttpApiResourcePaneState> = await fastApiStore.getItem(componentStateKey.HttpApiResourcePaneState) ?? {};
+const storageState: Partial<FileResourceTreeNodeRes> = await fastApiStore.getItem(componentStateKey.ExtendResourcePaneState) ?? {};
 // 组件状态默认值
-const defaultState: HttpApiResourcePaneState = {
+const defaultState: ExtendResourcePaneState = {
   loading: true,
   treeData: [],
   expandedIds: new Set(),
@@ -55,8 +55,8 @@ const defaultState: HttpApiResourcePaneState = {
   ...storageState,
 }
 
-class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, HttpApiResourcePaneState> {
-  constructor(props: HttpApiResourcePaneProps) {
+class ExtendResourcePane extends React.Component<ExtendResourcePaneProps, ExtendResourcePaneState> {
+  constructor(props: ExtendResourcePaneProps) {
     super(props);
     this.state = { ...defaultState };
   }
@@ -74,15 +74,15 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
   /** 重新加载数据 */
   public reLoadTreeData() {
     this.setState({ loading: true }, () => {
-      request.get(FastApi.HttpApiManage.getHttpApiTree)
+      request.get(FastApi.ExtendFileManage.getExtendTree)
         .then(treeData => {
           treeData = transformTreeData(treeData);
           const { onSelectChange } = this.props;
           if (onSelectChange) {
             const { selectedId } = this.state;
-            let selectNode: TreeNodeInfo<ApiFileResourceRes> | undefined;
-            (treeData as Array<TreeNodeInfo<ApiFileResourceRes>>).forEach(node => forEachTreeNode(node, n => {
-              if (n.nodeData?.fileResourceId === selectedId) selectNode = n;
+            let selectNode: TreeNodeInfo<FileResourceTreeNodeRes> | undefined;
+            (treeData as Array<TreeNodeInfo<FileResourceTreeNodeRes>>).forEach(node => forEachTreeNode(node, n => {
+              if (n.nodeData?.id === selectedId) selectNode = n;
             }));
             if (selectNode) onSelectChange(selectNode);
           }
@@ -100,15 +100,14 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
     expandedIds.forEach(id => {
       if (!allIds.has(id)) expandedIds.delete(id);
     });
-    fastApiStore.setItem(
-      componentStateKey.HttpApiResourcePaneState,
-      { expandedIds, selectedId, nodeNameSort },
-    ).finally();
+    fastApiStore
+      .setItem(componentStateKey.ExtendResourcePaneState, { expandedIds, selectedId, nodeNameSort })
+      .finally();
   }
 
-  private fillTreeState(treeData: Array<TreeNodeInfo<ApiFileResourceRes>>): Array<TreeNodeInfo<ApiFileResourceRes>> {
+  private fillTreeState(treeData: Array<TreeNodeInfo<FileResourceTreeNodeRes>>): Array<TreeNodeInfo<FileResourceTreeNodeRes>> {
     const { expandedIds, selectedId, nodeNameSort } = this.state;
-    const fillTreeNodeState = (node: TreeNodeInfo<ApiFileResourceRes>) => {
+    const fillTreeNodeState = (node: TreeNodeInfo<FileResourceTreeNodeRes>) => {
       node.isSelected = selectedId === node.id;
       node.isExpanded = expandedIds.has(node.id);
       if (node.childNodes && node.childNodes.length > 0) {
@@ -128,10 +127,6 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
     const { expandedIds, treeData, selectedId, nodeNameSort } = this.state;
     return (
       <>
-        <select className={cls(styles.flexItemColumn, styles.viewSelect)}>
-          <option value="fileView">文件视图</option>
-          <option value="apiView">接口视图</option>
-        </select>
         <div className={cls(styles.flexItemColumnWidthFull)}/>
         <Icon
           className={cls(styles.flexItemColumn, styles.icon, { [styles.iconDisable]: noValue(openFileId) })}
@@ -139,9 +134,9 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           onClick={() => {
             if (noValue(openFileId)) return;
             if (selectedId === openFileId) return;
-            let selectNode: TreeNodeInfo<ApiFileResourceRes> | undefined;
+            let selectNode: TreeNodeInfo<FileResourceTreeNodeRes> | undefined;
             treeData.forEach(node => forEachTreeNode(node, n => {
-              if (n.nodeData?.fileResourceId === openFileId) selectNode = n;
+              if (n.nodeData?.id === openFileId) selectNode = n;
             }));
             if (selectNode) {
               if (onSelectChange) onSelectChange(selectNode);
@@ -237,15 +232,6 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
             if (nodeData) copyToClipboard(nodeData.path + nodeData.name);
           }}
         />
-        <MenuItem
-          icon={<Icon component={Copy} className={cls(styles.menuIcon)}/>}
-          text="复制接口路径"
-          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData || !contextMenuSelectNode.nodeData.requestMapping}
-          onClick={() => {
-            const nodeData = contextMenuSelectNode?.nodeData;
-            if (nodeData && nodeData.requestMapping) copyToClipboard(nodeData.requestMapping!);
-          }}
-        />
         <MenuDivider/>
         <MenuItem
           icon={<Icon component={Remove} className={cls(styles.menuIcon)}/>}
@@ -332,7 +318,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
                     expandedIds.add(node.id);
                   }
                 }
-                if (node.nodeData?.isFile === 1 && onOpenFile && openFileId !== node.nodeData?.fileResourceId) {
+                if (node.nodeData?.isFile === 1 && onOpenFile && openFileId !== node.nodeData?.id) {
                   onOpenFile(node.nodeData);
                 }
                 if (onSelectChange && selectedId !== node.id) onSelectChange(node);
@@ -354,12 +340,12 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
   }
 }
 
-const transformTreeData = (rawData: Array<SimpleTreeNode<ApiFileResourceRes>>): Array<TreeNodeInfo<ApiFileResourceRes>> => {
-  const treeData: Array<TreeNodeInfo<ApiFileResourceRes>> = [];
-  const transformNode = (rawNode: SimpleTreeNode<ApiFileResourceRes>): TreeNodeInfo<ApiFileResourceRes> => {
+const transformTreeData = (rawData: Array<SimpleTreeNode<FileResourceTreeNodeRes>>): Array<TreeNodeInfo<FileResourceTreeNodeRes>> => {
+  const treeData: Array<TreeNodeInfo<FileResourceTreeNodeRes>> = [];
+  const transformNode = (rawNode: SimpleTreeNode<FileResourceTreeNodeRes>): TreeNodeInfo<FileResourceTreeNodeRes> => {
     const attributes = rawNode.attributes;
     const isFile = attributes.isFile === 1;
-    const node: TreeNodeInfo<ApiFileResourceRes> = {
+    const node: TreeNodeInfo<FileResourceTreeNodeRes> = {
       id: rawNode.id,
       label: attributes.name,
       icon: (
@@ -381,7 +367,7 @@ const transformTreeData = (rawData: Array<SimpleTreeNode<ApiFileResourceRes>>): 
   return treeData;
 };
 
-const forEachTreeNode = (node: TreeNodeInfo<ApiFileResourceRes>, callBack: (n: TreeNodeInfo<ApiFileResourceRes>) => void): void => {
+const forEachTreeNode = (node: TreeNodeInfo<FileResourceTreeNodeRes>, callBack: (n: TreeNodeInfo<FileResourceTreeNodeRes>) => void): void => {
   if (!callBack) return;
   callBack(node);
   if (node.childNodes && node.childNodes.length > 0) {
@@ -389,5 +375,5 @@ const forEachTreeNode = (node: TreeNodeInfo<ApiFileResourceRes>, callBack: (n: T
   }
 };
 
-export type { HttpApiResourcePaneProps, HttpApiResourcePaneState };
-export { HttpApiResourcePane };
+export type { ExtendResourcePaneProps, ExtendResourcePaneState };
+export default ExtendResourcePane;

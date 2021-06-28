@@ -11,6 +11,9 @@ const FastApi = {
     getFileResource: `${serverHost}/file_resource_manage/file_resource`,
     saveFileContent: `${serverHost}/file_resource_manage/save_file_content`,
   },
+  ExtendFileManage: {
+    getExtendTree: `${serverHost}/extend_file_manage/extend_tree`,
+  },
 };
 
 export { FastApi };

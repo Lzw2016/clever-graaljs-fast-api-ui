@@ -12,7 +12,7 @@ export enum LeftPanelEnum {
   /** 定时任务 */
   TimedTask,
   /** 自定义扩展 */
-  Expand,
+  Extend,
   /** 初始化脚本 */
   Initialization
 }
@@ -59,10 +59,12 @@ export interface LayoutSize {
 
 /** 各种加载状态 */
 export interface WorkbenchLoading {
-  /** 数据加载状态 */
+  /** 加载HttpApi */
   getApiFileResourceLoading: boolean;
   /** 保存文件Loading */
   saveFileResourceLoading: boolean;
+  /** 加载文件 */
+  getFileResourceLoading: boolean;
 }
 
 export interface TopStatusFileInfo {

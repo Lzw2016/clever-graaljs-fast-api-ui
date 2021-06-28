@@ -9,6 +9,7 @@ const fastApiStore = localforage.createInstance({
 /** 组件状态key */
 const componentStateKey = {
   HttpApiResourcePaneState: "HttpApiResourcePaneState",
+  ExtendResourcePaneState: "ExtendResourcePaneState",
 }
 
 export { fastApiStore, componentStateKey };
