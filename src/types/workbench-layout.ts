@@ -5,6 +5,8 @@
 // }
 
 export enum LeftPanelEnum {
+  /** 资源文件 */
+  ResourceFile,
   /** Http接口 */
   Interface,
   /** 定时任务 */

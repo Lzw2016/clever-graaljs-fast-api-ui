@@ -144,7 +144,9 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   public toggleLeftPanel(panel?: LeftPanelEnum) {
     const { leftPanel, rightPanel } = this.state;
     let newLeftPanel: LeftPanelEnum | undefined;
-    if (panel === LeftPanelEnum.Interface) {
+    if (panel === LeftPanelEnum.ResourceFile) {
+      newLeftPanel = (leftPanel === LeftPanelEnum.ResourceFile ? undefined : LeftPanelEnum.ResourceFile);
+    } else if (panel === LeftPanelEnum.Interface) {
       newLeftPanel = (leftPanel === LeftPanelEnum.Interface ? undefined : LeftPanelEnum.Interface);
     } else if (panel === LeftPanelEnum.TimedTask) {
       newLeftPanel = (leftPanel === LeftPanelEnum.TimedTask ? undefined : LeftPanelEnum.TimedTask);
@@ -386,6 +388,13 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     return (
       <>
         <div
+          className={cls(styles.flexItemRow, styles.leftTabsItem, { [styles.leftTabsItemActive]: leftPanel === LeftPanelEnum.ResourceFile })}
+          onClick={() => this.toggleLeftPanel(LeftPanelEnum.ResourceFile)}
+        >
+          资源文件
+          <FolderFilled/>
+        </div>
+        <div
           className={cls(styles.flexItemRow, styles.leftTabsItem, { [styles.leftTabsItemActive]: leftPanel === LeftPanelEnum.Interface })}
           onClick={() => this.toggleLeftPanel(LeftPanelEnum.Interface)}
         >
@@ -510,6 +519,9 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     const { leftPanel, currentEditId } = this.state;
     return (
       <>
+        <div className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.ResourceFile })}>
+          ResourceFile
+        </div>
         <HttpApiResourcePane
           className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.Interface })}
           openFileId={currentEditId}
