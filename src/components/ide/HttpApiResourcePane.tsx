@@ -347,6 +347,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
                 this.setState({ selectedId: node.id, contextMenuSelectNode: node });
               }}
             />
+            <div style={{ height: 24 }}/>
           </SimpleBar>
         </ContextMenu2>
       </div>

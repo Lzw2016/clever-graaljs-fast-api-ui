@@ -13,6 +13,7 @@ const FastApi = {
   },
   ExtendFileManage: {
     getExtendTree: `${serverHost}/extend_file_manage/extend_tree`,
+    getExtendFileList: `${serverHost}/extend_file_manage/extend_file_list`,
   },
 };
 

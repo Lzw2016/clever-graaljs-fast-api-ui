@@ -1,7 +1,9 @@
 import * as MonacoApi from "monaco-editor";
 import { TypeEnum, variableTypeOf } from "@/utils/typeof";
+import { request } from "@/utils/request";
 import ideaDraculaTheme from "@/assets/idea-dracula-theme.json";
 import ideaLightTheme from "@/assets/idea-light-theme.json";
+import { FastApi } from "@/apis";
 
 const colorEnum: { [name: string]: string; } = {
   black: "#000000",
@@ -126,17 +128,31 @@ const initMonaco = (monaco: typeof MonacoApi) => {
     noSuggestionDiagnostics: false,
   });
   // 编译设置
-  const defCompilerOptions = monaco.languages.typescript.javascriptDefaults.getCompilerOptions();
+  const defJsCompilerOptions = monaco.languages.typescript.javascriptDefaults.getCompilerOptions();
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-    ...defCompilerOptions,
+    ...defJsCompilerOptions,
     target: monaco.languages.typescript.ScriptTarget.ES2020,
     allowNonTsExtensions: true,
     noLib: false,
     lib: ["es5", "es2015", "es2016", "es2017", "es2018", "es2019", "es2020", "es2021", "esnext"],
   });
-  // TODO 加载扩展lib定义
-  // monaco.languages.typescript.javascriptDefaults.addExtraLib(libSource, libUri);
-  // monaco.editor.createModel(libSource, "typescript", monaco.Uri.parse(libUri));
+  const defTsCompilerOptions = monaco.languages.typescript.typescriptDefaults.getCompilerOptions();
+  monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+    ...defTsCompilerOptions,
+    target: monaco.languages.typescript.ScriptTarget.ES2020,
+    allowNonTsExtensions: true,
+    noLib: false,
+    lib: ["es5", "es2015", "es2016", "es2017", "es2018", "es2019", "es2020", "es2021", "esnext"],
+  });
+  // 加载扩展lib定义
+  request.get(FastApi.ExtendFileManage.getExtendFileList)
+    .then((extList: Array<FileResource>) => extList.forEach(ext => {
+      if (ext.isFile !== 1 || !ext.content) return;
+      // monaco.languages.typescript.javascriptDefaults.addExtraLib(ext.content, ext.path + ext.name);
+      // monaco.languages.typescript.typescriptDefaults.addExtraLib(ext.content, ext.path + ext.name);
+      const extModel = monaco.editor.createModel(ext.content, languageEnum.typescript, monaco.Uri.parse(ext.path + ext.name));
+      monaco.editor.setModelLanguage(extModel, languageEnum.javascript);
+    })).finally();
 };
 
 /**
