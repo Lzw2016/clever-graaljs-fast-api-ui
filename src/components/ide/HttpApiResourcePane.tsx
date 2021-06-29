@@ -436,7 +436,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         isOpen={showAddDirDialog}
         onClose={() => this.setState({ showAddDirDialog: false })}
       >
-        <FormGroup style={{ marginTop: 12, marginBottom: 12 }} inline={true} label={"文件夹"} helperText={"输入需要创建的文件夹全路径"}>
+        <FormGroup style={{ marginTop: 12, marginBottom: 12 }} inline={true} label={"目录全路径"} helperText={"输入目录全路径(字母、数字、以及'-'、'_'、'/')"}>
           <InputGroup
             type={"text"}
             placeholder={"输入文件夹路径"}
@@ -448,7 +448,20 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button onClick={() => this.setState({ showAddDirDialog: false })}>取消</Button>
-            <Button intent={Intent.PRIMARY}>确认</Button>
+            <Button
+              intent={Intent.PRIMARY}
+              onClick={() => {
+                request.post(FastApi.FileResourceManage.addDir, { module: 3, fullPath: path })
+                  .then(() => {
+                    this.reLoadTreeData();
+                    this.setState({ showAddDirDialog: false });
+                  }).finally(() => {
+
+                });
+              }}
+            >
+              确认
+            </Button>
           </div>
         </div>
       </Dialog>
