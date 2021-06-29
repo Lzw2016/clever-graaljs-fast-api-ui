@@ -260,19 +260,19 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     return hSplitCollapsedSize;
   }
 
-  private getLeftPanel(): LeftPanelEnum | undefined {
-    let { leftPanel } = this.state;
-    const { currentEditId, openFileMap } = this.state;
+  private getLeftPanel(openFile?: EditorTabItem): { leftPanel: LeftPanelEnum | undefined, changed: boolean } {
+    const { leftPanel, currentEditId, openFileMap } = this.state;
+    let newLeftPanel = leftPanel;
     if (hasValue(leftPanel) && currentEditId) {
-      const openFile = openFileMap.get(currentEditId);
+      if (!openFile) openFile = openFileMap.get(currentEditId);
       const module = openFile?.fileResource?.module;
-      if (module === 0) leftPanel = LeftPanelEnum.Extend;
-      else if (module === 1) leftPanel = LeftPanelEnum.ResourceFile;
-      else if (module === 2) leftPanel = LeftPanelEnum.Initialization;
-      else if (module === 3) leftPanel = LeftPanelEnum.HttpApi;
-      else if (module === 4) leftPanel = LeftPanelEnum.TimedTask;
+      if (module === 0) newLeftPanel = LeftPanelEnum.Extend;
+      else if (module === 1) newLeftPanel = LeftPanelEnum.ResourceFile;
+      else if (module === 2) newLeftPanel = LeftPanelEnum.Initialization;
+      else if (module === 3) newLeftPanel = LeftPanelEnum.HttpApi;
+      else if (module === 4) newLeftPanel = LeftPanelEnum.TimedTask;
     }
-    return leftPanel;
+    return { leftPanel: newLeftPanel, changed: newLeftPanel !== leftPanel };
   }
 
   private getTopMenu() {
@@ -653,6 +653,10 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           key={file.fileResource.id}
           className={cls(styles.flexItemColumn, styles.fileTabsItem, { [styles.fileTabsItemActive]: currentEditId === file.fileResource.id })}
           onClick={() => {
+            const leftPanel = this.getLeftPanel(file);
+            if (leftPanel.changed) {
+              this.setState({ leftPanel: leftPanel.leftPanel });
+            }
             if (file.fileResource.module === 3) {
               this.setCurrentEditHttpApiFile(file.fileResource.id)
             } else {
@@ -714,7 +718,13 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           initKeyBinding(editor, monaco);
           this.editor = editor;
           this.editor.layout();
-          this.editor.onDidFocusEditorText(this.setTopStatusFileInfo);
+          this.editor.onDidFocusEditorText(() => {
+            const leftPanel = this.getLeftPanel();
+            if (leftPanel.changed) {
+              this.setState({ leftPanel: leftPanel.leftPanel });
+            }
+            this.setTopStatusFileInfo();
+          });
           this.editor.addCommand(
             MonacoApi.KeyMod.CtrlCmd | MonacoApi.KeyCode.KEY_S,
             () => {
