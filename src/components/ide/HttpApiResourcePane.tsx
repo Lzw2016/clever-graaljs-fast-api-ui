@@ -15,9 +15,11 @@ import { componentStateKey, fastApiStore } from "@/utils/storage";
 import { AddFile, AddFolder, CollapseAll, Copy, EditSource, ExpandAll, Find, Folder, getFileIcon, Locate, Refresh, Remove } from "@/utils/IdeaIconUtils";
 import styles from "./HttpApiResourcePane.module.less";
 
-interface AddFileForm {
+interface AddHttpApiForm {
   path: string;
   name: string;
+  requestMapping: string;
+  requestMethod: RequestMethod;
 }
 
 interface AddDirForm {
@@ -56,10 +58,10 @@ interface HttpApiResourcePaneState {
   contextMenuSelectNode?: TreeNodeInfo<ApiFileResourceRes>;
   /** 节点名称排序规则 */
   nodeNameSort: "ASC" | "DESC";
-  /** 显示新增文件对话框 */
-  showAddFileDialog: boolean;
-  /** 新增文件表单数据 */
-  addFileForm: AddFileForm;
+  /** 显示新增接口对话框 */
+  showAddHttpApiDialog: boolean;
+  /** 新增接口表单数据 */
+  addHttpApiForm: AddHttpApiForm;
   /** 显示新增文件夹对话框 */
   showAddDirDialog: boolean;
   /** 新增文件夹表单数据 */
@@ -81,8 +83,8 @@ const defaultState: HttpApiResourcePaneState = {
   expandedIds: new Set(),
   selectedId: "",
   nodeNameSort: "ASC",
-  showAddFileDialog: false,
-  addFileForm: { path: "/", name: "" },
+  showAddHttpApiDialog: false,
+  addHttpApiForm: { path: "/", name: "", requestMapping: "", requestMethod: "POST" },
   showAddDirDialog: false,
   addDirForm: { path: "/" },
   showRenameDialog: false,
@@ -251,13 +253,13 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
       <Menu className={cls(styles.menu)}>
         <MenuItem
           icon={<Icon component={AddFile} className={cls(styles.menuIcon)}/>}
-          text="新增文件"
+          text="新增接口"
           onClick={() => {
-            const addFileForm: AddFileForm = { path: "/", name: "" };
+            const addFileForm: AddHttpApiForm = { path: "/", name: "", requestMapping: "", requestMethod: "POST" };
             const nodeData = contextMenuSelectNode?.nodeData;
             if (nodeData) addFileForm.path = nodeData.isFile === 1 ? nodeData.path : (nodeData.path + nodeData.name);
             if (!addFileForm.path.endsWith("/")) addFileForm.path += "/";
-            this.setState({ showAddFileDialog: true, addFileForm });
+            this.setState({ showAddHttpApiDialog: true, addHttpApiForm: addFileForm });
           }}
         />
         <MenuItem
@@ -345,15 +347,16 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
     );
   }
 
-  private getAddFileDialog() {
-    const { showAddFileDialog, addFileForm: { path, name } } = this.state;
+  private getAddHttpApiDialog() {
+    const { showAddHttpApiDialog, addHttpApiForm: { path, name, requestMapping, requestMethod } } = this.state;
+    console.log("### requestMethod", requestMethod)
     return (
       <Dialog
-        className={cls(Classes.DARK, styles.dialog)}
-        style={{ width: 460 }}
+        className={cls(Classes.DARK, styles.dialog, styles.addHttpApiDialog)}
+        style={{ width: 600 }}
         lazy={true}
         icon={<Icon component={AddFile} className={cls(styles.menuIcon)} style={{ marginRight: 8 }}/>}
-        title={"新增文件"}
+        title={"新增接口"}
         transitionDuration={0.1}
         usePortal={true}
         isCloseButtonShown={true}
@@ -361,29 +364,52 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         canOutsideClickClose={false}
         autoFocus={true}
         enforceFocus={true}
-        isOpen={showAddFileDialog}
-        onClose={() => this.setState({ showAddFileDialog: false })}
+        isOpen={showAddHttpApiDialog}
+        onClose={() => this.setState({ showAddHttpApiDialog: false })}
       >
-        <FormGroup style={{ marginTop: 12 }} inline={true} label={"文件路径"}>
-          <InputGroup
-            type={"text"}
-            placeholder={"输入文件路径"}
-            value={path}
-            onChange={e => this.setState({ addFileForm: { path: e.target.value, name } })}
-          />
-        </FormGroup>
-        <FormGroup style={{ marginBottom: 12 }} inline={true} label={"所属目录"}>
+        <FormGroup style={{ marginTop: 12 }} inline={true} label={"所属目录"}>
           <InputGroup
             type={"text"}
             placeholder={"输入所属目录"}
-            value={name}
-            onChange={e => this.setState({ addFileForm: { path, name: e.target.value } })}
+            value={path}
+            onChange={e => this.setState({ addHttpApiForm: { path: e.target.value, name, requestMapping, requestMethod } })}
+          />
+        </FormGroup>
+        <FormGroup style={{ marginBottom: 12 }} inline={true} label={"文件名称"}>
+          <InputGroup
+            type={"text"}
+            placeholder={"输入文件名称"}
             autoFocus={true}
+            value={name}
+            onChange={e => this.setState({ addHttpApiForm: { path, name: e.target.value, requestMapping, requestMethod } })}
+          />
+        </FormGroup>
+        <FormGroup style={{ marginBottom: 12 }} inline={true} label={"接口路径"}>
+          <select
+            value={requestMethod}
+            onChange={e => this.setState({ addHttpApiForm: { path, name, requestMapping, requestMethod: e.target.value } })}
+          >
+            <option value={"ALL"}>ALL</option>
+            <option value={"GET"}>GET</option>
+            <option value={"POST"}>POST</option>
+            <option value={"PUT"}>PUT</option>
+            <option value={"DELETE"}>DELETE</option>
+            <option value={"PATCH"}>PATCH</option>
+            <option value={"OPTIONS"}>OPTIONS</option>
+            <option value={"HEAD"}>HEAD</option>
+            <option value={"CONNECT"}>CONNECT</option>
+            <option value={"TRACE"}>TRACE</option>
+          </select>
+          <InputGroup
+            type={"text"}
+            placeholder={"输入接口路径"}
+            value={requestMapping}
+            onChange={e => this.setState({ addHttpApiForm: { path, name, requestMapping: e.target.value, requestMethod } })}
           />
         </FormGroup>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button onClick={() => this.setState({ showAddFileDialog: false })}>取消</Button>
+            <Button onClick={() => this.setState({ showAddHttpApiDialog: false })}>取消</Button>
             <Button intent={Intent.PRIMARY}>确认</Button>
           </div>
         </div>
@@ -410,10 +436,11 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         isOpen={showAddDirDialog}
         onClose={() => this.setState({ showAddDirDialog: false })}
       >
-        <FormGroup style={{ marginTop: 12, marginBottom: 12 }} inline={true} label={"文件夹"}>
+        <FormGroup style={{ marginTop: 12, marginBottom: 12 }} inline={true} label={"文件夹"} helperText={"输入需要创建的文件夹全路径"}>
           <InputGroup
             type={"text"}
             placeholder={"输入文件夹路径"}
+            autoFocus={true}
             value={path}
             onChange={e => this.setState({ addDirForm: { path: e.target.value } })}
           />
@@ -432,7 +459,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
     const { showRenameDialog, renameForm: { id, path, name } } = this.state;
     return (
       <Dialog
-        className={cls(Classes.DARK, styles.dialog)}
+        className={cls(Classes.DARK, styles.dialog, styles.renameDialog)}
         style={{ width: 460 }}
         lazy={true}
         icon={<Icon component={EditSource} className={cls(styles.menuIcon)} style={{ marginRight: 8 }}/>}
@@ -459,9 +486,9 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           <InputGroup
             type={"text"}
             placeholder={"输入名称"}
+            autoFocus={true}
             value={name}
             onChange={e => this.setState({ renameForm: { id, path, name: e.target.value } })}
-            autoFocus={true}
           />
         </FormGroup>
         <div className={Classes.DIALOG_FOOTER}>
@@ -576,7 +603,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
             <div className={styles.emptyDiv}/>
           </SimpleBar>
         </ContextMenu2>
-        {this.getAddFileDialog()}
+        {this.getAddHttpApiDialog()}
         {this.getAddDirDialog()}
         {this.getRenameDialog()}
         {this.getDeleteDialog()}

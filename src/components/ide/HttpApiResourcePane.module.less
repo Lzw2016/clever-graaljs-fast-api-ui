@@ -139,10 +139,44 @@
         flex-grow: 1;
         flex-shrink: 1;
       }
+    }
+  }
+}
 
-      .bp3-label {
-        width: 50px;
+.addHttpApiDialog {
+  :global {
+    .bp3-form-content {
+      display: flex;
+      flex-direction: row;
+    }
+
+    select {
+      display: inline-block;
+      flex-shrink: 0;
+      flex-grow: 0;
+      width: 64px;
+      height: 24px;
+      background-color: #3C3F41;
+      border-color: #646464;
+      color: @fontColor;
+
+      &:focus {
+        box-shadow: 0 0 0 1px #4083c9, 0 0 0 1px #4083c9, 0 0 0 1px rgb(64 131 201 / 30%), inset 0 0 0 1px rgb(64 131 201 / 30%), inset 0 1px 1px rgb(64 131 201 / 40%);
       }
+    }
+
+    .bp3-input-group {
+      display: inline-block;
+      flex-shrink: 1;
+      flex-grow: 1;
+    }
+  }
+}
+
+.renameDialog {
+  :global {
+    .bp3-label {
+      width: 50px;
     }
   }
 }
