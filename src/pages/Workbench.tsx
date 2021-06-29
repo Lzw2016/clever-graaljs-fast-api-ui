@@ -1,7 +1,6 @@
 import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
-import qs from "qs";
 import Split from "react-split";
 import Icon, {
   ApiOutlined,
@@ -43,6 +42,7 @@ import {
 } from "@/types/workbench-layout";
 import styles from "./Workbench.module.less";
 import ExtendResourcePane from "@/components/ide/ExtendResourcePane";
+import { componentStateKey, fastApiStore } from "@/utils/storage";
 
 interface WorkbenchProps {
 }
@@ -52,6 +52,41 @@ interface WorkbenchState extends WorkbenchLoading, LayoutSize, EditorTabsState {
   topStatusFileInfo?: TopStatusFileInfo;
 }
 
+// 读取组件状态
+const storageState: Partial<WorkbenchState> = await fastApiStore.getItem(componentStateKey.Workbench) ?? {};
+if (storageState.openFileMap && storageState.openFileMap.size > 0) {
+  const all: Array<Promise<any>> = [];
+  const files = [...storageState.openFileMap.values()];
+  files.forEach(file => {
+    if (file.needSave) return;
+    if (file.fileResource.module === 3 && file.httpApi) {
+      all.push(
+        request
+          .get(FastApi.HttpApiManage.getHttpApiFileResource, { params: { httpApiId: file.httpApi.id } })
+          .then((data: HttpApiFileResourceRes) => {
+            file.fileResource = data.fileResource;
+            file.rawContent = data.fileResource.content;
+            file.needSave = false;
+            file.httpApi = data.httpApi;
+          }).finally()
+      );
+    } else {
+      all.push(
+        request
+          .get(FastApi.FileResourceManage.getFileResource, { params: { id: file.fileResource.id } })
+          .then((data: FileResource) => {
+            file.fileResource = data;
+            file.rawContent = data.content;
+            file.needSave = false;
+          }).finally()
+      );
+    }
+  });
+  if (all.length > 0) {
+    Promise.all(all).finally();
+  }
+}
+// 组件状态默认值
 const defaultState: WorkbenchState = {
   // WorkbenchLoading
   getApiFileResourceLoading: false,
@@ -67,9 +102,30 @@ const defaultState: WorkbenchState = {
   hSplitCollapsedSize: [15, 75, 10],
   // EditorTabsState
   openFileMap: new Map<string, EditorTabItem>(),
+  // StorageState
+  ...storageState,
 };
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
+  /** HTTP API组件 */
+  private httpApiResourcePane = React.createRef<HttpApiResourcePane>();
+  /** 自定义扩展组件 */
+  private extendResourcePane = React.createRef<ExtendResourcePane>();
+  /** 执行保存整个应用状态的全局锁 */
+  private saveAppStateLock: boolean = false;
+  /** 保存整个应用的状态 */
+  private saveAppState = lodash.debounce(() => {
+    if (this.saveAppStateLock) return;
+    console.log("保存整个应用的状态"); // TODO UI提示
+    this.saveAppStateLock = true;
+    Promise.all([
+      this.saveState(),
+      this.httpApiResourcePane.current?.saveState(),
+      this.extendResourcePane.current?.saveState(),
+    ]).finally(() => {
+      this.saveAppStateLock = false;
+    });
+  }, 6_000, { maxWait: 12_000 });
   /** 编辑器实例 */
   private editor: MonacoApi.editor.IStandaloneCodeEditor | undefined;
   /** 编辑器大小自适应 */
@@ -115,6 +171,24 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   // 组件将要被卸载
   public componentWillUnmount() {
     window.removeEventListener("resize", this.editorResize);
+  }
+
+  /** 保存组件状态 */
+  public async saveState(): Promise<void> {
+    // LayoutSize
+    const { bottomPanel, vSplitSize, vSplitCollapsedSize, leftPanel, rightPanel, hSplitSize, hSplitCollapsedSize } = this.state;
+    // TopStatusFileInfo
+    const { topStatusFileInfo } = this.state;
+    // EditorTabsState
+    const { currentEditId, openFileMap } = this.state;
+    await fastApiStore.setItem(
+      componentStateKey.Workbench,
+      {
+        bottomPanel, vSplitSize, vSplitCollapsedSize, leftPanel, rightPanel, hSplitSize, hSplitCollapsedSize,
+        topStatusFileInfo,
+        currentEditId, openFileMap,
+      },
+    );
   }
 
   /** 切换底部布局区域隐藏/显示 */
@@ -187,17 +261,17 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
       return;
     }
     if (!httpApiId) return;
-    const url = `${FastApi.HttpApiManage.getHttpApiFileResource}?${qs.stringify({ httpApiId })}`;
     this.setState({ getApiFileResourceLoading: true });
-    request.get(url).then(data => {
-      if (!data || !data.fileResource || !data.httpApi) return;
-      const fileResource: FileResource = data.fileResource;
-      const httpApi: HttpApi = data.httpApi;
-      const sort = openFileMap.size + 1;
-      const openFile: EditorTabItem = { sort, lastEditTime: lodash.now(), fileResource, rawContent: fileResource.content, needSave: false, httpApi };
-      openFileMap.set(fileResource.id, openFile);
-      this.setState({ currentEditId: fileResource.id, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
-    }).finally(() => this.setState({ getApiFileResourceLoading: false }));
+    request.get(FastApi.HttpApiManage.getHttpApiFileResource, { params: { httpApiId } })
+      .then((data: HttpApiFileResourceRes) => {
+        if (!data || !data.fileResource || !data.httpApi) return;
+        const fileResource: FileResource = data.fileResource;
+        const httpApi: HttpApi = data.httpApi;
+        const sort = openFileMap.size + 1;
+        const openFile: EditorTabItem = { sort, lastEditTime: lodash.now(), fileResource, rawContent: fileResource.content, needSave: false, httpApi };
+        openFileMap.set(fileResource.id, openFile);
+        this.setState({ currentEditId: fileResource.id, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
+      }).finally(() => this.setState({ getApiFileResourceLoading: false }));
   }
 
   /** 设置当前编辑器编辑的文件 */
@@ -211,15 +285,15 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
       this.setState({ currentEditId: fileResourceId, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
       return;
     }
-    const url = `${FastApi.FileResourceManage.getFileResource}?${qs.stringify({ id: fileResourceId })}`;
     this.setState({ getFileResourceLoading: true });
-    request.get(url).then((fileResource: FileResource) => {
-      if (!fileResource) return; // TODO 文件不存在错误提示
-      const sort = openFileMap.size + 1;
-      const openFile: EditorTabItem = { sort, lastEditTime: lodash.now(), fileResource, rawContent: fileResource.content, needSave: false };
-      openFileMap.set(fileResource.id, openFile);
-      this.setState({ currentEditId: fileResource.id, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
-    }).finally(() => this.setState({ getFileResourceLoading: false }));
+    request.get(FastApi.FileResourceManage.getFileResource, { params: { id: fileResourceId } })
+      .then((fileResource: FileResource) => {
+        if (!fileResource) return; // TODO 文件不存在错误提示
+        const sort = openFileMap.size + 1;
+        const openFile: EditorTabItem = { sort, lastEditTime: lodash.now(), fileResource, rawContent: fileResource.content, needSave: false };
+        openFileMap.set(fileResource.id, openFile);
+        this.setState({ currentEditId: fileResource.id, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
+      }).finally(() => this.setState({ getFileResourceLoading: false }));
   }
 
   /** 关闭打开的文件 */
@@ -563,6 +637,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           ResourceFile
         </div>
         <HttpApiResourcePane
+          ref={this.httpApiResourcePane}
           className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.HttpApi })}
           openFileId={currentEditId}
           onHidePanel={() => this.toggleLeftPanel()}
@@ -593,6 +668,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           TimedTask
         </div>
         <ExtendResourcePane
+          ref={this.extendResourcePane}
           className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.Extend })}
           openFileId={currentEditId}
           onHidePanel={() => this.toggleLeftPanel()}
@@ -840,6 +916,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   public render() {
+    this.saveAppState();
     console.log("### render", this.state);
     return this.getLayout();
   }

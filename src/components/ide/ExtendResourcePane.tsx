@@ -93,16 +93,18 @@ class ExtendResourcePane extends React.Component<ExtendResourcePaneProps, Extend
   }
 
   /** 保存组件状态 */
-  public saveState(): void {
+  public async saveState(): Promise<void> {
     const { treeData, expandedIds, selectedId, nodeNameSort } = this.state;
     const allIds = new Set();
     treeData.forEach(node => forEachTreeNode(node, n => allIds.add(n.id)));
     expandedIds.forEach(id => {
       if (!allIds.has(id)) expandedIds.delete(id);
     });
-    fastApiStore
-      .setItem(componentStateKey.ExtendResourcePaneState, { expandedIds, selectedId, nodeNameSort })
-      .finally();
+    await fastApiStore
+      .setItem(
+        componentStateKey.ExtendResourcePaneState,
+        { expandedIds, selectedId, nodeNameSort }
+      );
   }
 
   private fillTreeState(treeData: Array<TreeNodeInfo<FileResourceTreeNodeRes>>): Array<TreeNodeInfo<FileResourceTreeNodeRes>> {

@@ -150,7 +150,11 @@ const initMonaco = (monaco: typeof MonacoApi) => {
       if (ext.isFile !== 1 || !ext.content) return;
       // monaco.languages.typescript.javascriptDefaults.addExtraLib(ext.content, ext.path + ext.name);
       // monaco.languages.typescript.typescriptDefaults.addExtraLib(ext.content, ext.path + ext.name);
-      const extModel = monaco.editor.createModel(ext.content, languageEnum.typescript, monaco.Uri.parse(ext.path + ext.name));
+      const uri = monaco.Uri.parse(ext.path + ext.name);
+      let extModel = monaco.editor.getModel(uri);
+      if (!extModel) {
+        extModel = monaco.editor.createModel(ext.content, languageEnum.typescript, uri);
+      }
       monaco.editor.setModelLanguage(extModel, languageEnum.javascript);
     })).finally();
 };
@@ -257,9 +261,10 @@ const getLanguage = (filename?: string): string => {
   switch (ext) {
     case ".ts":
     case ".d.ts":
-      return languageEnum.typescript;
     case ".js":
-      return languageEnum.javascript;
+      return languageEnum.typescript;
+    // case ".js":
+    //   return languageEnum.javascript;
     case ".json":
       return languageEnum.json;
     case ".xml":

@@ -254,6 +254,11 @@ interface ApiRequestMappingRes {
   disableRequest: Disable;
 }
 
+interface HttpApiFileResourceRes {
+  fileResource: FileResource;
+  httpApi: HttpApi;
+}
+
 interface FileResourceTreeNodeRes {
   /**
    * 主键id

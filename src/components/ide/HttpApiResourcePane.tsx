@@ -87,23 +87,22 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
             if (selectNode) onSelectChange(selectNode);
           }
           this.setState({ treeData });
-        })
-        .finally(() => this.setState({ loading: false }));
+        }).finally(() => this.setState({ loading: false }));
     });
   }
 
   /** 保存组件状态 */
-  public saveState(): void {
+  public async saveState(): Promise<void> {
     const { treeData, expandedIds, selectedId, nodeNameSort } = this.state;
     const allIds = new Set();
     treeData.forEach(node => forEachTreeNode(node, n => allIds.add(n.id)));
     expandedIds.forEach(id => {
       if (!allIds.has(id)) expandedIds.delete(id);
     });
-    fastApiStore.setItem(
+    await fastApiStore.setItem(
       componentStateKey.HttpApiResourcePaneState,
       { expandedIds, selectedId, nodeNameSort },
-    ).finally();
+    );
   }
 
   private fillTreeState(treeData: Array<TreeNodeInfo<ApiFileResourceRes>>): Array<TreeNodeInfo<ApiFileResourceRes>> {
