@@ -112,12 +112,20 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
       node.isSelected = selectedId === node.id;
       node.isExpanded = expandedIds.has(node.id);
       if (node.childNodes && node.childNodes.length > 0) {
-        node.childNodes = lodash.sortBy(node.childNodes, node => node.label);
+        node.childNodes = lodash.sortBy(node.childNodes, node => {
+          if (!node.nodeData) return node.label;
+          else if (node.nodeData.isFile === 1) return "b" + node.label;
+          return "a" + node.label;
+        });
         if (nodeNameSort === "DESC") node.childNodes = node.childNodes.reverse();
         node.childNodes.forEach(childNode => fillTreeNodeState(childNode));
       }
     };
-    treeData = lodash.sortBy(treeData, node => node.label);
+    treeData = lodash.sortBy(treeData, node => {
+      if (!node.nodeData) return node.label;
+      else if (node.nodeData.isFile === 1) return "b" + node.label;
+      return "a" + node.label;
+    });
     if (nodeNameSort === "DESC") treeData = treeData.reverse();
     treeData.forEach(node => fillTreeNodeState(node));
     return treeData;
