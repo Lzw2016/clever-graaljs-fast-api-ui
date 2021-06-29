@@ -127,13 +127,14 @@ body {
   margin-bottom: 8px;
 }
 
-.bp3-dialog-container .bp3-dialog .bp3-button {
+.bp3-dialog-container .bp3-dialog .bp3-button, .bp3-portal .bp3-alert-footer .bp3-button {
   padding: 0 !important;
   min-height: 20px !important;
   min-width: 20px !important;
+  background-image: none !important;
 }
 
-.bp3-dialog-container .bp3-dialog-footer-actions .bp3-button {
+.bp3-dialog-container .bp3-dialog-footer-actions .bp3-button, .bp3-portal .bp3-alert-footer .bp3-button {
   padding: 3px 5px !important;
   min-height: 20px !important;
   min-width: 20px !important;
@@ -150,6 +151,19 @@ body {
   background-color: #365880 !important;
   border: 1px solid #4C708C !important;
 }
+
+.bp3-portal .bp3-alert-footer .bp3-button.bp3-intent-danger {
+  background-color: #db3737 !important;
+  border: 1px solid #db3737 !important;
+}
+
+.bp3-dialog-container .bp3-dialog-footer-actions .bp3-button:active,
+.bp3-portal .bp3-alert-footer .bp3-button:active,
+.bp3-dialog-container .bp3-dialog-footer-actions .bp3-button.bp3-intent-primary:active,
+.bp3-portal .bp3-alert-footer .bp3-button.bp3-intent-danger:active {
+  color: #f5f8fa !important;
+}
+
 
 .bp3-dialog-container .bp3-dialog .bp3-dialog-header {
   background-color: #4A4E52 !important;

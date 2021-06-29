@@ -6,7 +6,7 @@ import lodash from "lodash";
 import Icon, { MinusOutlined, SortAscendingOutlined, SortDescendingOutlined } from "@ant-design/icons";
 import copyToClipboard from "copy-to-clipboard";
 import SimpleBar from "simplebar-react";
-import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Menu, MenuDivider, MenuItem, Spinner, SpinnerSize, Tree, TreeNodeInfo } from "@blueprintjs/core";
+import { Alert, Button, Classes, Dialog, FormGroup, InputGroup, Intent, Menu, MenuDivider, MenuItem, Spinner, SpinnerSize, Tree, TreeNodeInfo } from "@blueprintjs/core";
 import { ContextMenu2 } from "@blueprintjs/popover2";
 import { FastApi } from "@/apis";
 import { noValue } from "@/utils/utils";
@@ -68,6 +68,8 @@ interface HttpApiResourcePaneState {
   showRenameDialog: boolean;
   /** 重命名表单数据 */
   renameForm: RenameForm;
+  /** 删除数据对话框 */
+  showDeleteDialog: boolean;
 }
 
 // 读取组件状态
@@ -85,6 +87,7 @@ const defaultState: HttpApiResourcePaneState = {
   addDirForm: { path: "/" },
   showRenameDialog: false,
   renameForm: { id: "", path: "", name: "" },
+  showDeleteDialog: false,
   ...storageState,
 }
 
@@ -301,8 +304,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           icon={<Icon component={Remove} className={cls(styles.menuIcon)}/>}
           text="删除"
           disabled={!contextMenuSelectNode}
-          onClick={() => {
-          }}
+          onClick={() => this.setState({ showDeleteDialog: true })}
         />
         <MenuItem
           icon={<Icon component={EditSource} className={cls(styles.menuIcon)}/>}
@@ -381,7 +383,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         </FormGroup>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button onClick={() => this.setState({ showAddFileDialog: false })}>关闭</Button>
+            <Button onClick={() => this.setState({ showAddFileDialog: false })}>取消</Button>
             <Button intent={Intent.PRIMARY}>确认</Button>
           </div>
         </div>
@@ -418,7 +420,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         </FormGroup>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button onClick={() => this.setState({ showAddDirDialog: false })}>关闭</Button>
+            <Button onClick={() => this.setState({ showAddDirDialog: false })}>取消</Button>
             <Button intent={Intent.PRIMARY}>确认</Button>
           </div>
         </div>
@@ -464,11 +466,46 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         </FormGroup>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button onClick={() => this.setState({ showRenameDialog: false })}>关闭</Button>
+            <Button onClick={() => this.setState({ showRenameDialog: false })}>取消</Button>
             <Button intent={Intent.PRIMARY}>确认</Button>
           </div>
         </div>
       </Dialog>
+    );
+  }
+
+  private getDeleteDialog() {
+    const { contextMenuSelectNode, showDeleteDialog } = this.state;
+    const nodeData = contextMenuSelectNode?.nodeData;
+    return (
+      <Alert
+        icon={"trash"}
+        intent={Intent.DANGER}
+        cancelButtonText={"取消"}
+        confirmButtonText={"删除"}
+        canEscapeKeyCancel={true}
+        canOutsideClickCancel={true}
+        transitionDuration={0.1}
+        isOpen={showDeleteDialog && nodeData}
+        // loading={isLoading}
+        onCancel={() => this.setState({ showDeleteDialog: false })}
+        // onConfirm={this.handleMoveConfirm}
+      >
+        {
+          nodeData?.isFile === 1 &&
+          <p>
+            确认删除文件: <br/>
+            {nodeData?.path + nodeData?.name}？
+          </p>
+        }
+        {
+          nodeData?.isFile === 0 &&
+          <p>
+            确认删除文件夹: {nodeData?.path + nodeData?.name}？<br/>
+            <span>此操作会删除文件夹下的所有内容！</span>
+          </p>
+        }
+      </Alert>
     );
   }
 
@@ -542,6 +579,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         {this.getAddFileDialog()}
         {this.getAddDirDialog()}
         {this.getRenameDialog()}
+        {this.getDeleteDialog()}
       </div>
     );
   }
