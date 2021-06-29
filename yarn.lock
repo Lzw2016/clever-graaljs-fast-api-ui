@@ -293,6 +293,15 @@
     resize-observer-polyfill "^1.5.1"
     tslib "~1.13.0"
 
+"@blueprintjs/select@^3.16.5":
+  version "3.16.5"
+  resolved "https://registry.nlark.com/@blueprintjs/select/download/@blueprintjs/select-3.16.5.tgz#31b15a606dafd15643aa539d93d74795ec2aabe4"
+  integrity sha1-MbFaYG2v0VZDqlOdk9dHlewqq+Q=
+  dependencies:
+    "@blueprintjs/core" "^3.46.0"
+    classnames "^2.2"
+    tslib "~1.13.0"
+
 "@ctrl/tinycolor@^3.4.0":
   version "3.4.0"
   resolved "https://registry.npm.taobao.org/@ctrl/tinycolor/download/@ctrl/tinycolor-3.4.0.tgz#c3c5ae543c897caa9c2a68630bed355be5f9990f"

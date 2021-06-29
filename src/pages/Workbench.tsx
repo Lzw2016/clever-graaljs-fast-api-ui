@@ -171,6 +171,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   // 组件将要被卸载
   public componentWillUnmount() {
     window.removeEventListener("resize", this.editorResize);
+    this.saveState().finally();
   }
 
   /** 保存组件状态 */

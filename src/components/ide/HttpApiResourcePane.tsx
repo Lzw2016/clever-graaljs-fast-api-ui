@@ -6,7 +6,7 @@ import lodash from "lodash";
 import Icon, { MinusOutlined, SortAscendingOutlined, SortDescendingOutlined } from "@ant-design/icons";
 import copyToClipboard from "copy-to-clipboard";
 import SimpleBar from "simplebar-react";
-import { Classes, Intent, Menu, MenuDivider, MenuItem, Spinner, SpinnerSize, Tree, TreeNodeInfo } from "@blueprintjs/core";
+import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Menu, MenuDivider, MenuItem, Spinner, SpinnerSize, Tree, TreeNodeInfo } from "@blueprintjs/core";
 import { ContextMenu2 } from "@blueprintjs/popover2";
 import { FastApi } from "@/apis";
 import { noValue } from "@/utils/utils";
@@ -14,6 +14,21 @@ import { request } from "@/utils/request";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import { AddFile, AddFolder, CollapseAll, Copy, EditSource, ExpandAll, Find, Folder, getFileIcon, Locate, Refresh, Remove } from "@/utils/IdeaIconUtils";
 import styles from "./HttpApiResourcePane.module.less";
+
+interface AddFileForm {
+  path: string;
+  name: string;
+}
+
+interface AddDirForm {
+  path: string;
+}
+
+interface RenameForm {
+  id: string;
+  path: string;
+  name: string;
+}
 
 interface HttpApiResourcePaneProps {
   /** 自定义样式 */
@@ -41,6 +56,18 @@ interface HttpApiResourcePaneState {
   contextMenuSelectNode?: TreeNodeInfo<ApiFileResourceRes>;
   /** 节点名称排序规则 */
   nodeNameSort: "ASC" | "DESC";
+  /** 显示新增文件对话框 */
+  showAddFileDialog: boolean;
+  /** 新增文件表单数据 */
+  addFileForm: AddFileForm;
+  /** 显示新增文件夹对话框 */
+  showAddDirDialog: boolean;
+  /** 新增文件夹表单数据 */
+  addDirForm: AddDirForm;
+  /** 重命名对话框 */
+  showRenameDialog: boolean;
+  /** 重命名表单数据 */
+  renameForm: RenameForm;
 }
 
 // 读取组件状态
@@ -52,6 +79,12 @@ const defaultState: HttpApiResourcePaneState = {
   expandedIds: new Set(),
   selectedId: "",
   nodeNameSort: "ASC",
+  showAddFileDialog: false,
+  addFileForm: { path: "/", name: "" },
+  showAddDirDialog: false,
+  addDirForm: { path: "/" },
+  showRenameDialog: false,
+  renameForm: { id: "", path: "", name: "" },
   ...storageState,
 }
 
@@ -68,7 +101,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
 
   // 组件将要被卸载
   public componentWillUnmount() {
-    this.saveState();
+    this.saveState().finally();
   }
 
   /** 重新加载数据 */
@@ -217,12 +250,22 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           icon={<Icon component={AddFile} className={cls(styles.menuIcon)}/>}
           text="新增文件"
           onClick={() => {
+            const addFileForm: AddFileForm = { path: "/", name: "" };
+            const nodeData = contextMenuSelectNode?.nodeData;
+            if (nodeData) addFileForm.path = nodeData.isFile === 1 ? nodeData.path : (nodeData.path + nodeData.name);
+            if (!addFileForm.path.endsWith("/")) addFileForm.path += "/";
+            this.setState({ showAddFileDialog: true, addFileForm });
           }}
         />
         <MenuItem
           icon={<Icon component={AddFolder} className={cls(styles.menuIcon)}/>}
           text="新增文件夹"
           onClick={() => {
+            const addDirForm: AddDirForm = { path: "/" };
+            const nodeData = contextMenuSelectNode?.nodeData;
+            if (nodeData) addDirForm.path = nodeData.isFile === 1 ? nodeData.path : (nodeData.path + nodeData.name);
+            if (!addDirForm.path.endsWith("/")) addDirForm.path += "/";
+            this.setState({ showAddDirDialog: true, addDirForm });
           }}
         />
         <MenuDivider/>
@@ -266,6 +309,15 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           text="重命名"
           disabled={!contextMenuSelectNode}
           onClick={() => {
+            const renameForm: RenameForm = { id: "", path: "/", name: "" };
+            const nodeData = contextMenuSelectNode?.nodeData;
+            if (nodeData) {
+              renameForm.id = nodeData.fileResourceId;
+              renameForm.path = nodeData.path;
+              renameForm.name = nodeData.name;
+            }
+            if (!renameForm.path.endsWith("/")) renameForm.path += "/";
+            this.setState({ showRenameDialog: true, renameForm });
           }}
         />
         <MenuDivider/>
@@ -291,6 +343,135 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
     );
   }
 
+  private getAddFileDialog() {
+    const { showAddFileDialog, addFileForm: { path, name } } = this.state;
+    return (
+      <Dialog
+        className={cls(Classes.DARK, styles.dialog)}
+        style={{ width: 460 }}
+        lazy={true}
+        icon={<Icon component={AddFile} className={cls(styles.menuIcon)} style={{ marginRight: 8 }}/>}
+        title={"新增文件"}
+        transitionDuration={0.1}
+        usePortal={true}
+        isCloseButtonShown={true}
+        canEscapeKeyClose={true}
+        canOutsideClickClose={false}
+        autoFocus={true}
+        enforceFocus={true}
+        isOpen={showAddFileDialog}
+        onClose={() => this.setState({ showAddFileDialog: false })}
+      >
+        <FormGroup style={{ marginTop: 12 }} inline={true} label={"文件路径"}>
+          <InputGroup
+            type={"text"}
+            placeholder={"输入文件路径"}
+            value={path}
+            onChange={e => this.setState({ addFileForm: { path: e.target.value, name } })}
+          />
+        </FormGroup>
+        <FormGroup style={{ marginBottom: 12 }} inline={true} label={"所属目录"}>
+          <InputGroup
+            type={"text"}
+            placeholder={"输入所属目录"}
+            value={name}
+            onChange={e => this.setState({ addFileForm: { path, name: e.target.value } })}
+            autoFocus={true}
+          />
+        </FormGroup>
+        <div className={Classes.DIALOG_FOOTER}>
+          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+            <Button onClick={() => this.setState({ showAddFileDialog: false })}>关闭</Button>
+            <Button intent={Intent.PRIMARY}>确认</Button>
+          </div>
+        </div>
+      </Dialog>
+    );
+  }
+
+  private getAddDirDialog() {
+    const { showAddDirDialog, addDirForm: { path } } = this.state;
+    return (
+      <Dialog
+        className={cls(Classes.DARK, styles.dialog)}
+        style={{ width: 460 }}
+        lazy={true}
+        icon={<Icon component={AddFolder} className={cls(styles.menuIcon)} style={{ marginRight: 8 }}/>}
+        title={"新增文件夹"}
+        transitionDuration={0.1}
+        usePortal={true}
+        isCloseButtonShown={true}
+        canEscapeKeyClose={true}
+        canOutsideClickClose={false}
+        autoFocus={true}
+        enforceFocus={true}
+        isOpen={showAddDirDialog}
+        onClose={() => this.setState({ showAddDirDialog: false })}
+      >
+        <FormGroup style={{ marginTop: 12, marginBottom: 12 }} inline={true} label={"文件夹"}>
+          <InputGroup
+            type={"text"}
+            placeholder={"输入文件夹路径"}
+            value={path}
+            onChange={e => this.setState({ addDirForm: { path: e.target.value } })}
+          />
+        </FormGroup>
+        <div className={Classes.DIALOG_FOOTER}>
+          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+            <Button onClick={() => this.setState({ showAddDirDialog: false })}>关闭</Button>
+            <Button intent={Intent.PRIMARY}>确认</Button>
+          </div>
+        </div>
+      </Dialog>
+    );
+  }
+
+  private getRenameDialog() {
+    const { showRenameDialog, renameForm: { id, path, name } } = this.state;
+    return (
+      <Dialog
+        className={cls(Classes.DARK, styles.dialog)}
+        style={{ width: 460 }}
+        lazy={true}
+        icon={<Icon component={EditSource} className={cls(styles.menuIcon)} style={{ marginRight: 8 }}/>}
+        title={"重命名"}
+        transitionDuration={0.1}
+        usePortal={true}
+        isCloseButtonShown={true}
+        canEscapeKeyClose={true}
+        canOutsideClickClose={false}
+        autoFocus={true}
+        enforceFocus={true}
+        isOpen={showRenameDialog && id}
+        onClose={() => this.setState({ showRenameDialog: false })}
+      >
+        <FormGroup style={{ marginTop: 12 }} inline={true} label={"所属目录"}>
+          <InputGroup
+            type={"text"}
+            placeholder={"输入所属目录"}
+            value={path}
+            readOnly={true}
+          />
+        </FormGroup>
+        <FormGroup style={{ marginBottom: 12 }} inline={true} label={"名称"}>
+          <InputGroup
+            type={"text"}
+            placeholder={"输入名称"}
+            value={name}
+            onChange={e => this.setState({ renameForm: { id, path, name: e.target.value } })}
+            autoFocus={true}
+          />
+        </FormGroup>
+        <div className={Classes.DIALOG_FOOTER}>
+          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+            <Button onClick={() => this.setState({ showRenameDialog: false })}>关闭</Button>
+            <Button intent={Intent.PRIMARY}>确认</Button>
+          </div>
+        </div>
+      </Dialog>
+    );
+  }
+
   render() {
     const { className, openFileId, onSelectChange, onOpenFile } = this.props;
     const { loading, expandedIds, selectedId } = this.state;
@@ -306,7 +487,8 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           className={cls(styles.center, { [styles.hide]: loading })}
           content={this.getContextMenu()}
           onContextMenu={e => {
-            if ((e?.target as any)?.className === "simplebar-content-wrapper") {
+            const className = (e?.target as any)?.className;
+            if (className === "simplebar-content-wrapper" || className === styles.emptyDiv) {
               this.setState({ contextMenuSelectNode: undefined });
             }
           }}
@@ -354,9 +536,12 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
                 this.setState({ selectedId: node.id, contextMenuSelectNode: node });
               }}
             />
-            <div style={{ height: 24 }}/>
+            <div className={styles.emptyDiv}/>
           </SimpleBar>
         </ContextMenu2>
+        {this.getAddFileDialog()}
+        {this.getAddDirDialog()}
+        {this.getRenameDialog()}
       </div>
     );
   }
