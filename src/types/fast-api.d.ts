@@ -298,3 +298,8 @@ interface AddHttpApiRes {
   fileList: Array<FileResource>;
   httpApi: HttpApi;
 }
+
+interface DelHttpApiRes {
+  fileList: Array<FileResource>;
+  httpApiList: Array<HttpApi>;
+}

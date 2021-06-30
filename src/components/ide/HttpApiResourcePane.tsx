@@ -80,6 +80,8 @@ interface HttpApiResourcePaneState {
   renameLoading: boolean;
   /** 删除数据对话框 */
   showDeleteDialog: boolean;
+  /** 删除数据Loading */
+  deleteApiLoading: boolean;
 }
 
 // 读取组件状态
@@ -188,6 +190,21 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
       }).finally(() => this.setState({ addDirLoading: false }));
   }
 
+  /** 删除HttpApi */
+  private delHttpApi() {
+    const { expandedIds, contextMenuSelectNode } = this.state;
+    const nodeData = contextMenuSelectNode?.nodeData;
+    if (!nodeData) return;
+    this.setState({ deleteApiLoading: true });
+    request.delete(FastApi.HttpApiManage.delHttpApi, { params: { fileResourceId: nodeData.fileResourceId } })
+      .then((res: DelHttpApiRes) => {
+        if (res) res.fileList?.forEach(file => expandedIds.delete(file.id));
+        this.setState({ showDeleteDialog: false })
+        this.reLoadTreeData(false);
+      }).finally(() => this.setState({ deleteApiLoading: false }));
+  }
+
+  /** 填充TreeData(选中状态、展开状态、排序) */
   private fillTreeState(treeData: Array<TreeNodeInfo<ApiFileResourceRes>>): Array<TreeNodeInfo<ApiFileResourceRes>> {
     const { expandedIds, selectedId, nodeNameSort } = this.state;
     const fillTreeNodeState = (node: TreeNodeInfo<ApiFileResourceRes>) => {
@@ -556,7 +573,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
   }
 
   private getDeleteDialog() {
-    const { contextMenuSelectNode, showDeleteDialog } = this.state;
+    const { contextMenuSelectNode, showDeleteDialog, deleteApiLoading } = this.state;
     const nodeData = contextMenuSelectNode?.nodeData;
     return (
       <Alert
@@ -564,13 +581,13 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         intent={Intent.DANGER}
         cancelButtonText={"取消"}
         confirmButtonText={"删除"}
-        canEscapeKeyCancel={true}
-        canOutsideClickCancel={true}
+        canEscapeKeyCancel={!deleteApiLoading}
+        canOutsideClickCancel={!deleteApiLoading}
         transitionDuration={0.1}
         isOpen={showDeleteDialog && nodeData}
-        // loading={isLoading}
+        loading={deleteApiLoading}
         onCancel={() => this.setState({ showDeleteDialog: false })}
-        // onConfirm={this.handleMoveConfirm}
+        onConfirm={() => this.delHttpApi()}
       >
         {
           nodeData?.isFile === 1 &&
