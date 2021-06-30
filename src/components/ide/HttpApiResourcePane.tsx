@@ -506,7 +506,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         isOpen={showAddDirDialog}
         onClose={() => this.setState({ showAddDirDialog: false })}
       >
-        <FormGroup style={{ marginTop: 12, marginBottom: 12 }} inline={true} label={"目录全路径"} helperText={"输入目录全路径(字母、数字、以及'-'、'_'、'/')"}>
+        <FormGroup style={{ marginTop: 12, marginBottom: 12 }} inline={true} label={"目录全路径"} helperText={"输入目录全路径(汉字、字母、数字、以及'-'、'_'、'/')"}>
           <InputGroup
             type={"text"}
             placeholder={"输入目录路径"}
