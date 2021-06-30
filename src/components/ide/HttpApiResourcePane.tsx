@@ -62,14 +62,22 @@ interface HttpApiResourcePaneState {
   showAddHttpApiDialog: boolean;
   /** 新增接口表单数据 */
   addHttpApiForm: AddHttpApiForm;
-  /** 显示新增文件夹对话框 */
+  /** addHttpApi requestMethod 值用户是否自定义输入 */
+  addHttpApiRequestMappingChanged: boolean;
+  /** 新增接口Loading */
+  addHttpApiLoading: boolean;
+  /** 显示新增目录对话框 */
   showAddDirDialog: boolean;
-  /** 新增文件夹表单数据 */
+  /** 新增目录表单数据 */
   addDirForm: AddDirForm;
+  /** 新增目录Loading: */
+  addDirLoading: boolean;
   /** 重命名对话框 */
   showRenameDialog: boolean;
   /** 重命名表单数据 */
   renameForm: RenameForm;
+  /** 重命名Loading: */
+  renameLoading: boolean;
   /** 删除数据对话框 */
   showDeleteDialog: boolean;
 }
@@ -85,10 +93,14 @@ const defaultState: HttpApiResourcePaneState = {
   nodeNameSort: "ASC",
   showAddHttpApiDialog: false,
   addHttpApiForm: { path: "/", name: "", requestMapping: "", requestMethod: "POST" },
+  addHttpApiRequestMappingChanged: false,
+  addHttpApiLoading: false,
   showAddDirDialog: false,
   addDirForm: { path: "/" },
+  addDirLoading: false,
   showRenameDialog: false,
   renameForm: { id: "", path: "", name: "" },
+  renameLoading: false,
   showDeleteDialog: false,
   ...storageState,
 }
@@ -109,26 +121,6 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
     this.saveState().finally();
   }
 
-  /** 重新加载数据 */
-  public reLoadTreeData() {
-    this.setState({ loading: true }, () => {
-      request.get(FastApi.HttpApiManage.getHttpApiTree)
-        .then(treeData => {
-          treeData = transformTreeData(treeData);
-          const { onSelectChange } = this.props;
-          if (onSelectChange) {
-            const { selectedId } = this.state;
-            let selectNode: TreeNodeInfo<ApiFileResourceRes> | undefined;
-            (treeData as Array<TreeNodeInfo<ApiFileResourceRes>>).forEach(node => forEachTreeNode(node, n => {
-              if (n.nodeData?.fileResourceId === selectedId) selectNode = n;
-            }));
-            if (selectNode) onSelectChange(selectNode);
-          }
-          this.setState({ treeData });
-        }).finally(() => this.setState({ loading: false }));
-    });
-  }
-
   /** 保存组件状态 */
   public async saveState(): Promise<void> {
     const { treeData, expandedIds, selectedId, nodeNameSort } = this.state;
@@ -141,6 +133,57 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
       componentStateKey.HttpApiResourcePaneState,
       { expandedIds, selectedId, nodeNameSort },
     );
+  }
+
+  /** 重新加载数据 */
+  public reLoadTreeData(spin: boolean = true) {
+    if (spin) this.setState({ loading: true });
+    request.get(FastApi.HttpApiManage.getHttpApiTree)
+      .then(treeData => {
+        treeData = transformTreeData(treeData);
+        const { onSelectChange } = this.props;
+        if (onSelectChange) {
+          const { selectedId } = this.state;
+          let selectNode: TreeNodeInfo<ApiFileResourceRes> | undefined;
+          (treeData as Array<TreeNodeInfo<ApiFileResourceRes>>).forEach(node => forEachTreeNode(node, n => {
+            if (n.nodeData?.fileResourceId === selectedId) selectNode = n;
+          }));
+          if (selectNode) onSelectChange(selectNode);
+        }
+        this.setState({ treeData });
+      }).finally(() => {
+      if (spin) this.setState({ loading: false });
+    });
+  }
+
+  /** 新增接口 */
+  private addHttpApi() {
+    const { expandedIds, addHttpApiForm } = this.state;
+    // const { onSelectChange, onOpenFile } = this.props;
+    this.setState({ addHttpApiLoading: true });
+    request.post(FastApi.HttpApiManage.addHttpApi, { ...addHttpApiForm })
+      .then((res: AddHttpApiRes) => {
+        res?.fileList?.forEach(item => {
+          if (item.isFile === 0) {
+            expandedIds.add(item.id);
+            return
+          }
+          // if(onOpenFile) onOpenFile()
+          // this.setState({ selectedId: item.id });
+        });
+        this.reLoadTreeData(false);
+      }).finally(() => this.setState({ showAddHttpApiDialog: false, addHttpApiLoading: false }));
+  }
+
+  /** 新增目录 */
+  private addDir() {
+    const { expandedIds, addDirForm: { path } } = this.state;
+    this.setState({ addDirLoading: true });
+    request.post(FastApi.FileResourceManage.addDir, { module: 3, fullPath: path })
+      .then((list: Array<FileResource>) => {
+        list.forEach(item => expandedIds.add(item.id));
+        this.reLoadTreeData(false);
+      }).finally(() => this.setState({ showAddDirDialog: false, addDirLoading: false }));
   }
 
   private fillTreeState(treeData: Array<TreeNodeInfo<ApiFileResourceRes>>): Array<TreeNodeInfo<ApiFileResourceRes>> {
@@ -259,12 +302,12 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
             const nodeData = contextMenuSelectNode?.nodeData;
             if (nodeData) addFileForm.path = nodeData.isFile === 1 ? nodeData.path : (nodeData.path + nodeData.name);
             if (!addFileForm.path.endsWith("/")) addFileForm.path += "/";
-            this.setState({ showAddHttpApiDialog: true, addHttpApiForm: addFileForm });
+            this.setState({ showAddHttpApiDialog: true, addHttpApiForm: addFileForm, addHttpApiRequestMappingChanged: false });
           }}
         />
         <MenuItem
           icon={<Icon component={AddFolder} className={cls(styles.menuIcon)}/>}
-          text="新增文件夹"
+          text="新增目录"
           onClick={() => {
             const addDirForm: AddDirForm = { path: "/" };
             const nodeData = contextMenuSelectNode?.nodeData;
@@ -349,7 +392,11 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
 
   private getAddHttpApiDialog() {
     const { showAddHttpApiDialog, addHttpApiForm: { path, name, requestMapping, requestMethod } } = this.state;
-    console.log("### requestMethod", requestMethod)
+    const { addHttpApiLoading, addHttpApiRequestMappingChanged } = this.state;
+    let defRequestMapping = path + name;
+    if (defRequestMapping.toLowerCase().endsWith(".js")) {
+      defRequestMapping = defRequestMapping.substr(0, defRequestMapping.length - 3);
+    }
     return (
       <Dialog
         className={cls(Classes.DARK, styles.dialog, styles.addHttpApiDialog)}
@@ -359,8 +406,8 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         title={"新增接口"}
         transitionDuration={0.1}
         usePortal={true}
-        isCloseButtonShown={true}
-        canEscapeKeyClose={true}
+        isCloseButtonShown={!addHttpApiLoading}
+        canEscapeKeyClose={!addHttpApiLoading}
         canOutsideClickClose={false}
         autoFocus={true}
         enforceFocus={true}
@@ -371,6 +418,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           <InputGroup
             type={"text"}
             placeholder={"输入所属目录"}
+            disabled={addHttpApiLoading}
             value={path}
             onChange={e => this.setState({ addHttpApiForm: { path: e.target.value, name, requestMapping, requestMethod } })}
           />
@@ -379,6 +427,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           <InputGroup
             type={"text"}
             placeholder={"输入文件名称"}
+            disabled={addHttpApiLoading}
             autoFocus={true}
             value={name}
             onChange={e => this.setState({ addHttpApiForm: { path, name: e.target.value, requestMapping, requestMethod } })}
@@ -386,6 +435,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         </FormGroup>
         <FormGroup style={{ marginBottom: 12 }} inline={true} label={"接口路径"}>
           <select
+            disabled={addHttpApiLoading}
             value={requestMethod}
             onChange={e => this.setState({ addHttpApiForm: { path, name, requestMapping, requestMethod: e.target.value } })}
           >
@@ -403,14 +453,15 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           <InputGroup
             type={"text"}
             placeholder={"输入接口路径"}
-            value={requestMapping}
-            onChange={e => this.setState({ addHttpApiForm: { path, name, requestMapping: e.target.value, requestMethod } })}
+            disabled={addHttpApiLoading}
+            value={addHttpApiRequestMappingChanged ? requestMapping : defRequestMapping}
+            onChange={e => this.setState({ addHttpApiForm: { path, name, requestMapping: e.target.value, requestMethod }, addHttpApiRequestMappingChanged: true })}
           />
         </FormGroup>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button onClick={() => this.setState({ showAddHttpApiDialog: false })}>取消</Button>
-            <Button intent={Intent.PRIMARY}>确认</Button>
+            <Button onClick={() => this.setState({ showAddHttpApiDialog: false })} disabled={addHttpApiLoading}>取消</Button>
+            <Button intent={Intent.PRIMARY} onClick={() => this.addHttpApi()} loading={addHttpApiLoading}>确认</Button>
           </div>
         </div>
       </Dialog>
@@ -418,18 +469,18 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
   }
 
   private getAddDirDialog() {
-    const { showAddDirDialog, addDirForm: { path } } = this.state;
+    const { showAddDirDialog, addDirForm: { path }, addDirLoading } = this.state;
     return (
       <Dialog
         className={cls(Classes.DARK, styles.dialog)}
         style={{ width: 460 }}
         lazy={true}
         icon={<Icon component={AddFolder} className={cls(styles.menuIcon)} style={{ marginRight: 8 }}/>}
-        title={"新增文件夹"}
+        title={"新增目录"}
         transitionDuration={0.1}
         usePortal={true}
-        isCloseButtonShown={true}
-        canEscapeKeyClose={true}
+        isCloseButtonShown={!addDirLoading}
+        canEscapeKeyClose={!addDirLoading}
         canOutsideClickClose={false}
         autoFocus={true}
         enforceFocus={true}
@@ -439,7 +490,8 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         <FormGroup style={{ marginTop: 12, marginBottom: 12 }} inline={true} label={"目录全路径"} helperText={"输入目录全路径(字母、数字、以及'-'、'_'、'/')"}>
           <InputGroup
             type={"text"}
-            placeholder={"输入文件夹路径"}
+            placeholder={"输入目录路径"}
+            disabled={addDirLoading}
             autoFocus={true}
             value={path}
             onChange={e => this.setState({ addDirForm: { path: e.target.value } })}
@@ -447,21 +499,8 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         </FormGroup>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button onClick={() => this.setState({ showAddDirDialog: false })}>取消</Button>
-            <Button
-              intent={Intent.PRIMARY}
-              onClick={() => {
-                request.post(FastApi.FileResourceManage.addDir, { module: 3, fullPath: path })
-                  .then(() => {
-                    this.reLoadTreeData();
-                    this.setState({ showAddDirDialog: false });
-                  }).finally(() => {
-
-                });
-              }}
-            >
-              确认
-            </Button>
+            <Button onClick={() => this.setState({ showAddDirDialog: false })} disabled={addDirLoading}>取消</Button>
+            <Button intent={Intent.PRIMARY} onClick={() => this.addDir()} loading={addDirLoading}>确认</Button>
           </div>
         </div>
       </Dialog>
@@ -541,8 +580,8 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         {
           nodeData?.isFile === 0 &&
           <p>
-            确认删除文件夹: {nodeData?.path + nodeData?.name}？<br/>
-            <span>此操作会删除文件夹下的所有内容！</span>
+            确认删除目录: {nodeData?.path + nodeData?.name}？<br/>
+            <span>此操作会删除目录下的所有内容！</span>
           </p>
         }
       </Alert>

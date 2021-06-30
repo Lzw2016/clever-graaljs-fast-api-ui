@@ -293,3 +293,8 @@ interface FileResourceTreeNodeRes {
    */
   readOnly: ReadOnly;
 }
+
+interface AddHttpApiRes {
+  fileList: Array<FileResource>;
+  httpApi: HttpApi;
+}

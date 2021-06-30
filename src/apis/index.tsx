@@ -6,6 +6,7 @@ const FastApi = {
   HttpApiManage: {
     getHttpApiTree: `${serverHost}/http_api_manage/http_api_tree`,
     getHttpApiFileResource: `${serverHost}/http_api_manage/http_api_file_resource`,
+    addHttpApi: `${serverHost}/http_api_manage/add_http_api`,
   },
   FileResourceManage: {
     getFileResource: `${serverHost}/file_resource_manage/file_resource`,
