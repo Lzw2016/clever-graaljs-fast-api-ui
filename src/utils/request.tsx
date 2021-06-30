@@ -1,6 +1,10 @@
 import React from 'react';
+import lodash from "lodash";
 import { Intent, IToastProps, Toaster } from "@blueprintjs/core";
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+
+const toaster = Toaster.create({ maxToasts: 3, canEscapeKeyClear: true, position: "bottom-right" });
+const toastProps: IToastProps = { timeout: 5000, intent: Intent.DANGER, icon: "error" };
 
 // HTTP 状态码错误说明
 const errorMsg = {
@@ -79,20 +83,19 @@ const axiosInstance = axiosCreate({
 });
 
 // 全局请求拦截
+const prefix = lodash.trim(apiGlobalPrefix).length > 0 ? apiGlobalPrefix : '';
 axiosInstance.interceptors.request.use(
-  request => request,
+  request => {
+    request.url = prefix + request.url;
+    return request;
+  },
   error => {
-    // notification.error({
-    //   message: "请求发送失败",
-    //   description: "发送请求给服务端失败，请检查电脑网络，再重试",
-    // });
+    toaster.show({ ...toastProps, message: "请求发送失败" })
     return Promise.reject(error);
   },
 );
 
 // 全局拦截配置
-const toaster = Toaster.create({ maxToasts: 3, canEscapeKeyClear: true, position: "bottom-right" });
-const toastProps: IToastProps = { timeout: 5000, intent: Intent.DANGER, icon: "error" };
 axiosInstance.interceptors.response.use(
   response => response,
   error => {
