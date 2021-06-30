@@ -10,9 +10,10 @@ const path = require("path");
 export default defineConfig({
   base: "/",
   define: {
+    // isProdEnv: NODE_ENV === "production",
+    apiGlobalPrefix: JSON.stringify(""),
     "process.env": "{}",
     global: {},
-    apiGlobalPrefix: JSON.stringify(""),
   },
   plugins: [
     legacy({
