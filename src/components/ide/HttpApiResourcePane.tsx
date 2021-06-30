@@ -171,8 +171,9 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           // if(onOpenFile) onOpenFile()
           // this.setState({ selectedId: item.id });
         });
+        this.setState({ showAddHttpApiDialog: false });
         this.reLoadTreeData(false);
-      }).finally(() => this.setState({ showAddHttpApiDialog: false, addHttpApiLoading: false }));
+      }).finally(() => this.setState({ addHttpApiLoading: false }));
   }
 
   /** 新增目录 */
@@ -182,8 +183,9 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
     request.post(FastApi.FileResourceManage.addDir, { module: 3, fullPath: path })
       .then((list: Array<FileResource>) => {
         list.forEach(item => expandedIds.add(item.id));
+        this.setState({ showAddDirDialog: false })
         this.reLoadTreeData(false);
-      }).finally(() => this.setState({ showAddDirDialog: false, addDirLoading: false }));
+      }).finally(() => this.setState({ addDirLoading: false }));
   }
 
   private fillTreeState(treeData: Array<TreeNodeInfo<ApiFileResourceRes>>): Array<TreeNodeInfo<ApiFileResourceRes>> {

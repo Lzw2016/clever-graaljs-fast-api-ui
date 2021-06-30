@@ -1,5 +1,5 @@
 import React from 'react';
-// TODO import { notification } from "antd";
+import { Intent, IToastProps, Toaster } from "@blueprintjs/core";
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 // HTTP 状态码错误说明
@@ -91,12 +91,14 @@ axiosInstance.interceptors.request.use(
 );
 
 // 全局拦截配置
+const toaster = Toaster.create({ maxToasts: 3, canEscapeKeyClear: true, position: "bottom-right" });
+const toastProps: IToastProps = { timeout: 5000, intent: Intent.DANGER, icon: "error" };
 axiosInstance.interceptors.response.use(
   response => response,
   error => {
     const { response } = error;
     if (!error || !response) {
-      // notification.error({ message: "服务器异常", description: "请求服务端异常" });
+      toaster.show({ ...toastProps, message: "请求服务端异常" });
       return Promise.reject(error);
     }
     if (response?.status === 401) {
@@ -104,18 +106,22 @@ axiosInstance.interceptors.response.use(
     }
     const { data: { message, validMessageList } } = response;
     if (validMessageList) {
-      // notification.error({
-      //   message: "请求参数校验失败",
-      //   description: (
-      //     <ul style={{ margin: 0, paddingLeft: 20 }}>
-      //       {(validMessageList as any[]).map((item, index) => (<li key={index}>{item.filed}: {item.errorMessage}({item.code})</li>))}
-      //     </ul>
-      //   ),
-      // });
+      console.log("####1")
+      toaster.show({
+        ...toastProps, message: (
+          <div>
+            请求参数校验失败
+            <ul style={{ margin: 0, paddingLeft: 20 }}>
+              {(validMessageList as any[]).map((item, index) => (<li key={index}>{item.filed}: {item.errorMessage}({item.code})</li>))}
+            </ul>
+          </div>
+        ),
+      });
+      console.log("####2")
       return Promise.reject(error.response);
-    } else if (message) {
-      // const errorText = message ?? errorMsg[response.status] ?? "服务器异常";
-      // notification.error({ message: errorText });
+    } else {
+      const errorText = message ? message : (errorMsg[response.status] ?? "服务器异常");
+      toaster.show({ ...toastProps, message: errorText });
     }
     return Promise.reject(error);
   }
