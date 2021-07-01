@@ -109,6 +109,11 @@ const defaultState: HttpApiResourcePaneState = {
 }
 
 class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, HttpApiResourcePaneState> {
+  /** 执行组件状态的全局锁 */
+  private saveStateLock: boolean = false;
+  /** 保存组件的状态 */
+  private saveComponentState = lodash.debounce(() => this.saveState().finally(), 1_000, { maxWait: 3_000 });
+
   constructor(props: HttpApiResourcePaneProps) {
     super(props);
     this.state = { ...defaultState };
@@ -126,6 +131,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
 
   /** 保存组件状态 */
   public async saveState(): Promise<void> {
+    if (this.saveStateLock) return;
     const { treeData, expandedIds, selectedId, nodeNameSort } = this.state;
     const allIds = new Set();
     treeData.forEach(node => forEachTreeNode(node, n => allIds.add(n.id)));
@@ -135,7 +141,9 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
     await fastApiStore.setItem(
       componentStateKey.HttpApiResourcePaneState,
       { expandedIds, selectedId, nodeNameSort },
-    );
+    ).finally(() => {
+      this.saveStateLock = false;
+    });
   }
 
   /** 重新加载数据 */
@@ -636,6 +644,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
   }
 
   render() {
+    this.saveComponentState();
     const { className, openFileId, onSelectChange, onOpenFile } = this.props;
     const { loading, expandedIds, selectedId } = this.state;
     let { treeData, } = this.state;
