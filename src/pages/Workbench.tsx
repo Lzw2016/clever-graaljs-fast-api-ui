@@ -1,3 +1,5 @@
+// noinspection DuplicatedCode
+
 import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
@@ -54,40 +56,42 @@ interface WorkbenchState extends WorkbenchLoading, LayoutSize, EditorTabsState {
 
 // 读取组件状态
 const storageState: Partial<WorkbenchState> = await fastApiStore.getItem(componentStateKey.Workbench) ?? {};
-if (storageState.openFileMap && storageState.openFileMap.size > 0) {
+const initStorageState = (): Promise<any[]> => {
   const all: Array<Promise<any>> = [];
-  const files = [...storageState.openFileMap.values()];
-  files.forEach(file => {
-    if (file.needSave) return;
-    if (file.fileResource.module === 3 && file.httpApi) {
-      all.push(
-        request
-          .get(FastApi.HttpApiManage.getHttpApiFileResource, { params: { httpApiId: file.httpApi.id } })
-          .then((data: HttpApiFileResourceRes) => {
-            file.fileResource = data.fileResource;
-            file.rawContent = data.fileResource.content;
-            file.needSave = false;
-            file.httpApi = data.httpApi;
-          }).finally()
-      );
-    } else {
-      all.push(
-        request
-          .get(FastApi.FileResourceManage.getFileResource, { params: { id: file.fileResource.id } })
-          .then((data: FileResource) => {
-            file.fileResource = data;
-            file.rawContent = data.content;
-            file.needSave = false;
-          }).finally()
-      );
-    }
-  });
-  if (all.length > 0) {
-    Promise.all(all).finally();
+  if (storageState.openFileMap && storageState.openFileMap.size > 0) {
+    const files = [...storageState.openFileMap.values()];
+    files.forEach(file => {
+      if (file.fileResource.module === 3 && file.httpApi) {
+        all.push(
+          request
+            .get(FastApi.HttpApiManage.getHttpApiFileResource, { params: { httpApiId: file.httpApi.id } })
+            .then((data: HttpApiFileResourceRes) => {
+              // if (!file.needSave || (file.needSave && file.fileResource.content === data.fileResource.content)) {}
+              file.fileResource = data.fileResource;
+              file.rawContent = data.fileResource.content;
+              file.needSave = false;
+              file.httpApi = data.httpApi;
+            }).finally()
+        );
+      } else {
+        all.push(
+          request
+            .get(FastApi.FileResourceManage.getFileResource, { params: { id: file.fileResource.id } })
+            .then((data: FileResource) => {
+              // if (!file.needSave || (file.needSave && file.fileResource.content === data.content)) {}
+              file.fileResource = data;
+              file.rawContent = data.content;
+              file.needSave = false;
+            }).finally()
+        );
+      }
+    });
   }
-}
+  return Promise.all(all).finally();
+};
+
 // 组件状态默认值
-const defaultState: WorkbenchState = {
+const getDefaultState = (): WorkbenchState => ({
   // WorkbenchLoading
   getApiFileResourceLoading: false,
   saveFileResourceLoading: false,
@@ -104,7 +108,7 @@ const defaultState: WorkbenchState = {
   openFileMap: new Map<string, EditorTabItem>(),
   // StorageState
   ...storageState,
-};
+});
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   /** HTTP API组件 */
@@ -125,7 +129,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     ]).finally(() => {
       this.saveAppStateLock = false;
     });
-  }, 6_000, { maxWait: 12_000 });
+  }, 3_000, { maxWait: 9_000 });
   /** 编辑器实例 */
   private editor: MonacoApi.editor.IStandaloneCodeEditor | undefined;
   /** 编辑器大小自适应 */
@@ -157,15 +161,21 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         this.forceUpdate();
       }).finally(() => this.setState({ saveFileResourceLoading: false }));
   }, 150, { maxWait: 1000 });
+  /** 显示当前编辑的文件Tab叶签 */
+  private showCurrentEditFileTab = (currentEditId: string) => {
+    const div = document.getElementById(`fileTab#${currentEditId}`);
+    if (div) div.scrollIntoView();
+  };
 
   constructor(props: Readonly<WorkbenchProps>) {
     super(props);
-    this.state = { ...defaultState };
+    this.state = { ...getDefaultState() };
   }
 
   // 组件挂载后
   public componentDidMount() {
     window.addEventListener("resize", this.editorResize);
+    initStorageState().then(() => this.forceUpdate());
   }
 
   // 组件将要被卸载
@@ -256,9 +266,15 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     const { currentEditId, openFileMap } = this.state;
     const openFile = openFileMap.get(fileResourceId);
     if (openFile) {
-      if (currentEditId === fileResourceId) return;
+      if (currentEditId === fileResourceId) {
+        this.showCurrentEditFileTab(currentEditId);
+        return;
+      }
       openFile.lastEditTime = lodash.now();
-      this.setState({ currentEditId: fileResourceId, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
+      this.setState(
+        { currentEditId: fileResourceId, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) },
+        () => this.showCurrentEditFileTab(fileResourceId),
+      );
       return;
     }
     if (!httpApiId) return;
@@ -271,7 +287,10 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         const sort = openFileMap.size + 1;
         const openFile: EditorTabItem = { sort, lastEditTime: lodash.now(), fileResource, rawContent: fileResource.content, needSave: false, httpApi };
         openFileMap.set(fileResource.id, openFile);
-        this.setState({ currentEditId: fileResource.id, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
+        this.setState(
+          { currentEditId: fileResource.id, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) },
+          () => this.showCurrentEditFileTab(fileResource.id),
+        );
       }).finally(() => this.setState({ getApiFileResourceLoading: false }));
   }
 
@@ -281,9 +300,15 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     const { currentEditId, openFileMap } = this.state;
     const openFile = openFileMap.get(fileResourceId);
     if (openFile) {
-      if (currentEditId === fileResourceId) return;
+      if (currentEditId === fileResourceId) {
+        this.showCurrentEditFileTab(currentEditId);
+        return;
+      }
       openFile.lastEditTime = lodash.now();
-      this.setState({ currentEditId: fileResourceId, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
+      this.setState(
+        { currentEditId: fileResourceId, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) },
+        () => this.showCurrentEditFileTab(fileResourceId),
+      );
       return;
     }
     this.setState({ getFileResourceLoading: true });
@@ -293,7 +318,10 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         const sort = openFileMap.size + 1;
         const openFile: EditorTabItem = { sort, lastEditTime: lodash.now(), fileResource, rawContent: fileResource.content, needSave: false };
         openFileMap.set(fileResource.id, openFile);
-        this.setState({ currentEditId: fileResource.id, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) });
+        this.setState(
+          { currentEditId: fileResource.id, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) },
+          () => this.showCurrentEditFileTab(fileResourceId),
+        );
       }).finally(() => this.setState({ getFileResourceLoading: false }));
   }
 
@@ -672,6 +700,11 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             if (apiFileResource.isFile !== 1) return;
             this.setCurrentEditHttpApiFile(apiFileResource.fileResourceId, apiFileResource.httpApiId);
           }}
+          onAddHttpApi={(httpApi, file) => {
+            if (file.isFile !== 1) return;
+            this.setCurrentEditHttpApiFile(file.id, httpApi.id);
+          }}
+          onDelHttpApi={files => files.forEach(file => this.closeEditFile(file.id))}
         />
         <div className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.TimedTask })}>
           TimedTask
@@ -703,6 +736,11 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             if (resource.isFile !== 1) return;
             this.setCurrentEditFile(resource.id);
           }}
+          onAddFile={file => {
+            if (file.isFile !== 1) return;
+            this.setCurrentEditFile(file.id);
+          }}
+          onDelFile={files => files.forEach(file => this.closeEditFile(file.id))}
         />
         <div className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.Initialization })}>
           Initialization
@@ -735,6 +773,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     openFiles.forEach(file => {
       fileTabs.push(
         <div
+          id={`fileTab#${file.fileResource.id}`}
           key={file.fileResource.id}
           className={cls(styles.flexItemColumn, styles.fileTabsItem, { [styles.fileTabsItemActive]: currentEditId === file.fileResource.id })}
           onClick={() => {
@@ -762,7 +801,17 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         </div>
       );
     });
-    return (<div className={cls(styles.editorTabs, styles.flexColumn, { [styles.hide]: fileTabs.length <= 0 })}>{fileTabs}</div>);
+    return (
+      <div
+        className={cls(styles.editorTabs, styles.flexColumn, { [styles.hide]: fileTabs.length <= 0 })}
+        onWheel={e => {
+          const delta = Math.max(-1, Math.min(1, ((e.nativeEvent as any).wheelDelta || -e.nativeEvent.detail)))
+          e.currentTarget.scrollLeft -= (delta * 30)
+        }}
+      >
+        {fileTabs}
+      </div>
+    );
   }
 
   private getTips() {

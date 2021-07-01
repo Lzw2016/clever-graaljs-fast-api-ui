@@ -41,6 +41,10 @@ interface ExtendResourcePaneProps {
   onOpenFile?: (resource: FileResourceTreeNodeRes) => void;
   /** 当前组件点击最小化事件 */
   onHidePanel?: () => void;
+  /** 新增文件成功 */
+  onAddFile?: (file: FileResource) => void;
+  /** 删除文件成功 */
+  onDelFile?: (files: Array<FileResource>) => void;
 }
 
 interface ExtendResourcePaneState {
@@ -165,8 +169,8 @@ class ExtendResourcePane extends React.Component<ExtendResourcePaneProps, Extend
 
   /** 新增文件 */
   private addFile() {
+    const { onAddFile } = this.props;
     const { expandedIds, addFileForm } = this.state;
-    // const { onSelectChange, onOpenFile } = this.props;
     this.setState({ addFileLoading: true });
     request.post(FastApi.FileResourceManage.addFile, { ...addFileForm, module: 0 })
       .then((res: Array<FileResource>) => {
@@ -175,8 +179,8 @@ class ExtendResourcePane extends React.Component<ExtendResourcePaneProps, Extend
             expandedIds.add(item.id);
             return
           }
-          // if(onOpenFile) onOpenFile()
-          // this.setState({ selectedId: item.id });
+          if (onAddFile) onAddFile(item);
+          this.setState({ selectedId: item.id });
         });
         this.setState({ showAddFileDialog: false });
         this.reLoadTreeData(false);
@@ -197,6 +201,7 @@ class ExtendResourcePane extends React.Component<ExtendResourcePaneProps, Extend
 
   /** 删除HttpApi */
   private delFile() {
+    const { onDelFile } = this.props;
     const { expandedIds, contextMenuSelectNode } = this.state;
     const nodeData = contextMenuSelectNode?.nodeData;
     if (!nodeData) {
@@ -206,7 +211,12 @@ class ExtendResourcePane extends React.Component<ExtendResourcePaneProps, Extend
     this.setState({ deleteApiLoading: true });
     request.delete(FastApi.FileResourceManage.delFile, { params: { id: nodeData.id } })
       .then((res: Array<FileResource>) => {
-        if (res) res?.forEach(file => expandedIds.delete(file.id));
+        const files: Array<FileResource> = [];
+        if (res) res?.forEach(file => {
+          if (file.isFile === 1) files.push(file);
+          expandedIds.delete(file.id);
+        });
+        if (onDelFile) onDelFile(files);
         this.setState({ showDeleteDialog: false });
         this.reLoadTreeData(false);
       }).finally(() => this.setState({ deleteApiLoading: false }));
@@ -644,7 +654,7 @@ class ExtendResourcePane extends React.Component<ExtendResourcePaneProps, Extend
                     expandedIds.add(node.id);
                   }
                 }
-                if (node.nodeData?.isFile === 1 && onOpenFile && openFileId !== node.nodeData?.id) {
+                if (node.nodeData?.isFile === 1 && onOpenFile) {
                   onOpenFile(node.nodeData);
                 }
                 if (onSelectChange && selectedId !== node.id) onSelectChange(node);

@@ -43,6 +43,10 @@ interface HttpApiResourcePaneProps {
   onOpenFile?: (apiFileResource: ApiFileResourceRes) => void;
   /** 当前组件点击最小化事件 */
   onHidePanel?: () => void;
+  /** 新增接口成功 */
+  onAddHttpApi?: (httpApi: HttpApi, file: FileResource) => void;
+  /** 删除接口成功 */
+  onDelHttpApi?: (files: Array<FileResource>) => void;
 }
 
 interface HttpApiResourcePaneState {
@@ -169,8 +173,8 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
 
   /** 新增接口 */
   private addHttpApi() {
+    const { onAddHttpApi } = this.props;
     const { expandedIds, addHttpApiForm } = this.state;
-    // const { onSelectChange, onOpenFile } = this.props;
     this.setState({ addHttpApiLoading: true });
     request.post(FastApi.HttpApiManage.addHttpApi, { ...addHttpApiForm })
       .then((res: AddHttpApiRes) => {
@@ -179,8 +183,8 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
             expandedIds.add(item.id);
             return
           }
-          // if(onOpenFile) onOpenFile()
-          // this.setState({ selectedId: item.id });
+          if (onAddHttpApi) onAddHttpApi(res.httpApi, item);
+          this.setState({ selectedId: item.id });
         });
         this.setState({ showAddHttpApiDialog: false });
         this.reLoadTreeData(false);
@@ -201,6 +205,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
 
   /** 删除HttpApi */
   private delHttpApi() {
+    const { onDelHttpApi } = this.props;
     const { expandedIds, contextMenuSelectNode } = this.state;
     const nodeData = contextMenuSelectNode?.nodeData;
     if (!nodeData) {
@@ -210,7 +215,12 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
     this.setState({ deleteApiLoading: true });
     request.delete(FastApi.HttpApiManage.delHttpApi, { params: { fileResourceId: nodeData.fileResourceId } })
       .then((res: DelHttpApiRes) => {
-        if (res) res.fileList?.forEach(file => expandedIds.delete(file.id));
+        const files: Array<FileResource> = [];
+        if (res) res.fileList?.forEach(file => {
+          if (file.isFile === 1) files.push(file);
+          expandedIds.delete(file.id);
+        });
+        if (onDelHttpApi) onDelHttpApi(files);
         this.setState({ showDeleteDialog: false });
         this.reLoadTreeData(false);
       }).finally(() => this.setState({ deleteApiLoading: false }));
@@ -693,7 +703,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
                     expandedIds.add(node.id);
                   }
                 }
-                if (node.nodeData?.isFile === 1 && onOpenFile && openFileId !== node.nodeData?.fileResourceId) {
+                if (node.nodeData?.isFile === 1 && onOpenFile) {
                   onOpenFile(node.nodeData);
                 }
                 if (onSelectChange && selectedId !== node.id) onSelectChange(node);

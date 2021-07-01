@@ -143,19 +143,35 @@ const initMonaco = (monaco: typeof MonacoApi) => {
     allowNonTsExtensions: true,
     noLib: false,
     lib: ["es5", "es2015", "es2016", "es2017", "es2018", "es2019", "es2020", "es2021", "esnext"],
+    allowJs: true,
+    checkJs: false,
+    strict: true,
+    declaration: true,
+    skipLibCheck: true,
+    sourceMap: true,
+    inlineSourceMap: false,
+    inlineSources: true,
+    allowSyntheticDefaultImports: true,
+    forceConsistentCasingInFileNames: true,
+    noImplicitReturns: true,
+    noUnusedLocals: true,
+    experimentalDecorators: true,
+    emitDecoratorMetadata: true,
   });
   // 加载扩展lib定义
   request.get(FastApi.ExtendFileManage.getExtendFileList)
     .then((extList: Array<FileResource>) => extList.forEach(ext => {
       if (ext.isFile !== 1 || !ext.content) return;
-      // monaco.languages.typescript.javascriptDefaults.addExtraLib(ext.content, ext.path + ext.name);
-      // monaco.languages.typescript.typescriptDefaults.addExtraLib(ext.content, ext.path + ext.name);
-      const uri = monaco.Uri.parse(ext.path + ext.name);
-      let extModel = monaco.editor.getModel(uri);
-      if (!extModel) {
-        extModel = monaco.editor.createModel(ext.content, languageEnum.typescript, uri);
-      }
-      monaco.editor.setModelLanguage(extModel, languageEnum.javascript);
+      monaco.languages.typescript.javascriptDefaults.addExtraLib(ext.content, ext.path + ext.name);
+      monaco.languages.typescript.typescriptDefaults.addExtraLib(ext.content, ext.path + ext.name);
+      // const uri = monaco.Uri.parse(ext.path + ext.name);
+      // let extModel = monaco.editor.getModel(uri);
+      // if (!extModel) {
+      //   extModel = monaco.editor.createModel(ext.content, languageEnum.typescript, uri);
+      // } else {
+      //   console.log("# uri ", uri, " extModel ", extModel);
+      // }
+      // monaco.editor.setModelLanguage(extModel, languageEnum.javascript);
     })).finally();
 };
 
