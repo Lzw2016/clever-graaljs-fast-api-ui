@@ -9,7 +9,7 @@ import SimpleBar from "simplebar-react";
 import { Alert, Button, Classes, Dialog, FormGroup, InputGroup, Intent, Menu, MenuDivider, MenuItem, Spinner, SpinnerSize, Tree, TreeNodeInfo } from "@blueprintjs/core";
 import { ContextMenu2 } from "@blueprintjs/popover2";
 import { FastApi } from "@/apis";
-import { noValue } from "@/utils/utils";
+import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import { AddFile, AddFolder, CollapseAll, Copy, EditSource, ExpandAll, Find, Folder, getFileIcon, Locate, Refresh, Remove } from "@/utils/IdeaIconUtils";
@@ -104,6 +104,7 @@ const defaultState: HttpApiResourcePaneState = {
   renameForm: { id: "", path: "", name: "" },
   renameLoading: false,
   showDeleteDialog: false,
+  deleteApiLoading: false,
   ...storageState,
 }
 
@@ -456,7 +457,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           <select
             disabled={addHttpApiLoading}
             value={requestMethod}
-            onChange={e => this.setState({ addHttpApiForm: { path, name, requestMapping, requestMethod: e.target.value } })}
+            onChange={e => this.setState({ addHttpApiForm: { path, name, requestMapping, requestMethod: (e?.target?.value as any) } })}
           >
             <option value={"ALL"}>ALL</option>
             <option value={"GET"}>GET</option>
@@ -542,7 +543,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         canOutsideClickClose={false}
         autoFocus={true}
         enforceFocus={true}
-        isOpen={showRenameDialog && id}
+        isOpen={showRenameDialog && hasValue(id)}
         onClose={() => this.setState({ showRenameDialog: false })}
       >
         <FormGroup style={{ marginTop: 12 }} inline={true} label={"所属目录"}>
@@ -584,7 +585,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         canEscapeKeyCancel={!deleteApiLoading}
         canOutsideClickCancel={!deleteApiLoading}
         transitionDuration={0.1}
-        isOpen={showDeleteDialog && nodeData}
+        isOpen={showDeleteDialog && hasValue(nodeData)}
         loading={deleteApiLoading}
         onCancel={() => this.setState({ showDeleteDialog: false })}
         onConfirm={() => this.delHttpApi()}
