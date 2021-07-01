@@ -29,7 +29,7 @@ interface AddDirForm {
 interface RenameForm {
   id: string;
   path: string;
-  name: string;
+  newName: string;
 }
 
 interface HttpApiResourcePaneProps {
@@ -101,7 +101,7 @@ const defaultState: HttpApiResourcePaneState = {
   addDirForm: { path: "/" },
   addDirLoading: false,
   showRenameDialog: false,
-  renameForm: { id: "", path: "", name: "" },
+  renameForm: { id: "", path: "", newName: "" },
   renameLoading: false,
   showDeleteDialog: false,
   deleteApiLoading: false,
@@ -186,7 +186,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
     request.post(FastApi.FileResourceManage.addDir, { module: 3, fullPath: path })
       .then((list: Array<FileResource>) => {
         list.forEach(item => expandedIds.add(item.id));
-        this.setState({ showAddDirDialog: false })
+        this.setState({ showAddDirDialog: false });
         this.reLoadTreeData(false);
       }).finally(() => this.setState({ addDirLoading: false }));
   }
@@ -195,14 +195,33 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
   private delHttpApi() {
     const { expandedIds, contextMenuSelectNode } = this.state;
     const nodeData = contextMenuSelectNode?.nodeData;
-    if (!nodeData) return;
+    if (!nodeData) {
+      this.setState({ showDeleteDialog: false });
+      return;
+    }
     this.setState({ deleteApiLoading: true });
     request.delete(FastApi.HttpApiManage.delHttpApi, { params: { fileResourceId: nodeData.fileResourceId } })
       .then((res: DelHttpApiRes) => {
         if (res) res.fileList?.forEach(file => expandedIds.delete(file.id));
-        this.setState({ showDeleteDialog: false })
+        this.setState({ showDeleteDialog: false });
         this.reLoadTreeData(false);
       }).finally(() => this.setState({ deleteApiLoading: false }));
+  }
+
+  /** 重命名文件 */
+  private renameFile() {
+    const { contextMenuSelectNode, renameForm } = this.state;
+    const nodeData = contextMenuSelectNode?.nodeData;
+    if (!nodeData || nodeData.name === renameForm.newName) {
+      this.setState({ showRenameDialog: false });
+      return;
+    }
+    this.setState({ renameLoading: true });
+    request.post(FastApi.FileResourceManage.rename, { ...renameForm })
+      .then((res: Array<FileResource>) => {
+        this.setState({ showRenameDialog: false });
+        if (res && res.length > 0) this.reLoadTreeData(false);
+      }).finally(() => this.setState({ renameLoading: false }));
   }
 
   /** 填充TreeData(选中状态、展开状态、排序) */
@@ -376,12 +395,12 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           text="重命名"
           disabled={!contextMenuSelectNode}
           onClick={() => {
-            const renameForm: RenameForm = { id: "", path: "/", name: "" };
+            const renameForm: RenameForm = { id: "", path: "/", newName: "" };
             const nodeData = contextMenuSelectNode?.nodeData;
             if (nodeData) {
               renameForm.id = nodeData.fileResourceId;
               renameForm.path = nodeData.path;
-              renameForm.name = nodeData.name;
+              renameForm.newName = nodeData.name;
             }
             if (!renameForm.path.endsWith("/")) renameForm.path += "/";
             this.setState({ showRenameDialog: true, renameForm });
@@ -528,7 +547,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
   }
 
   private getRenameDialog() {
-    const { showRenameDialog, renameForm: { id, path, name } } = this.state;
+    const { contextMenuSelectNode, showRenameDialog, renameForm: { id, path, newName }, renameLoading } = this.state;
     return (
       <Dialog
         className={cls(Classes.DARK, styles.dialog, styles.renameDialog)}
@@ -538,8 +557,8 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
         title={"重命名"}
         transitionDuration={0.1}
         usePortal={true}
-        isCloseButtonShown={true}
-        canEscapeKeyClose={true}
+        isCloseButtonShown={!renameLoading}
+        canEscapeKeyClose={!renameLoading}
         canOutsideClickClose={false}
         autoFocus={true}
         enforceFocus={true}
@@ -550,23 +569,31 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           <InputGroup
             type={"text"}
             placeholder={"输入所属目录"}
+            disabled={true}
             value={path}
-            readOnly={true}
           />
         </FormGroup>
         <FormGroup style={{ marginBottom: 12 }} inline={true} label={"名称"}>
           <InputGroup
             type={"text"}
             placeholder={"输入名称"}
+            disabled={renameLoading}
             autoFocus={true}
-            value={name}
-            onChange={e => this.setState({ renameForm: { id, path, name: e.target.value } })}
+            value={newName}
+            onChange={e => this.setState({ renameForm: { id, path, newName: e.target.value } })}
           />
         </FormGroup>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button onClick={() => this.setState({ showRenameDialog: false })}>取消</Button>
-            <Button intent={Intent.PRIMARY}>确认</Button>
+            <Button onClick={() => this.setState({ showRenameDialog: false })} disabled={renameLoading}>取消</Button>
+            <Button
+              intent={Intent.PRIMARY}
+              loading={renameLoading}
+              disabled={contextMenuSelectNode?.nodeData?.name === newName}
+              onClick={() => this.renameFile()}
+            >
+              确认
+            </Button>
           </div>
         </div>
       </Dialog>
