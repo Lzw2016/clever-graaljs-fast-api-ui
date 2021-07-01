@@ -197,7 +197,19 @@ class ExtendResourcePane extends React.Component<ExtendResourcePaneProps, Extend
 
   /** 删除HttpApi */
   private delFile() {
-
+    const { expandedIds, contextMenuSelectNode } = this.state;
+    const nodeData = contextMenuSelectNode?.nodeData;
+    if (!nodeData) {
+      this.setState({ showDeleteDialog: false });
+      return;
+    }
+    this.setState({ deleteApiLoading: true });
+    request.delete(FastApi.FileResourceManage.delFile, { params: { id: nodeData.id } })
+      .then((res: Array<FileResource>) => {
+        if (res) res?.forEach(file => expandedIds.delete(file.id));
+        this.setState({ showDeleteDialog: false });
+        this.reLoadTreeData(false);
+      }).finally(() => this.setState({ deleteApiLoading: false }));
   }
 
   /** 重命名文件 */
