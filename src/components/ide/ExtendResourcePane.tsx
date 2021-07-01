@@ -707,4 +707,4 @@ const forEachTreeNode = (node: TreeNodeInfo<FileResourceTreeNodeRes>, callBack: 
 };
 
 export type { ExtendResourcePaneProps, ExtendResourcePaneState };
-export default ExtendResourcePane;
+export { ExtendResourcePane };

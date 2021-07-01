@@ -1,6 +1,7 @@
 import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
+import copyToClipboard from "copy-to-clipboard";
 import Split from "react-split";
 import Icon, {
   ApiOutlined,
@@ -24,10 +25,11 @@ import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
 import logo from "@/assets/logo.svg";
 import { FastApi } from "@/apis";
-import { HttpApiResourcePane } from "@/components/ide";
+import { ExtendResourcePane, HttpApiResourcePane } from "@/components/ide";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
-import { ChevronDown, ChevronUp, Execute, Find, getFileIcon, History, MenuSaveAll } from "@/utils/IdeaIconUtils";
+import { componentStateKey, fastApiStore } from "@/utils/storage";
+import { ChevronDown, ChevronUp, Copy, Execute, Find, getFileIcon, History, MenuSaveAll } from "@/utils/IdeaIconUtils";
 import { editorDefOptions, getLanguage, initEditorConfig, initKeyBinding, themeEnum } from "@/utils/editor-utils";
 import {
   BottomPanelEnum,
@@ -41,8 +43,6 @@ import {
   WorkbenchLoading
 } from "@/types/workbench-layout";
 import styles from "./Workbench.module.less";
-import ExtendResourcePane from "@/components/ide/ExtendResourcePane";
-import { componentStateKey, fastApiStore } from "@/utils/storage";
 
 interface WorkbenchProps {
 }
@@ -404,13 +404,21 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         }
         {
           topStatusFileInfo?.httpApiId &&
-          <SettingOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ fontSize: 14, padding: "4px 4px" }}/>
+          <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
+            [{topStatusFileInfo.requestMethod}]&nbsp;{topStatusFileInfo.requestMapping}
+          </div>
         }
         {
           topStatusFileInfo?.httpApiId &&
-          <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
-            &nbsp;[{topStatusFileInfo.requestMethod}]&nbsp;{topStatusFileInfo.requestMapping}
-          </div>
+          <Icon
+            component={Copy}
+            className={cls(styles.flexItemColumn, styles.icon, styles.copyIcon)}
+            onClick={() => copyToClipboard(topStatusFileInfo.requestMapping!)}
+          />
+        }
+        {
+          topStatusFileInfo?.httpApiId &&
+          <SettingOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ fontSize: 15, padding: "4px" }}/>
         }
         <div className={cls(styles.flexItemColumnWidthFull)}/>
         <Icon component={Execute} className={cls(styles.flexItemColumn, styles.icon)}/>
