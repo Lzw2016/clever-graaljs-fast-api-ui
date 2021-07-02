@@ -31,7 +31,7 @@ import { ExtendResourcePane, HttpApiResourcePane } from "@/components/ide";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
-import { ChevronDown, ChevronUp, Copy, Execute, Find, getFileIcon, History, MenuSaveAll } from "@/utils/IdeaIconUtils";
+import { ChevronDown, ChevronUp, Copy, Execute, Find, getFileIcon, History, MenuSaveAll, NoEvents, Rollback } from "@/utils/IdeaIconUtils";
 import { editorDefOptions, getLanguage, initEditorConfig, initKeyBinding, themeEnum } from "@/utils/editor-utils";
 import {
   BottomPanelEnum,
@@ -449,13 +449,14 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           <SettingOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ fontSize: 15, padding: "4px" }}/>
         }
         <div className={cls(styles.flexItemColumnWidthFull)}/>
-        <Icon component={Execute} className={cls(styles.flexItemColumn, styles.icon)}/>
-        <Icon component={MenuSaveAll} className={cls(styles.flexItemColumn, styles.icon)}/>
-        <LockOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+        <Icon component={Execute} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
+        <Icon component={MenuSaveAll} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
+        <Icon component={Rollback} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
+        <LockOutlined className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
         <UnlockOutlined className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
-        <Icon component={Find} className={cls(styles.flexItemColumn, styles.icon)}/>
-        <Icon component={History} className={cls(styles.flexItemColumn, styles.icon)}/>
-        <IconFont type="icon-keyboard" className={cls(styles.flexItemColumn, styles.icon)} style={{ fontSize: 20, padding: "1px 2px" }}/>
+        <Icon component={Find} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
+        <Icon component={History} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
+        <IconFont type="icon-keyboard" className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)} style={{ fontSize: 20, padding: "1px 2px" }}/>
         <div className={cls(styles.flexItemColumn)} style={{ marginRight: 16 }}/>
       </>
     );
@@ -527,7 +528,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           className={cls(styles.flexItemColumn, styles.bottomTabsItem, { [styles.bottomTabsItemActive]: bottomPanel === BottomPanelEnum.SysEvent })}
           onClick={() => this.toggleBottomPanel(BottomPanelEnum.SysEvent)}
         >
-          <IconFont type="icon-message"/>系统事件
+          <Icon component={NoEvents}/>系统事件
         </div>
         <div className={cls(styles.flexItemColumn)} style={{ marginRight: 16 }}/>
       </>

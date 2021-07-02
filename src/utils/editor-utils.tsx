@@ -255,11 +255,12 @@ const initKeyBinding = (editor: MonacoApi.editor.IStandaloneCodeEditor, monaco: 
     () => editor.trigger(null, "editor.action.moveLinesDownAction", {}),
     "editorTextFocus && !editorReadonly"
   );
-  // Ctrl + S --> 保存
-  // editor.addCommand(
-  //   monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
-  //   () => editor.saveJsCodeFile(),
-  // );
+  // Ctrl + Q 显示悬停
+  editor.addCommand(
+    monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_Q,
+    () => editor.trigger(null, "editor.action.showHover", {}),
+    "editorTextFocus"
+  );
 };
 
 /**

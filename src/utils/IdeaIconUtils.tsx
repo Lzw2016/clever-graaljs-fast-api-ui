@@ -209,12 +209,6 @@ const MenuSaveAll = () => (
   </svg>
 );
 
-const Run = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
-    <polygon fill="#499C54" fillRule="evenodd" points="3 1 10 6 3 11"/>
-  </svg>
-);
-
 const Execute = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
     <polygon fill="#499C54" fillRule="evenodd" points="4 2 14 8 4 14"/>
@@ -234,6 +228,63 @@ const History = () => (
   </svg>
 );
 
+const NoEvents = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <path fill="#AFB1B3" fillRule="evenodd"
+          d="M6.4989076,11.4000001 C6.49927172,11.4000002 6.49963586,11.4000002 6.5,11.4000002 C6.50036421,11.4000002 6.50072842,11.4000002 6.50109261,11.4000001 L11.4000001,11.4000002 L11.4000001,6.4000001 L11.399,6.4000001 C11.3457496,3.73996684 9.17278282,1.60000002 6.5,1.60000002 C3.79380467,1.60000002 1.5999999,3.79380479 1.5999999,6.50000012 C1.5999999,9.17278298 3.73996679,11.3457498 6.4000001,11.3990001 L6.4000001,11.4000001 L6.4989076,11.4000001 Z M13,6.5 L13,13 L6.5,13 C2.91014913,13 0,10.0898509 0,6.5 C0,2.91014913 2.91014913,0 6.5,0 C10.0898509,0 13,2.91014913 13,6.5 Z"
+          transform="translate(1 1)"/>
+  </svg>
+);
+
+const WarningEvents = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <path fill="#F0A732" fillRule="evenodd"
+          d="M12.9969818,6.69999695 L13,6.69999695 L13,13 L6.50616488,12.9999971 C6.50411014,12.999999 6.50205518,13 6.5,13 C2.91014913,13 0,10.0898509 0,6.5 C0,2.91014913 2.91014913,0 6.5,0 C10.0898509,0 13,2.91014913 13,6.5 C13,6.56690657 12.9989891,6.63357703 12.9969818,6.69999695 Z"
+          transform="translate(1 1)"/>
+  </svg>
+);
+
+const ErrorEvents = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <path fill="#C75450" fillRule="evenodd"
+          d="M12.9969818,6.69999695 L13,6.69999695 L13,13 L6.50616488,12.9999971 C6.50411014,12.999999 6.50205518,13 6.5,13 C2.91014913,13 0,10.0898509 0,6.5 C0,2.91014913 2.91014913,0 6.5,0 C10.0898509,0 13,2.91014913 13,6.5 C13,6.56690657 12.9989891,6.63357703 12.9969818,6.69999695 Z"
+          transform="translate(1 1)"/>
+  </svg>
+);
+
+const InfoEvents = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <path fill="#499C54" fillRule="evenodd"
+          d="M12.9969818,6.69999695 L13,6.69999695 L13,13 L6.50616488,12.9999971 C6.50411014,12.999999 6.50205518,13 6.5,13 C2.91014913,13 0,10.0898509 0,6.5 C0,2.91014913 2.91014913,0 6.5,0 C10.0898509,0 13,2.91014913 13,6.5 C13,6.56690657 12.9989891,6.63357703 12.9969818,6.69999695 Z"
+          transform="translate(1 1)"/>
+  </svg>
+);
+
+const Revert = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+    <g fill="none" fillRule="evenodd">
+      <path fill="#AFB1B3"
+            d="M1.41342712,3.59632034 L4.24264069,6.42553391 L3.53553391,7.13264069 L1.70974346e-14,3.59710678 L3.53553391,0.06 L4.24264069,0.767106781 L1.41342712,3.59632034 Z"
+            transform="translate(0 .9)"/>
+      <path fill="#AFB1B3"
+            d="M5,11 L8,11 C9.65685425,11 11,9.65685425 11,8 C11,6.34314575 9.65685425,5 8,5 L1,5 L1,4 L8,4 C10.209139,4 12,5.790861 12,8 C12,10.209139 10.209139,12 8,12 L5,12 L5,11 Z"/>
+    </g>
+  </svg>
+);
+
+const Rollback = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <g fill="#AFB1B3" fillRule="evenodd" transform="translate(2 1)">
+      <polygon points="0 0 4 4 0 8" transform="matrix(-1 0 0 1 4 0)"/>
+      <path
+        d="M4.15058343,11 L8.06891179,11 C9.72576604,11 11.0689118,9.65685425 11.0689118,8 C11.0689118,6.34314575 9.72576604,5 8.06891179,5 L4.03764586,5 L4,3 L8,3 C10.7614237,3 13,5.23857625 13,8 C13,10.7614237 10.7614237,13 8,13 L4.18822929,13 L4.15058343,11 Z"/>
+    </g>
+  </svg>
+);
+
+// const ExpandAll = () => ();
+// const ExpandAll = () => ();
+// const ExpandAll = () => ();
 // const ExpandAll = () => ();
 // const ExpandAll = () => ();
 
@@ -285,7 +336,12 @@ export {
   Remove,
   EditSource,
   MenuSaveAll,
-  Run,
   Execute,
   History,
+  NoEvents,
+  InfoEvents,
+  WarningEvents,
+  ErrorEvents,
+  Revert,
+  Rollback,
 }
