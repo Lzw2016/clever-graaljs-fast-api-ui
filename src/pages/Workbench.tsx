@@ -356,8 +356,9 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   /** 计算水平分隔面板大小 */
-  private calculateHSplitCollapsedSize(leftPanel: LeftPanelEnum | undefined, rightPanel: RightPanelEnum | undefined): [number, number, number] {
-    const { hSplitSize, hSplitCollapsedSize } = this.state;
+  private calculateHSplitCollapsedSize(leftPanel: LeftPanelEnum | undefined, rightPanel: RightPanelEnum | undefined, hSplitSize?: [number, number, number]): [number, number, number] {
+    const { hSplitCollapsedSize } = this.state;
+    if (!hSplitSize) hSplitSize = this.state.hSplitSize;
     if (hasValue(leftPanel)) {
       hSplitCollapsedSize[0] = hSplitSize[0];
     } else {
@@ -951,7 +952,12 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             elementStyle={(_, elementSize) => {
               return { width: `${elementSize}%` };
             }}
-            onDragEnd={sizes => this.setState({ hSplitSize: sizes as any })}
+            onDragEnd={sizes => {
+              this.setState({
+                hSplitSize: sizes as any,
+                hSplitCollapsedSize: this.calculateHSplitCollapsedSize(leftPanel, rightPanel, sizes as any)
+              });
+            }}
             gutter={index => {
               const element = document.createElement("div");
               element.className = cls(
