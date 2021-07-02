@@ -31,7 +31,7 @@ import { ExtendResourcePane, HttpApiResourcePane } from "@/components/ide";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
-import { ChevronDown, ChevronUp, Copy, Execute, Find, getFileIcon, History, MenuSaveAll, NoEvents, Rollback } from "@/utils/IdeaIconUtils";
+import { ChevronDown, ChevronUp, Copy, Debugger, Execute, Find, getFileIcon, History, MenuSaveAll, NoEvents, OpenTerminal, Rollback } from "@/utils/IdeaIconUtils";
 import { editorDefOptions, getLanguage, initEditorConfig, initKeyBinding, themeEnum } from "@/utils/editor-utils";
 import {
   BottomPanelEnum,
@@ -129,7 +129,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     ]).finally(() => {
       this.saveAppStateLock = false;
     });
-  }, 1_000, { maxWait: 6_000 });
+  }, 1_500, { maxWait: 6_000 });
   // /** 页面重新加载之前 */
   // private pageBeforeunload = (event: BeforeUnloadEvent) => {
   //   debugger
@@ -217,10 +217,10 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     let newBottomPanel: BottomPanelEnum | undefined;
     if (panel === BottomPanelEnum.Interface) {
       newBottomPanel = (bottomPanel === BottomPanelEnum.Interface ? undefined : BottomPanelEnum.Interface);
-    } else if (panel === BottomPanelEnum.Request) {
-      newBottomPanel = (bottomPanel === BottomPanelEnum.Request ? undefined : BottomPanelEnum.Request);
-    } else if (panel === BottomPanelEnum.RunResult) {
-      newBottomPanel = (bottomPanel === BottomPanelEnum.RunResult ? undefined : BottomPanelEnum.RunResult);
+    } else if (panel === BottomPanelEnum.RequestDebug) {
+      newBottomPanel = (bottomPanel === BottomPanelEnum.RequestDebug ? undefined : BottomPanelEnum.RequestDebug);
+    } else if (panel === BottomPanelEnum.ServerLogs) {
+      newBottomPanel = (bottomPanel === BottomPanelEnum.ServerLogs ? undefined : BottomPanelEnum.ServerLogs);
     } else if (panel === BottomPanelEnum.GlobalConfig) {
       newBottomPanel = (bottomPanel === BottomPanelEnum.GlobalConfig ? undefined : BottomPanelEnum.GlobalConfig);
     } else if (panel === BottomPanelEnum.SysEvent) {
@@ -510,35 +510,33 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           onClick={() => this.toggleBottomPanel(BottomPanelEnum.Interface)}
         >
           {/*接口路由|接口文档*/}
-          <ApiOutlined/>接口配置
+          <ApiOutlined/><span className={styles.bottomTabsItemText}>接口配置</span>
         </div>
         <div
-          className={cls(styles.flexItemColumn, styles.bottomTabsItem, { [styles.bottomTabsItemActive]: bottomPanel === BottomPanelEnum.Request })}
-          onClick={() => this.toggleBottomPanel(BottomPanelEnum.Request)}
+          className={cls(styles.flexItemColumn, styles.bottomTabsItem, { [styles.bottomTabsItemActive]: bottomPanel === BottomPanelEnum.RequestDebug })}
+          onClick={() => this.toggleBottomPanel(BottomPanelEnum.RequestDebug)}
         >
-          {/*请求参数(单选列表)*/}
-          <IconFont type="icon-http"/>请求配置
+          <Icon component={Debugger}/><span className={styles.bottomTabsItemText}>接口调试</span>
         </div>
         <div
-          className={cls(styles.flexItemColumn, styles.bottomTabsItem, { [styles.bottomTabsItemActive]: bottomPanel === BottomPanelEnum.RunResult })}
-          onClick={() => this.toggleBottomPanel(BottomPanelEnum.RunResult)}
+          className={cls(styles.flexItemColumn, styles.bottomTabsItem, { [styles.bottomTabsItemActive]: bottomPanel === BottomPanelEnum.ServerLogs })}
+          onClick={() => this.toggleBottomPanel(BottomPanelEnum.ServerLogs)}
         >
-          {/*HTTP请求响应数据|运行日志*/}
-          <IconFont type="icon-run"/>运行结果
+          <Icon component={OpenTerminal}/><span className={styles.bottomTabsItemText}>服务端日志</span>
         </div>
         <div
           className={cls(styles.flexItemColumn, styles.bottomTabsItem, { [styles.bottomTabsItemActive]: bottomPanel === BottomPanelEnum.GlobalConfig })}
           onClick={() => this.toggleBottomPanel(BottomPanelEnum.GlobalConfig)}
         >
-          {/*HTTP全局请求配置*/}
-          <ControlOutlined/>全局请求参数
+          {/*HTTP全局请求参数*/}
+          <ControlOutlined/><span className={styles.bottomTabsItemText}>全局请求参数</span>
         </div>
         <div className={cls(styles.flexItemColumnWidthFull)}/>
         <div
           className={cls(styles.flexItemColumn, styles.bottomTabsItem, { [styles.bottomTabsItemActive]: bottomPanel === BottomPanelEnum.SysEvent })}
           onClick={() => this.toggleBottomPanel(BottomPanelEnum.SysEvent)}
         >
-          <Icon component={NoEvents}/>系统事件
+          <Icon component={NoEvents}/><span className={styles.bottomTabsItemText}>系统日志</span>
         </div>
         <div className={cls(styles.flexItemColumn)} style={{ marginRight: 16 }}/>
       </>
@@ -629,20 +627,26 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     const sizes = hasValue(bottomPanel) ? vSplitSize : vSplitCollapsedSize;
     const topSize = sizes[0];
     return (
-      <div className={cls(styles.verticalSplitTabs, styles.flexColumn)}>
-        <div className={cls(styles.flexItemColumn, styles.verticalSplitTabsLabel)}>接口配置:</div>
-        <div className={cls(styles.flexItemColumn, styles.verticalSplitTabsItem, styles.verticalSplitTabsItemActive)}>
-          <span className={cls(styles.verticalSplitTabsItemLabel)}>叶签1</span>
-          <CloseOutlined className={cls(styles.verticalSplitTabsItemClose)}/>
+      <div className={cls(styles.verticalSplitTabs, styles.flexItemRow, styles.flexColumn)}>
+        <div className={cls(styles.flexItemColumn, styles.verticalSplitTabsLabel)}>
+          {bottomPanel === BottomPanelEnum.Interface && <span>接口配置:</span>}
+          {bottomPanel === BottomPanelEnum.RequestDebug && <span>接口调试:</span>}
+          {bottomPanel === BottomPanelEnum.ServerLogs && <span>服务端日志:</span>}
+          {bottomPanel === BottomPanelEnum.GlobalConfig && <span>全局请求参数:</span>}
+          {bottomPanel === BottomPanelEnum.SysEvent && <span>系统日志:</span>}
         </div>
-        <div className={cls(styles.flexItemColumn, styles.verticalSplitTabsItem)}>
-          <span className={cls(styles.verticalSplitTabsItemLabel)}>叶签2</span>
-          <CloseOutlined className={cls(styles.verticalSplitTabsItemClose)}/>
-        </div>
-        <div className={cls(styles.flexItemColumn, styles.verticalSplitTabsItem)}>
-          <span className={cls(styles.verticalSplitTabsItemLabel)}>叶签3</span>
-          <CloseOutlined className={cls(styles.verticalSplitTabsItemClose)}/>
-        </div>
+        {/*<div className={cls(styles.flexItemColumn, styles.verticalSplitTabsItem, styles.verticalSplitTabsItemActive)}>*/}
+        {/*  <span className={cls(styles.verticalSplitTabsItemLabel)}>叶签1</span>*/}
+        {/*  <CloseOutlined className={cls(styles.verticalSplitTabsItemClose)}/>*/}
+        {/*</div>*/}
+        {/*<div className={cls(styles.flexItemColumn, styles.verticalSplitTabsItem)}>*/}
+        {/*  <span className={cls(styles.verticalSplitTabsItemLabel)}>叶签2</span>*/}
+        {/*  <CloseOutlined className={cls(styles.verticalSplitTabsItemClose)}/>*/}
+        {/*</div>*/}
+        {/*<div className={cls(styles.flexItemColumn, styles.verticalSplitTabsItem)}>*/}
+        {/*  <span className={cls(styles.verticalSplitTabsItemLabel)}>叶签3</span>*/}
+        {/*  <CloseOutlined className={cls(styles.verticalSplitTabsItemClose)}/>*/}
+        {/*</div>*/}
         <div className={cls(styles.flexItemColumnWidthFull)}/>
         {
           topSize > 20 &&
@@ -674,6 +678,29 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         />
         <div className={cls(styles.flexItemColumn)} style={{ width: 2 }}/>
       </div>
+    );
+  }
+
+  private getBottomContent() {
+    const { bottomPanel } = this.state;
+    return (
+      <>
+        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.Interface })}>
+          Interface
+        </div>
+        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.RequestDebug })}>
+          Request
+        </div>
+        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.ServerLogs })}>
+          RunResult
+        </div>
+        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.GlobalConfig })}>
+          GlobalConfig
+        </div>
+        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.SysEvent })}>
+          SysEvent
+        </div>
+      </>
     );
   }
 
@@ -981,8 +1008,9 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
               {this.getRightContent()}
             </div>
           </Split>
-          <div className={cls(styles.bottomPane, { [styles.hide]: noValue(bottomPanel) })}>
+          <div className={cls(styles.bottomPane, styles.flexRow, { [styles.hide]: noValue(bottomPanel) })}>
             {this.getVSplitTabs()}
+            {this.getBottomContent()}
           </div>
         </Split>
       </>

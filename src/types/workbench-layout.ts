@@ -29,13 +29,13 @@ export enum RightPanelEnum {
 export enum BottomPanelEnum {
   /** 接口配置 */
   Interface,
-  /** 请求配置 */
-  Request,
-  /** 运行结果 */
-  RunResult,
+  /** 接口调试 */
+  RequestDebug,
+  /** 服务端日志 */
+  ServerLogs,
   /** 全局请求参数 */
   GlobalConfig,
-  /** 系统事件 */
+  /** 系统日志 */
   SysEvent,
 }
 

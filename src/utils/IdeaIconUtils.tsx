@@ -282,8 +282,22 @@ const Rollback = () => (
   </svg>
 );
 
-// const ExpandAll = () => ();
-// const ExpandAll = () => ();
+const Debugger = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <path fill="#afb1b3" fillRule="evenodd"
+          d="M12.425 10.154v.538a4.22 4.22 0 01-.156 1.077H14v1.616h-2.565a4.332 4.332 0 01-6.748 0H2v-1.616h1.853a4.178 4.178 0 01-.153-1.077v-.538H2V8.538h1.7V7.462a4.17 4.17 0 01.056-.539H2V5.308h2.307a4.351 4.351 0 011.76-1.653L4.534 2.143 5.692 1l2.2 2.171c.058 0 .051-.01.109-.01.02 0 .1.008.12.009L10.308 1l1.158 1.143-1.49 1.47a4.361 4.361 0 011.839 1.695H14v1.615h-1.63a4.354 4.354 0 01.055.539v1.076H14v1.616zM6.2 7v1.5h3.6V7zm0 3v1.5h3.6V10z"/>
+  </svg>
+);
+
+const OpenTerminal = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <g id="surface1">
+      <path style={{ stroke: "none", fillRule: "evenodd", fill: "rgb(68.627451%,69.411765%,70.196078%)", fillOpacity: 1 }}
+            d="M 6.679688 5.648438 L 4.070312 3.039062 L 3.199219 3.910156 L 5.808594 6.519531 L 3.199219 9.128906 L 4.070312 10 L 7.550781 6.519531 Z M 1.230469 1.230469 L 14.769531 1.230469 L 14.769531 13.539062 L 1.230469 13.539062 Z M 7.382812 9.847656 L 7.382812 11.078125 L 12.308594 11.078125 L 12.308594 9.847656 Z M 7.382812 9.847656 "/>
+    </g>
+  </svg>
+);
+
 // const ExpandAll = () => ();
 // const ExpandAll = () => ();
 // const ExpandAll = () => ();
@@ -344,4 +358,6 @@ export {
   ErrorEvents,
   Revert,
   Rollback,
+  Debugger,
+  OpenTerminal,
 }

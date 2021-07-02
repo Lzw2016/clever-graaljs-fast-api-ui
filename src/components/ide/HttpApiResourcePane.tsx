@@ -98,7 +98,7 @@ const defaultState: HttpApiResourcePaneState = {
   selectedId: "",
   nodeNameSort: "ASC",
   showAddHttpApiDialog: false,
-  addHttpApiForm: { path: "/", name: "", requestMapping: "", requestMethod: "POST" },
+  addHttpApiForm: { path: "/", name: "", requestMapping: "", requestMethod: "GET" },
   addHttpApiRequestMappingChanged: false,
   addHttpApiLoading: false,
   showAddDirDialog: false,
@@ -355,7 +355,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
           icon={<Icon component={AddFile} className={cls(styles.menuIcon)}/>}
           text="新增接口"
           onClick={() => {
-            const addFileForm: AddHttpApiForm = { path: "/", name: "", requestMapping: "", requestMethod: "POST" };
+            const addFileForm: AddHttpApiForm = { path: "/", name: "", requestMapping: "", requestMethod: "GET" };
             const nodeData = contextMenuSelectNode?.nodeData;
             if (nodeData) addFileForm.path = nodeData.isFile === 1 ? nodeData.path : (nodeData.path + nodeData.name);
             if (!addFileForm.path.endsWith("/")) addFileForm.path += "/";
