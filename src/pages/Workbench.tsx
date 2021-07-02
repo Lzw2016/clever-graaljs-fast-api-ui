@@ -129,7 +129,14 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     ]).finally(() => {
       this.saveAppStateLock = false;
     });
-  }, 3_000, { maxWait: 9_000 });
+  }, 1_000, { maxWait: 6_000 });
+  // /** 页面重新加载之前 */
+  // private pageBeforeunload = (event: BeforeUnloadEvent) => {
+  //   debugger
+  //   event.preventDefault();
+  //   this.saveAppState();
+  //   event.returnValue = "";
+  // };
   /** 编辑器实例 */
   private editor: MonacoApi.editor.IStandaloneCodeEditor | undefined;
   /** 编辑器大小自适应 */
@@ -174,6 +181,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
 
   // 组件挂载后
   public componentDidMount() {
+    // window.addEventListener("beforeunload", this.pageBeforeunload);
     window.addEventListener("resize", this.editorResize);
     initStorageState().then(() => this.forceUpdate());
   }
@@ -181,6 +189,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   // 组件将要被卸载
   public componentWillUnmount() {
     window.removeEventListener("resize", this.editorResize);
+    // window.removeEventListener("beforeunload", this.pageBeforeunload);
     this.saveState().finally();
   }
 
