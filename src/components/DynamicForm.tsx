@@ -1,5 +1,7 @@
 import React from "react";
 import cls from "classnames";
+import Icon from "@ant-design/icons";
+import { CloseDarkGrey } from "@/utils/IdeaIconUtils";
 import styles from "./DynamicForm.module.less";
 
 interface ItemData {
@@ -108,6 +110,7 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
             this.forceUpdate();
           }}
         />
+        <Icon className={cls(styles.editIcon)} component={CloseDarkGrey}/>
       </div>
     );
   }

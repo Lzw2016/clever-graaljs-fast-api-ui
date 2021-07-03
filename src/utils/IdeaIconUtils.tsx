@@ -305,7 +305,14 @@ const Edit = () => (
   </svg>
 );
 
-// const ExpandAll = () => ();
+const CloseDarkGrey = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fillRule="evenodd" clipRule="evenodd"
+          d="M11.144 4.14999L11.8511 4.8571L8.70204 7.99795L11.8511 11.147L11.144 11.8541L7.99494 8.70506L4.85408 11.8541L4.14697 11.147L7.29492 8.00505L4.14697 4.8571L4.85408 4.14999L8.00203 7.29795L11.144 4.14999Z"
+          fill="#AFB1B3"/>
+  </svg>
+);
+
 // const ExpandAll = () => ();
 // const ExpandAll = () => ();
 // const ExpandAll = () => ();
@@ -370,4 +377,5 @@ export {
   Debugger,
   OpenTerminal,
   Edit,
+  CloseDarkGrey,
 }

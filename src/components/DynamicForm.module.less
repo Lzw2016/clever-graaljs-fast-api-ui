@@ -22,6 +22,7 @@
   box-sizing: border-box;
   width: 100%;
   height: 24px;
+  position: relative;
 }
 
 .rowTitle {
@@ -65,4 +66,18 @@
 
 .inputDescription {
   width: calc(45% - 45px);
+}
+
+.editIcon {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+
+  &:hover {
+    cursor: pointer;
+
+    svg, svg path {
+      fill: @fontActiveColor;
+    }
+  }
 }
