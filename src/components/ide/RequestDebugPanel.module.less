@@ -174,7 +174,17 @@
 }
 
 .responseData {
+  height: 100%;
+  //height: calc(100% - @toolHeight);
+  :global {
+    .bp3-tab-list {
+      height: 30px !important;
+    }
 
+    .bp3-tab-panel {
+      height: calc(100% - 30px) !important;
+    }
+  }
 }
 
 

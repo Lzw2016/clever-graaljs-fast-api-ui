@@ -185,8 +185,8 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         onChange={newTabId => this.setState({ responseTab: (newTabId as any) })}
       >
         <Tab id={ResponseTabEnum.Body} title="Body" panel={this.getResponseBodyPanel()}/>
-        <Tab id={ResponseTabEnum.Cookies} title="Cookies" panel={this.getResponseCookiesPanel()}/>
         <Tab id={ResponseTabEnum.Headers} title="Headers" panel={this.getResponseHeadersPanel()}/>
+        <Tab id={ResponseTabEnum.Cookies} title="Cookies" panel={this.getResponseCookiesPanel()}/>
         <Tab id={ResponseTabEnum.ServerLogs} title="ServerLogs" panel={this.getServerLogsPanel()}/>
         <Tabs.Expander/>
         <div>
@@ -265,7 +265,16 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   private getResponseBodyPanel() {
     return (
       <>
-        111
+        <Editor
+          // wrapperClassName={cls(styles.requestEditor)}
+          theme={themeEnum.IdeaDracula}
+          loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
+          options={{ ...editorDefOptions, readOnly: true }}
+          language={languageEnum.json}
+          path={"/response_body.json"}
+          saveViewState={false}
+          keepCurrentModel={false}
+        />
       </>
     );
   }
@@ -273,18 +282,26 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   // 响应Cookies面板
   private getResponseCookiesPanel() {
     return (
-      <>
-        222
-      </>
+      <SimpleBar
+        style={{ height: "100%", width: "100%" }}
+        autoHide={false}
+        scrollbarMinSize={48}
+      >
+        <DynamicForm/>
+      </SimpleBar>
     );
   }
 
   // 响应Headers面板
   private getResponseHeadersPanel() {
     return (
-      <>
-        333
-      </>
+      <SimpleBar
+        style={{ height: "100%", width: "100%" }}
+        autoHide={false}
+        scrollbarMinSize={48}
+      >
+        <DynamicForm/>
+      </SimpleBar>
     );
   }
 
