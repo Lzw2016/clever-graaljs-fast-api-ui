@@ -13,7 +13,7 @@ import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import { AddFile, AddFolder, CollapseAll, Copy, EditSource, ExpandAll, Find, Folder, getFileIcon, Locate, Refresh, Remove } from "@/utils/IdeaIconUtils";
-import styles from "./HttpApiResourcePane.module.less";
+import styles from "./HttpApiResourcePanel.module.less";
 
 interface AddHttpApiForm {
   path: string;
@@ -32,7 +32,7 @@ interface RenameForm {
   newName: string;
 }
 
-interface HttpApiResourcePaneProps {
+interface HttpApiResourcePanelProps {
   /** 自定义样式 */
   className?: string;
   /** 当前打开的文件ID */
@@ -49,7 +49,7 @@ interface HttpApiResourcePaneProps {
   onDelHttpApi?: (files: Array<FileResource>) => void;
 }
 
-interface HttpApiResourcePaneState {
+interface HttpApiResourcePanelState {
   /** 数据加载状态 */
   loading: boolean;
   /** 树数据 */
@@ -89,9 +89,9 @@ interface HttpApiResourcePaneState {
 }
 
 // 读取组件状态
-const storageState: Partial<HttpApiResourcePaneState> = await fastApiStore.getItem(componentStateKey.HttpApiResourcePaneState) ?? {};
+const storageState: Partial<HttpApiResourcePanelState> = await fastApiStore.getItem(componentStateKey.HttpApiResourcePanelState) ?? {};
 // 组件状态默认值
-const defaultState: HttpApiResourcePaneState = {
+const defaultState: HttpApiResourcePanelState = {
   loading: true,
   treeData: [],
   expandedIds: new Set(),
@@ -112,13 +112,13 @@ const defaultState: HttpApiResourcePaneState = {
   ...storageState,
 }
 
-class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, HttpApiResourcePaneState> {
+class HttpApiResourcePanel extends React.Component<HttpApiResourcePanelProps, HttpApiResourcePanelState> {
   /** 执行组件状态的全局锁 */
   private saveStateLock: boolean = false;
   /** 保存组件的状态 */
   private saveComponentState = lodash.debounce(() => this.saveState().finally(), 1_000, { maxWait: 3_000 });
 
-  constructor(props: HttpApiResourcePaneProps) {
+  constructor(props: HttpApiResourcePanelProps) {
     super(props);
     this.state = { ...defaultState };
   }
@@ -143,7 +143,7 @@ class HttpApiResourcePane extends React.Component<HttpApiResourcePaneProps, Http
       if (!allIds.has(id)) expandedIds.delete(id);
     });
     await fastApiStore.setItem(
-      componentStateKey.HttpApiResourcePaneState,
+      componentStateKey.HttpApiResourcePanelState,
       { expandedIds, selectedId, nodeNameSort },
     ).finally(() => {
       this.saveStateLock = false;
@@ -765,5 +765,5 @@ const forEachTreeNode = (node: TreeNodeInfo<ApiFileResourceRes>, callBack: (n: T
   }
 };
 
-export type { HttpApiResourcePaneProps, HttpApiResourcePaneState };
-export { HttpApiResourcePane };
+export type { HttpApiResourcePanelProps, HttpApiResourcePanelState };
+export { HttpApiResourcePanel };

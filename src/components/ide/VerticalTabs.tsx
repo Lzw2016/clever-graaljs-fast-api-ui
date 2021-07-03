@@ -12,4 +12,5 @@ class VerticalTabs extends React.Component<VerticalTabsProps, VerticalTabsState>
   }
 }
 
-export default VerticalTabs;
+export type { VerticalTabsProps, VerticalTabsState };
+export { VerticalTabs } ;

@@ -27,7 +27,7 @@ import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
 import logo from "@/assets/logo.svg";
 import { FastApi } from "@/apis";
-import { ExtendResourcePane, HttpApiResourcePane } from "@/components/ide";
+import { ExtendResourcePanel, HttpApiResourcePanel, RequestDebugPanel } from "@/components/ide";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
@@ -112,9 +112,11 @@ const getDefaultState = (): WorkbenchState => ({
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   /** HTTP API组件 */
-  private httpApiResourcePane = React.createRef<HttpApiResourcePane>();
+  private httpApiResourcePane = React.createRef<HttpApiResourcePanel>();
   /** 自定义扩展组件 */
-  private extendResourcePane = React.createRef<ExtendResourcePane>();
+  private extendResourcePane = React.createRef<ExtendResourcePanel>();
+  /** 接口调试组件 */
+  private requestDebugPane = React.createRef<RequestDebugPanel>();
   /** 执行保存整个应用状态的全局锁 */
   private saveAppStateLock: boolean = false;
   /** 保存整个应用的状态 */
@@ -126,6 +128,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
       this.saveState(),
       this.httpApiResourcePane.current?.saveState(),
       this.extendResourcePane.current?.saveState(),
+      this.requestDebugPane.current?.saveState(),
     ]).finally(() => {
       this.saveAppStateLock = false;
     });
@@ -689,7 +692,9 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           Interface
         </div>
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.RequestDebug })}>
-          Request
+          <RequestDebugPanel
+            ref={this.requestDebugPane}
+          />
         </div>
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.ServerLogs })}>
           RunResult
@@ -711,7 +716,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         <div className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.ResourceFile })}>
           ResourceFile
         </div>
-        <HttpApiResourcePane
+        <HttpApiResourcePanel
           ref={this.httpApiResourcePane}
           className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.HttpApi })}
           openFileId={currentEditId}
@@ -747,7 +752,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         <div className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.TimedTask })}>
           TimedTask
         </div>
-        <ExtendResourcePane
+        <ExtendResourcePanel
           ref={this.extendResourcePane}
           className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.Extend })}
           openFileId={currentEditId}

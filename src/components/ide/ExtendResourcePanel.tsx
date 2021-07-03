@@ -13,7 +13,7 @@ import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import { AddFile, AddFolder, CollapseAll, Copy, EditSource, ExpandAll, Find, Folder, getFileIcon, Locate, Refresh, Remove } from "@/utils/IdeaIconUtils";
-import styles from "./ExtendResourcePane.module.less";
+import styles from "./ExtendResourcePanel.module.less";
 
 interface AddFileForm {
   path: string;
@@ -30,7 +30,7 @@ interface RenameForm {
   newName: string;
 }
 
-interface ExtendResourcePaneProps {
+interface ExtendResourcePanelProps {
   /** 自定义样式 */
   className?: string;
   /** 当前打开的文件ID */
@@ -47,7 +47,7 @@ interface ExtendResourcePaneProps {
   onDelFile?: (files: Array<FileResource>) => void;
 }
 
-interface ExtendResourcePaneState {
+interface ExtendResourcePanelState {
   /** 数据加载状态 */
   loading: boolean;
   /** 树数据 */
@@ -85,9 +85,9 @@ interface ExtendResourcePaneState {
 }
 
 // 读取组件状态
-const storageState: Partial<FileResourceTreeNodeRes> = await fastApiStore.getItem(componentStateKey.ExtendResourcePaneState) ?? {};
+const storageState: Partial<FileResourceTreeNodeRes> = await fastApiStore.getItem(componentStateKey.ExtendResourcePanelState) ?? {};
 // 组件状态默认值
-const defaultState: ExtendResourcePaneState = {
+const defaultState: ExtendResourcePanelState = {
   loading: true,
   treeData: [],
   expandedIds: new Set(),
@@ -107,13 +107,13 @@ const defaultState: ExtendResourcePaneState = {
   ...storageState,
 }
 
-class ExtendResourcePane extends React.Component<ExtendResourcePaneProps, ExtendResourcePaneState> {
+class ExtendResourcePanel extends React.Component<ExtendResourcePanelProps, ExtendResourcePanelState> {
   /** 执行组件状态的全局锁 */
   private saveStateLock: boolean = false;
   /** 保存组件的状态 */
   private saveComponentState = lodash.debounce(() => this.saveState().finally(), 1_000, { maxWait: 3_000 });
 
-  constructor(props: ExtendResourcePaneProps) {
+  constructor(props: ExtendResourcePanelProps) {
     super(props);
     this.state = { ...defaultState };
   }
@@ -139,7 +139,7 @@ class ExtendResourcePane extends React.Component<ExtendResourcePaneProps, Extend
     });
     await fastApiStore
       .setItem(
-        componentStateKey.ExtendResourcePaneState,
+        componentStateKey.ExtendResourcePanelState,
         { expandedIds, selectedId, nodeNameSort }
       ).finally(() => {
         this.saveStateLock = false;
@@ -716,5 +716,5 @@ const forEachTreeNode = (node: TreeNodeInfo<FileResourceTreeNodeRes>, callBack: 
   }
 };
 
-export type { ExtendResourcePaneProps, ExtendResourcePaneState };
-export { ExtendResourcePane };
+export type { ExtendResourcePanelProps, ExtendResourcePanelState };
+export { ExtendResourcePanel };

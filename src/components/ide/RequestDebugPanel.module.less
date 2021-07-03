@@ -1,0 +1,39 @@
+@import "/src/assets/variables";
+
+.panel {
+  overflow: hidden;
+  height: 100%;
+  color: @fontColor;
+}
+
+.horizontalSplit {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.horizontalSplitGutter {
+  height: 100%;
+  width: 16px !important;
+  margin: 0 -12px 0 -4px;
+  background: none;
+  opacity: 0;
+  box-sizing: border-box;
+  border: none;
+  cursor: ew-resize !important;
+  z-index: 999;
+}
+
+.leftPanel {
+  box-sizing: border-box;
+  border-right: 1px solid @borderColor;
+}
+
+.centerPanel {
+  box-sizing: border-box;
+}
+
+.rightPanel {
+  box-sizing: border-box;
+  border-left: 1px solid @borderColor;
+}

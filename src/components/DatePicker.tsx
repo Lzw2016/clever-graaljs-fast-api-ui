@@ -1,4 +1,3 @@
-import { Dayjs } from "dayjs";
 // TODO 删除
 // import dayjsGenerateConfig from "rc-picker/es/generate/dayjs";
 // import generatePicker from "antd/es/date-picker/generatePicker";

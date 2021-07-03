@@ -1,2 +1,3 @@
-export * from "./ExtendResourcePane";
-export * from "./HttpApiResourcePane";
+export * from "./ExtendResourcePanel";
+export * from "./HttpApiResourcePanel";
+export * from "./RequestDebugPanel";

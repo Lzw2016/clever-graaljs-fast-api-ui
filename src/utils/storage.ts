@@ -1,5 +1,4 @@
 import localforage from "localforage";
-import { HttpApiResourcePaneState } from "@/components/ide";
 
 const fastApiStore = localforage.createInstance({
   name: "fast-api",
@@ -9,8 +8,9 @@ const fastApiStore = localforage.createInstance({
 /** 组件状态key */
 const componentStateKey = {
   Workbench: "Workbench",
-  HttpApiResourcePaneState: "HttpApiResourcePaneState",
-  ExtendResourcePaneState: "ExtendResourcePaneState",
+  HttpApiResourcePanelState: "HttpApiResourcePanelState",
+  ExtendResourcePanelState: "ExtendResourcePanelState",
+  RequestDebugPanelState: "RequestDebugPanelState",
 }
 
 export { fastApiStore, componentStateKey };

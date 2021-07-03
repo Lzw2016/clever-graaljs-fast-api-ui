@@ -22,7 +22,7 @@ import { ReflexContainer, ReflexElement, ReflexElementProps, ReflexSplitter } fr
 import * as MonacoApi from "monaco-editor/esm/vs/editor/editor.api";
 import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
-import { HttpApiResourcePane } from "@/components/ide";
+import { HttpApiResourcePanel } from "@/components/ide";
 import { editorDefOptions, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
 import { ChevronDown, ChevronUp, JsFile, JsonFile, YmlFile } from "@/utils/IdeaIconUtils";
 import { hasValue, noValue } from "@/utils/utils";
@@ -294,7 +294,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
                   maxSize={512}
                   onStopResize={e => this.setLayoutSize({ leftSize: (e.domElement as any)?.offsetWidth })}
                 >
-                  <HttpApiResourcePane/>
+                  <HttpApiResourcePanel/>
                 </ReflexElement>
                 <ReflexSplitter
                   propagate={true}
