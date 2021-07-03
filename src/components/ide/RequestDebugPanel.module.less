@@ -62,15 +62,18 @@
 .leftPanel {
   box-sizing: border-box;
   border-right: 1px solid @borderColor;
+  height: 100%;
 }
 
 .centerPanel {
   box-sizing: border-box;
+  height: 100%;
 }
 
 .rightPanel {
   box-sizing: border-box;
   border-left: 1px solid @borderColor;
+  height: 100%;
 }
 
 .requestTitle {
@@ -143,17 +146,31 @@
 
 .requestArgs {
   height: calc(100% - 58px - @toolHeight);
+  //height: calc(100% - 58px);
+
+  :global {
+    .bp3-tab-list {
+      height: 30px !important;
+    }
+
+    .bp3-tab-panel {
+      //overflow: auto;
+      height: calc(100% - 30px) !important;
+    }
+  }
 }
 
-:global {
-  .bp3-tab-list {
-    height: 30px !important;
-  }
+.requestBodyRadio {
+  height: 32px;
+  line-height: 24px;
+  box-sizing: border-box;
+  padding: 4px 0 4px 16px;
+  user-select: none;
+}
 
-  .bp3-tab-panel {
-    overflow: auto;
-    height: calc(100% - 30px) !important;
-  }
+.requestEditor {
+  height: calc(100% - 32px + @toolHeight) !important;
+  //height: calc(100% - 32px) !important;
 }
 
 .responseData {

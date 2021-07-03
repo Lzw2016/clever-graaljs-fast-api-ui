@@ -4,7 +4,7 @@ import lodash from "lodash";
 import Split from "react-split";
 import SimpleBar from "simplebar-react";
 import Icon from "@ant-design/icons";
-import { Button, Classes, InputGroup, Intent, Spinner, SpinnerSize, Tab, Tabs } from "@blueprintjs/core";
+import { Button, Classes, InputGroup, Intent, Radio, RadioGroup, Spinner, SpinnerSize, Tab, Tabs } from "@blueprintjs/core";
 import Editor from "@monaco-editor/react";
 import { DynamicForm } from "@/components/DynamicForm";
 import { editorDefOptions, languageEnum, themeEnum } from "@/utils/editor-utils";
@@ -27,7 +27,7 @@ enum ResponseTabEnum {
   ServerLogs = "ServerLogs",
 }
 
-enum RequestBodyEnum {
+enum RequestBodyTabEnum {
   JsonBody = "JsonBody",
   FormBody = "FormBody",
 }
@@ -40,6 +40,8 @@ interface RequestDebugPanelState {
   hSplitSize: [number, number, number];
   /** 请求叶签 */
   requestTab: RequestTabEnum;
+  /** 请求Body叶签 */
+  requestBodyTab: RequestBodyTabEnum;
   /** 响应叶签 */
   responseTab: ResponseTabEnum;
 }
@@ -50,6 +52,7 @@ const storageState: Partial<RequestDebugPanelState> = await fastApiStore.getItem
 const defaultState: RequestDebugPanelState = {
   hSplitSize: [15, 40, 45],
   requestTab: RequestTabEnum.Params,
+  requestBodyTab: RequestBodyTabEnum.JsonBody,
   responseTab: ResponseTabEnum.Body,
   ...storageState,
 }
@@ -203,7 +206,6 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         autoHide={false}
         scrollbarMinSize={48}
       >
-        <div style={{ marginLeft: 12, fontSize: 12 }}>Query Params</div>
         <DynamicForm/>
       </SimpleBar>
     );
@@ -217,69 +219,36 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         autoHide={false}
         scrollbarMinSize={48}
       >
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
-        222<br/>
+        <DynamicForm/>
       </SimpleBar>
     );
   }
 
   // 请求Body面板
   private getRequestBodyPanel() {
+    const { requestBodyTab } = this.state;
     return (
-      <Editor
-        theme={themeEnum.IdeaDracula}
-        loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
-        options={editorDefOptions}
-        language={languageEnum.json}
-        path={"/request_body.json"}
-        saveViewState={false}
-        keepCurrentModel={false}
-      />
+      <>
+        <RadioGroup
+          className={cls(styles.requestBodyRadio)}
+          inline={true}
+          onChange={event => this.setState({ requestBodyTab: (event.currentTarget.value as any) })}
+          selectedValue={requestBodyTab}
+        >
+          <Radio label="json-body" value={RequestBodyTabEnum.JsonBody}/>
+          <Radio label="form-body" value={RequestBodyTabEnum.FormBody} disabled={false}/>
+        </RadioGroup>
+        <Editor
+          wrapperClassName={cls(styles.requestEditor)}
+          theme={themeEnum.IdeaDracula}
+          loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
+          options={editorDefOptions}
+          language={languageEnum.json}
+          path={"/request_body.json"}
+          saveViewState={false}
+          keepCurrentModel={false}
+        />
+      </>
     );
   }
 

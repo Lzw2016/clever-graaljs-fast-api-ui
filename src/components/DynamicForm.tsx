@@ -15,6 +15,11 @@ interface ItemDataState extends ItemData {
 }
 
 interface DynamicFormProps {
+  /** 自定义样式 */
+  className?: string;
+  /** 自定义样式 */
+  style?: React.CSSProperties;
+  /** 数据 */
   data?: Array<ItemData>;
 }
 
@@ -61,7 +66,7 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
         <input
           key={`key-${index}`}
           className={cls(styles.input, styles.inputKey)}
-          placeholder={"输入参数名"}
+          placeholder={"key"}
           value={item.key}
           onChange={e => {
             item.key = e.target.value;
@@ -76,7 +81,7 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
         <input
           key={`value-${index}`}
           className={cls(styles.input, styles.inputValue)}
-          placeholder={"输入参数值"}
+          placeholder={"value"}
           value={item.value}
           onChange={e => {
             item.value = e.target.value;
@@ -91,7 +96,7 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
         <input
           key={`description-${index}`}
           className={cls(styles.input, styles.inputDescription)}
-          placeholder={"输入参数描述"}
+          placeholder={"description"}
           value={item.description}
           onChange={e => {
             item.description = e.target.value;
@@ -108,20 +113,22 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
   }
 
   render() {
-    const { data } = this.props;
+    const { className, style, data } = this.props;
     let { dataMap } = this.state;
     if (data) dataMap = transformDataMap(data);
     const inputArray: React.ReactNode[] = [];
     dataMap.forEach((item, index) => inputArray.push(this.getInputRow(item, index)));
     return (
-      <div className={cls(styles.panel)}>
+      <div className={cls(styles.panel, className)} style={style}>
+        <div style={{ height: 8 }}/>
         <div key={"label"} className={cls(styles.row, styles.rowTitle)}>
-          <div key={"label-checked"} className={cls(styles.input, styles.inputCheckboxTitle)}/>
-          <div key={"label-key"} className={cls(styles.input, styles.inputKey)}>Key</div>
-          <div key={"label-value"} className={cls(styles.input, styles.inputValue)}>Value</div>
-          <div key={"label-description"} className={cls(styles.input, styles.inputDescription)}>Description</div>
+          <div key={"label-checked"} className={cls(styles.input, styles.inputCheckboxTitle)}>&nbsp;</div>
+          <div key={"label-key"} className={cls(styles.input, styles.inputKey, styles.rowTitleItem)}>Key</div>
+          <div key={"label-value"} className={cls(styles.input, styles.inputValue, styles.rowTitleItem)}>Value</div>
+          <div key={"label-description"} className={cls(styles.input, styles.inputDescription, styles.rowTitleItem)}>Description</div>
         </div>
         {inputArray}
+        <div style={{ height: 8 }}/>
       </div>
     );
   }
