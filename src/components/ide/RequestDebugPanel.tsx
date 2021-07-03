@@ -1,15 +1,33 @@
 import React from "react";
 import cls from "classnames";
+import lodash from "lodash";
 import Split from "react-split";
-import { Tab, Tabs } from "@blueprintjs/core";
+import SimpleBar from "simplebar-react";
+import Icon from "@ant-design/icons";
+import { Button, Classes, InputGroup, Intent, Spinner, SpinnerSize, Tab, Tabs } from "@blueprintjs/core";
+import Editor from "@monaco-editor/react";
+import { DynamicForm } from "@/components/DynamicForm";
+import { editorDefOptions, languageEnum, themeEnum } from "@/utils/editor-utils";
+import { Edit, Execute, MenuSaveAll } from "@/utils/IdeaIconUtils";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import styles from "./RequestDebugPanel.module.less";
-import lodash from "lodash";
 
-enum HttpRequestResponseEnum {
+enum RequestTabEnum {
   Params = "Params",
   Headers = "Headers",
+  Body = "Body",
   Cookies = "Cookies",
+  CURL = "CURL",
+}
+
+enum ResponseTabEnum {
+  Body = "Body",
+  Headers = "Headers",
+  Cookies = "Cookies",
+  ServerLogs = "ServerLogs",
+}
+
+enum RequestBodyEnum {
   JsonBody = "JsonBody",
   FormBody = "FormBody",
 }
@@ -20,6 +38,10 @@ interface RequestDebugPanelProps {
 interface RequestDebugPanelState {
   /** 左中右容器Size */
   hSplitSize: [number, number, number];
+  /** 请求叶签 */
+  requestTab: RequestTabEnum;
+  /** 响应叶签 */
+  responseTab: ResponseTabEnum;
 }
 
 // 读取组件状态
@@ -27,6 +49,8 @@ const storageState: Partial<RequestDebugPanelState> = await fastApiStore.getItem
 // 组件状态默认值
 const defaultState: RequestDebugPanelState = {
   hSplitSize: [15, 40, 45],
+  requestTab: RequestTabEnum.Params,
+  responseTab: ResponseTabEnum.Body,
   ...storageState,
 }
 
@@ -62,8 +86,246 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
     });
   }
 
-  private getParamsPanel() {
+  // 左边面板
+  private getLeftPanel() {
+    return (
+      <>
+        左
+      </>
+    );
+  }
 
+  // 中间面板
+  private getCenterPanel() {
+    const { requestTab } = this.state;
+    return (
+      <>
+        <div className={cls(styles.requestTitle, styles.flexColumn)}>
+          <div className={cls(styles.flexItemColumn, styles.requestTitleText)}>
+            请求001
+            <Icon className={cls(styles.editIcon)} component={Edit}/>
+          </div>
+          <div className={cls(styles.flexItemColumnWidthFull)}/>
+          <Icon
+            className={cls(styles.flexItemColumn, styles.icon)}
+            component={MenuSaveAll}
+          />
+        </div>
+        <div className={cls(styles.requestPath, styles.flexColumn)} style={{ alignItems: "center" }}>
+          <select
+            className={cls(styles.flexItemColumn)}
+            // disabled={true}
+            // value={requestMethod}
+            // onChange={e => this.setState({ addHttpApiForm: { path, name, requestMapping, requestMethod: (e?.target?.value as any) } })}
+          >
+            <option value={"GET"}>GET</option>
+            <option value={"POST"}>POST</option>
+            <option value={"PUT"}>PUT</option>
+            <option value={"DELETE"}>DELETE</option>
+            <option value={"PATCH"}>PATCH</option>
+            <option value={"OPTIONS"}>OPTIONS</option>
+            <option value={"HEAD"}>HEAD</option>
+            <option value={"CONNECT"}>CONNECT</option>
+            <option value={"TRACE"}>TRACE</option>
+          </select>
+          <InputGroup
+            className={cls(styles.flexItemColumnWidthFull)}
+            style={{ cursor: "default", height: 24 }}
+            type={"text"}
+            placeholder={"输入接口路径"}
+            // readOnly={true}
+            // disabled={true}
+            // value={addHttpApiRequestMappingChanged ? requestMapping : defRequestMapping}
+            // onChange={e => this.setState({ addHttpApiForm: { path, name, requestMapping: e.target.value, requestMethod }, addHttpApiRequestMappingChanged: true })}
+          />
+          <Button
+            className={cls(styles.flexItemColumn)}
+            intent={Intent.PRIMARY}
+            icon={<Icon component={Execute} style={{ marginRight: 2 }}/>}
+            // loading={true}
+            // disabled={true}
+          >
+            <span style={{ marginRight: 4 }}>Send</span>
+          </Button>
+        </div>
+        <Tabs
+          className={cls(styles.requestArgs)}
+          id={"RequestDebugPanel-CenterPanel"}
+          animate={false}
+          renderActiveTabPanelOnly={false}
+          vertical={false}
+          selectedTabId={requestTab}
+          onChange={newTabId => this.setState({ requestTab: (newTabId as any) })}
+        >
+          <Tab id={RequestTabEnum.Params} title="Params" panel={this.getParamsPanel()}/>
+          <Tab id={RequestTabEnum.Headers} title="Headers" panel={this.getRequestHeadersPanel()}/>
+          <Tab id={RequestTabEnum.Body} title="Body" panel={this.getRequestBodyPanel()}/>
+          <Tabs.Expander/>
+          <Tab id={RequestTabEnum.Cookies} title="Cookies" panel={this.getRequestCookiesPanel()}/>
+          <Tab id={RequestTabEnum.CURL} title="CURL" panel={this.getRequestCookiesPanel()}/>
+        </Tabs>
+      </>
+    );
+  }
+
+  // 右边面板
+  private getRightPanel() {
+    const { responseTab } = this.state;
+    return (
+      <Tabs
+        className={cls(styles.responseData)}
+        id={"RequestDebugPanel-RightPanel"}
+        animate={false}
+        renderActiveTabPanelOnly={false}
+        vertical={false}
+        selectedTabId={responseTab}
+        onChange={newTabId => this.setState({ responseTab: (newTabId as any) })}
+      >
+        <Tab id={ResponseTabEnum.Body} title="Body" panel={this.getResponseBodyPanel()}/>
+        <Tab id={ResponseTabEnum.Cookies} title="Cookies" panel={this.getResponseCookiesPanel()}/>
+        <Tab id={ResponseTabEnum.Headers} title="Headers" panel={this.getResponseHeadersPanel()}/>
+        <Tab id={ResponseTabEnum.ServerLogs} title="ServerLogs" panel={this.getServerLogsPanel()}/>
+        <Tabs.Expander/>
+        <div>
+          <span>Status: 200 OK</span>
+          <span>Time: 93 ms</span>
+          <span>Size: 21.15 KB</span>
+        </div>
+      </Tabs>
+    );
+  }
+
+  // 请求Params面板
+  private getParamsPanel() {
+    return (
+      <SimpleBar
+        style={{ height: "100%", width: "100%" }}
+        autoHide={false}
+        scrollbarMinSize={48}
+      >
+        <div style={{ marginLeft: 12, fontSize: 12 }}>Query Params</div>
+        <DynamicForm/>
+      </SimpleBar>
+    );
+  }
+
+  // 请求Headers面板
+  private getRequestHeadersPanel() {
+    return (
+      <SimpleBar
+        style={{ height: "100%", width: "100%" }}
+        autoHide={false}
+        scrollbarMinSize={48}
+      >
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+        222<br/>
+      </SimpleBar>
+    );
+  }
+
+  // 请求Body面板
+  private getRequestBodyPanel() {
+    return (
+      <Editor
+        theme={themeEnum.IdeaDracula}
+        loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
+        options={editorDefOptions}
+        language={languageEnum.json}
+        path={"/request_body.json"}
+        saveViewState={false}
+        keepCurrentModel={false}
+      />
+    );
+  }
+
+  // 请求Cookies面板
+  private getRequestCookiesPanel() {
+    return (
+      <>
+        444
+      </>
+    );
+  }
+
+  // 响应Body面板
+  private getResponseBodyPanel() {
+    return (
+      <>
+        111
+      </>
+    );
+  }
+
+  // 响应Cookies面板
+  private getResponseCookiesPanel() {
+    return (
+      <>
+        222
+      </>
+    );
+  }
+
+  // 响应Headers面板
+  private getResponseHeadersPanel() {
+    return (
+      <>
+        333
+      </>
+    );
+  }
+
+  // ServerLogs面板
+  private getServerLogsPanel() {
+    return (
+      <>
+        444
+      </>
+    );
   }
 
   render() {
@@ -71,7 +333,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
     const { hSplitSize } = this.state;
     return (
       <Split
-        className={cls(styles.panel, styles.horizontalSplit)}
+        className={cls(styles.panel, styles.horizontalSplit, Classes.DARK)}
         direction={"horizontal"}
         sizes={hSplitSize}
         minSize={[128, 256, 256]}
@@ -90,45 +352,15 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           return element;
         }}
       >
-        <div className={cls(styles.leftPanel)}>左</div>
-        <div className={cls(styles.centerPanel)}>
-          <Tabs
-            animate={false}
-            renderActiveTabPanelOnly={false}
-            vertical={false}
-          >
-            <Tab
-              id={HttpRequestResponseEnum.Params}
-              title="Params"
-              panel={
-                <>
-                  111
-                </>
-              }
-            />
-            <Tab
-              id={HttpRequestResponseEnum.Headers}
-              title="Headers"
-              panel={
-                <>
-                  222
-                </>
-              }
-            />
-            <Tab
-              id={HttpRequestResponseEnum.JsonBody}
-              title="JsonBody"
-              panel={
-                <>
-                  333
-                </>
-              }
-            />
-            {/*<Tabs.Expander/>*/}
-            {/*<InputGroup className={Classes.FILL} type="text" placeholder="Search..."/>*/}
-          </Tabs>
+        <div className={cls(styles.leftPanel)}>
+          {this.getLeftPanel()}
         </div>
-        <div className={cls(styles.rightPanel)}>右</div>
+        <div className={cls(styles.centerPanel)}>
+          {this.getCenterPanel()}
+        </div>
+        <div className={cls(styles.rightPanel)}>
+          {this.getRightPanel()}
+        </div>
       </Split>
     );
   }

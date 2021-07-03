@@ -15,6 +15,29 @@ body {
   outline: unset !important;
 }
 
+// -------------------------------------------------------------------------------- simplebar
+
+.simplebar-track.simplebar-horizontal {
+  width: 12px !important;
+}
+
+.simplebar-track.simplebar-vertical {
+  width: 10px !important;
+}
+
+.simplebar-track .simplebar-scrollbar {
+  width: 10px !important;
+  right: 0 !important;
+
+}
+
+.simplebar-track .simplebar-scrollbar:before {
+  background-color: @scrollBarColor !important;
+  border-radius: 0 !important;
+  opacity: 1 !important;
+  right: 0 !important;
+}
+
 // -------------------------------------------------------------------------------- menu
 
 .bp3-popover2-transition-container {
@@ -81,6 +104,8 @@ body {
   border-radius: 0 !important;
   box-shadow: none !important;
   padding-bottom: 10px !important;
+  border: 1px solid #242424 !important;
+  z-index: 999999 !important;
 }
 
 .bp3-dialog-container label.bp3-label {
@@ -89,7 +114,7 @@ body {
   line-height: 24px !important;
 }
 
-.bp3-dialog-container input.bp3-input {
+input.bp3-input {
   height: 24px !important;
   line-height: 24px !important;
   font-size: 12px !important;
@@ -99,15 +124,15 @@ body {
   border-color: #646464 !important;
 }
 
-.bp3-dialog-container input.bp3-input {
+input.bp3-input {
   box-shadow: 0 0 0 0 rgb(100 100 100), 0 0 0 0 rgb(100 100 100), 0 0 0 0 rgb(100 100 100), inset 0 0 0 1px rgb(100 100 100), inset 0 1px 1px rgb(100 100 100) !important;
 }
 
-.bp3-dialog-container input.bp3-input:focus {
+input.bp3-input:focus {
   box-shadow: 0 0 0 1px #4083C9, 0 0 0 1px #4083C9, 0 0 0 1px rgb(64 131 201 / 30%), inset 0 0 0 1px rgb(64 131 201 / 30%), inset 0 1px 1px rgb(64 131 201 / 40%) !important;
 }
 
-.bp3-dialog-container input.bp3-input::placeholder {
+input.bp3-input::placeholder {
   color: #787878 !important;
   font-size: 12px !important;
 }
@@ -127,14 +152,14 @@ body {
   margin-bottom: 8px;
 }
 
-.bp3-dialog-container .bp3-dialog .bp3-button, .bp3-portal .bp3-alert-footer .bp3-button {
+.bp3-button, .bp3-portal .bp3-alert-footer .bp3-button {
   padding: 0 !important;
   min-height: 20px !important;
   min-width: 20px !important;
   background-image: none !important;
 }
 
-.bp3-dialog-container .bp3-dialog-footer-actions .bp3-button, .bp3-portal .bp3-alert-footer .bp3-button {
+.bp3-button, .bp3-portal .bp3-alert-footer .bp3-button {
   padding: 3px 5px !important;
   min-height: 20px !important;
   min-width: 20px !important;
@@ -147,29 +172,29 @@ body {
   user-select: none !important;
 }
 
-.bp3-dialog-container .bp3-dialog-footer-actions .bp3-button.bp3-intent-primary {
+.bp3-button.bp3-intent-primary {
   background-color: #365880 !important;
   border: 1px solid #4C708C !important;
 }
 
-.bp3-portal .bp3-alert-footer .bp3-button.bp3-intent-danger {
+.bp3-button.bp3-intent-danger {
   background-color: #db3737 !important;
   border: 1px solid #db3737 !important;
 }
 
-.bp3-dialog-container .bp3-dialog-footer-actions .bp3-button:active,
-.bp3-portal .bp3-alert-footer .bp3-button:active,
-.bp3-dialog-container .bp3-dialog-footer-actions .bp3-button.bp3-intent-primary:active,
-.bp3-portal .bp3-alert-footer .bp3-button.bp3-intent-danger:active {
+.bp3-button:active,
+.bp3-button:active,
+.bp3-button.bp3-intent-primary:active,
+.bp3-button.bp3-intent-danger:active {
   color: #f5f8fa !important;
 }
 
 .bp3-button.bp3-disabled:disabled,
 .bp3-button.bp3-disabled:disabled:active,
-.bp3-dialog-container .bp3-dialog-footer-actions .bp3-button.bp3-disabled:disabled:active,
-.bp3-portal .bp3-alert-footer .bp3-button.bp3-disabled:disabled:active,
-.bp3-dialog-container .bp3-dialog-footer-actions .bp3-button.bp3-intent-primary.bp3-disabled:disabled:active,
-.bp3-portal .bp3-alert-footer .bp3-button.bp3-intent-danger.bp3-disabled:disabled:active {
+.bp3-button.bp3-disabled:disabled:active,
+.bp3-button.bp3-disabled:disabled:active,
+.bp3-button.bp3-intent-primary.bp3-disabled:disabled:active,
+.bp3-button.bp3-intent-danger.bp3-disabled:disabled:active {
   color: #777777 !important;
 }
 
@@ -190,4 +215,74 @@ body {
 
 .bp3-overlay-backdrop {
   background-color: unset !important;
+}
+
+// -------------------------------------------------------------------------------- tabs
+
+.bp3-tabs .bp3-tab-panel {
+  margin-top: 0 !important;
+}
+
+.bp3-tab-list > *:not(:last-child) {
+  margin-right: 12px !important;
+}
+
+.bp3-tab-list {
+  margin: 0 12px !important;
+  user-select: none !important;
+}
+
+.bp3-dark .bp3-tab {
+  color: @fontColor !important;
+}
+
+.bp3-dark .bp3-tab[aria-selected="true"], .bp3-dark .bp3-tab:not([aria-disabled="true"]):hover {
+  color: @fontActiveColor !important;
+}
+
+.bp3-dark .bp3-tab[aria-selected="true"] {
+  box-shadow: inset 0 -3px 0 @splitBottomColor !important;
+}
+
+// -------------------------------------------------------------------------------- input
+input {
+  border-radius: 0;
+  background-color: #3C3F41;
+  color: @fontColor;
+  border: 1px solid #646464;
+
+  &:focus {
+    border: 1px solid #4083C9;
+  }
+
+  &::placeholder {
+    color: #787878;
+  }
+}
+
+input[type=checkbox] {
+  width: 16px;
+  height: 16px;
+  position: relative;
+}
+
+input[type=checkbox]:after {
+  width: 16px;
+  height: 16px;
+  font-size: 14px;
+  padding: 0 1px 1px 2px;
+  content: " ";
+  position: absolute;
+  top: 0;
+  border-radius: 1px;
+  border: 1px solid #6B6B6B;
+  color: #A7A7A7;
+  background-color: #43494A;
+}
+
+input[type=checkbox]:checked:after {
+  position: absolute;
+  content: "✓";
+  font-weight: 600;
+
 }

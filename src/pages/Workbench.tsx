@@ -686,23 +686,24 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
 
   private getBottomContent() {
     const { bottomPanel } = this.state;
+    const style: React.CSSProperties = { height: "100%" };
     return (
       <>
-        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.Interface })}>
+        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.Interface })} style={style}>
           Interface
         </div>
-        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.RequestDebug })}>
+        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.RequestDebug })} style={style}>
           <RequestDebugPanel
             ref={this.requestDebugPane}
           />
         </div>
-        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.ServerLogs })}>
+        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.ServerLogs })} style={style}>
           RunResult
         </div>
-        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.GlobalConfig })}>
+        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.GlobalConfig })} style={style}>
           GlobalConfig
         </div>
-        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.SysEvent })}>
+        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.SysEvent })} style={style}>
           SysEvent
         </div>
       </>
