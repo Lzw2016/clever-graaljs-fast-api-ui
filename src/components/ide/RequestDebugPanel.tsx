@@ -6,12 +6,12 @@ import SimpleBar from "simplebar-react";
 import Icon from "@ant-design/icons";
 import { Button, Classes, InputGroup, Intent, Radio, RadioGroup, Spinner, SpinnerSize, Tab, Tabs } from "@blueprintjs/core";
 import Editor from "@monaco-editor/react";
-import { LazyLog } from "react-lazylog";
 import { DynamicForm } from "@/components/DynamicForm";
 import { editorDefOptions, languageEnum, themeEnum } from "@/utils/editor-utils";
 import { Edit, Execute, MenuSaveAll } from "@/utils/IdeaIconUtils";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import styles from "./RequestDebugPanel.module.less";
+import { LogViewer } from "@/components/LogViewer";
 
 enum RequestTabEnum {
   Params = "Params",
@@ -63,6 +63,8 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   private saveStateLock: boolean = false;
   /** 保存组件的状态 */
   private saveComponentState = lodash.debounce(() => this.saveState().finally(), 1_000, { maxWait: 3_000 });
+  /** 显示日志组件 */
+  private logViewer = React.createRef<LogViewer>();
 
   constructor(props: RequestDebugPanelProps) {
     super(props);
@@ -71,6 +73,37 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 组件挂载后
   public componentDidMount() {
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("2021-07-04 14:17:41.404 [http-nio-18081-exec-4] DEBUG org.clever.graaljs.core.utils.tree.BuildTreeUtils - 1 耗时：0ms")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m https://www.npmjs.com/package/anser")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
+    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
   }
 
   // 组件将要被卸载
@@ -188,7 +221,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         <Tab id={ResponseTabEnum.Body} title="Body" panel={this.getResponseBodyPanel()}/>
         <Tab id={ResponseTabEnum.Headers} title="Headers" panel={this.getResponseHeadersPanel()}/>
         <Tab id={ResponseTabEnum.Cookies} title="Cookies" panel={this.getResponseCookiesPanel()}/>
-        <Tab id={ResponseTabEnum.ServerLogs} title="ServerLogs" panel={this.getServerLogsPanel()}/>
+        <Tab id={ResponseTabEnum.ServerLogs} title="ServerLogs" panel={this.getServerLogsPanel()} className={styles.serverLogs}/>
         <Tabs.Expander/>
         <div className={cls(styles.httpStatus)}>
           <span className={cls(styles.httpStatusItem)}>
@@ -318,22 +351,19 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   // ServerLogs面板
   private getServerLogsPanel() {
     return (
-      <>
-        <LazyLog
-          // className={cls(styles.serverLogs)}
-          // lineClassName={}
-          style={{ color: "#BBBBBB" }}
-          containerStyle={{ height: 365 }}
-          enableSearch={true}
-          extraLines={2}
+      <SimpleBar
+        style={{ height: "calc(100% - 24px)", width: "100%" }}
+        autoHide={false}
+        scrollbarMinSize={48}
+      >
+        <LogViewer
+          ref={this.logViewer}
+          maxLine={1000}
           follow={true}
-          selectableLines={true}
-          text={"lalalal\nlallalal\nqwqwqwq"}
-          // url="http://example.log"
-          // onError
-          // onLoad
+          linkify={true}
         />
-      </>
+        <div style={{ height: 8 }}/>
+      </SimpleBar>
     );
   }
 

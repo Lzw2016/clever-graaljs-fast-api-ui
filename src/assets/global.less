@@ -22,7 +22,18 @@ body {
 // -------------------------------------------------------------------------------- simplebar
 
 .simplebar-track.simplebar-horizontal {
-  width: 12px !important;
+  height: 10px !important;
+}
+
+.simplebar-track.simplebar-horizontal .simplebar-scrollbar {
+  top: 0 !important;
+  height: 10px !important;
+}
+
+.simplebar-track.simplebar-horizontal .simplebar-scrollbar:before {
+  height: 8px !important;
+  left: 2px !important;
+  right: 2px !important;
 }
 
 .simplebar-track.simplebar-vertical {
@@ -30,7 +41,7 @@ body {
 }
 
 .simplebar-track .simplebar-scrollbar {
-  width: 10px !important;
+  //width: 10px !important;
   right: 0 !important;
 
 }
