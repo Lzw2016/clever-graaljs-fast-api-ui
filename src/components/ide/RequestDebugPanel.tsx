@@ -321,8 +321,11 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
       <>
         <LazyLog
           // className={cls(styles.serverLogs)}
+          // lineClassName={}
+          style={{ color: "#BBBBBB" }}
+          containerStyle={{ height: 365 }}
           enableSearch={true}
-          extraLines={8}
+          extraLines={2}
           follow={true}
           selectableLines={true}
           text={"lalalal\nlallalal\nqwqwqwq"}

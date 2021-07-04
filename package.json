@@ -27,12 +27,11 @@
     "xterm-addon-fit": "^0.5.0",
     "xterm-for-react": "^1.0.4",
     "react-lazylog": "^4.5.3",
-    "react-ansi": "^2.1.4",
     "react-split": "^2.0.11",
     "react-reflex": "^4.0.1",
     "react-draggable": "^4.4.3",
     "react-beautiful-dnd": "^13.1.0",
-    "react-virtualized": "^9.22.3",
+    "react-virtualized": "9.22.3",
     "localforage": "^1.9.0",
     "normalize.css": "^8.0.1",
     "react-icons": "^4.2.0",
@@ -76,5 +75,8 @@
     "@vitejs/plugin-legacy": "^1.4.1",
     "@rollup/plugin-commonjs": "^19.0.0",
     "vite-plugin-html": "^2.0.7"
+  },
+  "resolutions": {
+    "react-virtualized": "git+https://git@github.com/remorses/react-virtualized-fixed-import.git#9.22.3"
   }
 }
