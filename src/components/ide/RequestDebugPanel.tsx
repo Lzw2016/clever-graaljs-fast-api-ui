@@ -6,6 +6,9 @@ import SimpleBar from "simplebar-react";
 import Icon from "@ant-design/icons";
 import { Button, Classes, InputGroup, Intent, Radio, RadioGroup, Spinner, SpinnerSize, Tab, Tabs } from "@blueprintjs/core";
 import Editor from "@monaco-editor/react";
+import { XTerm } from "xterm-for-react";
+import { SearchAddon } from "xterm-addon-search";
+import { FitAddon } from "xterm-addon-fit";
 import { DynamicForm } from "@/components/DynamicForm";
 import { editorDefOptions, languageEnum, themeEnum } from "@/utils/editor-utils";
 import { Edit, Execute, MenuSaveAll } from "@/utils/IdeaIconUtils";
@@ -62,6 +65,9 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   private saveStateLock: boolean = false;
   /** 保存组件的状态 */
   private saveComponentState = lodash.debounce(() => this.saveState().finally(), 1_000, { maxWait: 3_000 });
+  private searchAddon = new SearchAddon();
+  private fitAddon = new FitAddon();
+  private xterm = React.createRef<XTerm>();
 
   constructor(props: RequestDebugPanelProps) {
     super(props);
@@ -70,6 +76,8 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 组件挂载后
   public componentDidMount() {
+    this.xterm.current?.terminal.writeln("Hello, World! 1111");
+    this.fitAddon.fit();
   }
 
   // 组件将要被卸载
@@ -164,8 +172,8 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           <Tab id={RequestTabEnum.Headers} title="Headers" panel={this.getRequestHeadersPanel()}/>
           <Tab id={RequestTabEnum.Body} title="Body" panel={this.getRequestBodyPanel()}/>
           <Tabs.Expander/>
-          <Tab id={RequestTabEnum.Cookies} title="Cookies" panel={this.getRequestCookiesPanel()}/>
-          <Tab id={RequestTabEnum.CURL} title="CURL" panel={this.getRequestCookiesPanel()}/>
+          <Tab id={RequestTabEnum.Cookies} title="Cookies" panel={this.getRequestCookiesPanel()} disabled={true}/>
+          <Tab id={RequestTabEnum.CURL} title="CURL" panel={this.getRequestCookiesPanel()} disabled={true}/>
         </Tabs>
       </>
     );
@@ -189,10 +197,19 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         <Tab id={ResponseTabEnum.Cookies} title="Cookies" panel={this.getResponseCookiesPanel()}/>
         <Tab id={ResponseTabEnum.ServerLogs} title="ServerLogs" panel={this.getServerLogsPanel()}/>
         <Tabs.Expander/>
-        <div>
-          <span>Status: 200 OK</span>
-          <span>Time: 93 ms</span>
-          <span>Size: 21.15 KB</span>
+        <div className={cls(styles.httpStatus)}>
+          <span className={cls(styles.httpStatusItem)}>
+            Status:
+            <span className={cls(styles.httpStatusValue)}>200 OK</span>
+          </span>
+          <span className={cls(styles.httpStatusItem)}>
+            Time:
+            <span className={cls(styles.httpStatusValue)}>93 ms</span>
+          </span>
+          <span className={cls(styles.httpStatusItem)}>
+            Size:
+            <span className={cls(styles.httpStatusValue)}>21.15 KB</span>
+          </span>
         </div>
       </Tabs>
     );
@@ -236,7 +253,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           selectedValue={requestBodyTab}
         >
           <Radio label="json-body" value={RequestBodyTabEnum.JsonBody}/>
-          <Radio label="form-body" value={RequestBodyTabEnum.FormBody} disabled={false}/>
+          <Radio label="form-body" value={RequestBodyTabEnum.FormBody} disabled={true}/>
         </RadioGroup>
         <Editor
           wrapperClassName={cls(styles.requestEditor)}
@@ -269,7 +286,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           // wrapperClassName={cls(styles.requestEditor)}
           theme={themeEnum.IdeaDracula}
           loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
-          options={{ ...editorDefOptions, readOnly: true }}
+          options={{ ...editorDefOptions, readOnly: true, domReadOnly: true }}
           language={languageEnum.json}
           path={"/response_body.json"}
           saveViewState={false}
@@ -287,7 +304,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         autoHide={false}
         scrollbarMinSize={48}
       >
-        <DynamicForm/>
+        <DynamicForm readOnly={true} noCheckbox={true} noDescription={true}/>
       </SimpleBar>
     );
   }
@@ -300,7 +317,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         autoHide={false}
         scrollbarMinSize={48}
       >
-        <DynamicForm/>
+        <DynamicForm readOnly={true} noCheckbox={true} noDescription={true}/>
       </SimpleBar>
     );
   }
@@ -309,7 +326,19 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   private getServerLogsPanel() {
     return (
       <>
-        444
+        <XTerm
+          className={cls(styles.serverLogs)}
+          ref={this.xterm}
+          options={{
+            // cursorBlink: true,
+            // cursorStyle: 'block',
+            bellStyle: "sound",
+            fontFamily: '"DejaVu Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace, Consolas',
+            scrollback: 1000,
+            // tabStopWidth: 4,
+          }}
+          addons={[this.fitAddon, this.searchAddon]}
+        />
       </>
     );
   }
