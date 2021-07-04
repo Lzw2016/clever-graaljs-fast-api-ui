@@ -303,3 +303,20 @@ interface DelHttpApiRes {
   fileList: Array<FileResource>;
   httpApiList: Array<HttpApi>;
 }
+
+interface RequestDebug {
+  method: RequestMethod;
+  path: string;
+  headers: { [key: string]: string };
+  // cookies: { [key: string]: string };
+  jsonBody: any;
+  formBody: { [key: string]: { type: "text" | "file", value: string } };
+
+  resBody: any;
+  resHeaders: { [key: string]: string };
+  // resCookies: { [key: string]: string }; // Name Value Domain Path Expires HttpOnly Secure
+  resStatus: number;
+  resTime: number;
+  resSize: number;
+  logs: { firstIndex: number; lastIndex: number; content: Array<string> }
+}
