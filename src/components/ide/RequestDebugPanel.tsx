@@ -6,9 +6,7 @@ import SimpleBar from "simplebar-react";
 import Icon from "@ant-design/icons";
 import { Button, Classes, InputGroup, Intent, Radio, RadioGroup, Spinner, SpinnerSize, Tab, Tabs } from "@blueprintjs/core";
 import Editor from "@monaco-editor/react";
-import { XTerm } from "xterm-for-react";
-import { SearchAddon } from "xterm-addon-search";
-import { FitAddon } from "xterm-addon-fit";
+import { LazyLog } from "react-lazylog";
 import { DynamicForm } from "@/components/DynamicForm";
 import { editorDefOptions, languageEnum, themeEnum } from "@/utils/editor-utils";
 import { Edit, Execute, MenuSaveAll } from "@/utils/IdeaIconUtils";
@@ -65,9 +63,6 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   private saveStateLock: boolean = false;
   /** 保存组件的状态 */
   private saveComponentState = lodash.debounce(() => this.saveState().finally(), 1_000, { maxWait: 3_000 });
-  private searchAddon = new SearchAddon();
-  private fitAddon = new FitAddon();
-  private xterm = React.createRef<XTerm>();
 
   constructor(props: RequestDebugPanelProps) {
     super(props);
@@ -76,8 +71,6 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 组件挂载后
   public componentDidMount() {
-    this.xterm.current?.terminal.writeln("Hello, World! 1111");
-    this.fitAddon.fit();
   }
 
   // 组件将要被卸载
@@ -326,18 +319,16 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   private getServerLogsPanel() {
     return (
       <>
-        <XTerm
-          className={cls(styles.serverLogs)}
-          ref={this.xterm}
-          options={{
-            // cursorBlink: true,
-            // cursorStyle: 'block',
-            bellStyle: "sound",
-            fontFamily: '"DejaVu Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace, Consolas',
-            scrollback: 1000,
-            // tabStopWidth: 4,
-          }}
-          addons={[this.fitAddon, this.searchAddon]}
+        <LazyLog
+          // className={cls(styles.serverLogs)}
+          enableSearch={true}
+          extraLines={8}
+          follow={true}
+          selectableLines={true}
+          text={"lalalal\nlallalal\nqwqwqwq"}
+          // url="http://example.log"
+          // onError
+          // onLoad
         />
       </>
     );

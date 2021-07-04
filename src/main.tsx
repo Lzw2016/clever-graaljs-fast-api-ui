@@ -13,7 +13,6 @@ import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import "react-reflex/styles.css";
 import "simplebar/dist/simplebar.min.css";
-import "xterm/css/xterm.css";
 import "@/assets/global.less";
 
 // 取消默认的浏览器自带右键
