@@ -38,18 +38,22 @@ class LogViewer extends React.Component<LogViewerProps, LogViewerState> {
   private logs: JSX.Element[] = [];
   private lineNo = 0;
 
-  public addLogLine(log?: string) {
+  public addLogLine(logs?: string) {
     const { maxLine, useClasses, linkify } = this.props;
-    if (maxLine && this.logs.length >= maxLine) {
-      this.logs.shift();
-    }
-    this.lineNo++;
-    const content = ansiToJSON(log ?? "", useClasses ?? false)
-      .map(convertBundleIntoReact.bind(null, linkify ?? false, useClasses ?? false));
-    const lineText = this.createLineText(content);
-    const lineNo = this.createLineNo(this.lineNo);
-    const line = this.createLine(lineNo, lineText);
-    this.logs.push(line);
+    const logArray = logs?.split("\n") ?? [];
+    if (logArray[logArray.length - 1] === "") logArray.pop();
+    logArray.forEach(log => {
+      if (maxLine && this.logs.length >= maxLine) {
+        this.logs.shift();
+      }
+      this.lineNo++;
+      const content = ansiToJSON(log ?? "", useClasses ?? false)
+        .map(convertBundleIntoReact.bind(null, linkify ?? false, useClasses ?? false));
+      const lineText = this.createLineText(content);
+      const lineNo = this.createLineNo(this.lineNo);
+      const line = this.createLine(lineNo, lineText);
+      this.logs.push(line);
+    });
     this.forceUpdate();
   }
 
@@ -154,7 +158,7 @@ function convertBundleIntoReact(linkify: boolean, useClasses: boolean, bundle: A
   const style = useClasses ? null : createStyle(bundle);
   const className = useClasses ? createClass(bundle) : null;
   if (!linkify) {
-    return React.createElement("span", { style, key, className }, bundle.content);
+    return React.createElement("pre", { style, key, className }, bundle.content);
   }
   const content: React.ReactNode[] = [];
   const linkRegex = /(\s+|^)(https?:\/\/(?:www\.|(?!www))[^\s.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g;
@@ -176,7 +180,7 @@ function convertBundleIntoReact(linkify: boolean, useClasses: boolean, bundle: A
   if (index < bundle.content.length) {
     content.push(bundle.content.substring(index));
   }
-  return React.createElement("span", { style, key, className }, content);
+  return React.createElement("pre", { style, key, className }, content);
 }
 
 /**
