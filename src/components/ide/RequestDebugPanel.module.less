@@ -209,3 +209,55 @@
     }
   }
 }
+
+.leftPanelTools {
+  height: 28px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  color: @fontColor;
+  //background-color: @splitBgColor;
+  border-bottom: 1px solid @borderColor;
+  align-items: center;
+}
+
+.leftPanelList {
+  //height: calc(100% - 28px - @toolHeight);
+  height: calc(100% - 28px);
+}
+
+.leftPanelListItem {
+  box-sizing: border-box;
+  height: 22px;
+  user-select: none;
+  padding-right: 4px;
+
+  &:hover {
+    background-color: #0D293E;
+  }
+}
+
+.leftPanelListItemSelected {
+  background-color: #4B6EAF;
+
+  &:hover {
+    background-color: #4B6EAF;
+  }
+}
+
+.leftPanelListItemIcon {
+  padding: 3px 4px 3px 8px;
+}
+
+.leftPanelListItemText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 22px;
+}
+
+.loading {
+  min-height: 64px;
+  max-height: 256px;
+}
+
+//HttpApi_debug

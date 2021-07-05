@@ -7,11 +7,14 @@ import Icon from "@ant-design/icons";
 import { Button, Classes, InputGroup, Intent, Radio, RadioGroup, Spinner, SpinnerSize, Tab, Tabs } from "@blueprintjs/core";
 import Editor from "@monaco-editor/react";
 import { DynamicForm } from "@/components/DynamicForm";
+import { request } from "@/utils/request";
 import { editorDefOptions, languageEnum, themeEnum } from "@/utils/editor-utils";
-import { Edit, Execute, MenuSaveAll } from "@/utils/IdeaIconUtils";
+import { Add, Edit, Execute, HttpRequestsFiletype, MenuSaveAll, Refresh, Remove2 } from "@/utils/IdeaIconUtils";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import styles from "./RequestDebugPanel.module.less";
 import { LogViewer } from "@/components/LogViewer";
+import { FastApi } from "@/apis";
+import { debugRequest } from "@/utils/debug-request";
 
 enum RequestTabEnum {
   Params = "Params",
@@ -34,6 +37,8 @@ enum RequestBodyTabEnum {
 }
 
 interface RequestDebugPanelProps {
+  /** HTTP接口id */
+  httpApiId?: string;
 }
 
 interface RequestDebugPanelState {
@@ -45,16 +50,38 @@ interface RequestDebugPanelState {
   requestBodyTab: RequestBodyTabEnum;
   /** 响应叶签 */
   responseTab: ResponseTabEnum;
+  /** HTTP接口id */
+  httpApiId?: string;
+  /** HttpApiDebug Title 列表 */
+  titleList: Array<HttpApiDebugTitleRes>;
+  /** 数据加载状态 */
+  titleListLoading: boolean;
+  /** HttpApiDebug Data */
+  httpApiDebugRes: HttpApiDebugRes;
+  /** Debug Response Data */
+  debugResponseData: DebugResponseData;
+  /** debug请求状态 */
+  debugLoading: boolean;
 }
 
 // 读取组件状态
 const storageState: Partial<RequestDebugPanelState> = await fastApiStore.getItem(componentStateKey.RequestDebugPanelState) ?? {};
 // 组件状态默认值
+const defHttpApiDebugRes = (): HttpApiDebugRes => ({
+  id: "", namespace: "", httpApiId: "", title: "",
+  requestData: { method: "GET", path: "", params: [], headers: [], jsonBody: "", formBody: [] },
+  createAt: "", updateAt: ""
+});
 const defaultState: RequestDebugPanelState = {
   hSplitSize: [15, 40, 45],
   requestTab: RequestTabEnum.Params,
   requestBodyTab: RequestBodyTabEnum.JsonBody,
   responseTab: ResponseTabEnum.Body,
+  titleList: [],
+  titleListLoading: false,
+  httpApiDebugRes: { ...defHttpApiDebugRes() },
+  debugResponseData: { resBody: "", resHeaders: [] },
+  debugLoading: false,
   ...storageState,
 }
 
@@ -73,15 +100,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 组件挂载后
   public componentDidMount() {
-    this.logViewer.current?.addLogLine("2021-07-04 16:32:38.862 [http-nio-18081-exec-5] DEBUG org.clever.graaljs.core.pool.GraalSingleEngineFactory - 初始化 ScriptContextInstance 全局变量 | counter=1")
-    this.logViewer.current?.addLogLine("2021-07-04 16:32:38.874 [http-nio-18081-exec-5] DEBUG org.clever.graaljs.data.jdbc.support.SqlLoggerUtils - ==>  ExecuteSQL: select * from tb_merchandise limit :limit")
-    this.logViewer.current?.addLogLine("2021-07-04 16:32:38.875 [http-nio-18081-exec-5] DEBUG org.clever.graaljs.data.jdbc.support.SqlLoggerUtils - ==>  Parameters: limit=1(Integer)")
-    this.logViewer.current?.addLogLine("2021-07-04 16:32:38.886 [http-nio-18081-exec-5] DEBUG org.clever.graaljs.data.jdbc.support.SqlLoggerUtils - <==       Total: 1")
-    this.logViewer.current?.addLogLine("2021-07-04 16:32:38.892 [http-nio-18081-exec-5] DEBUG org.clever.graaljs.spring.mvc.HttpInterceptorScriptHandler - Script处理请求 | [总]耗时:38ms | 查找脚本耗时:1ms | 执行脚本耗时:34ms | 序列化耗时:3ms | Script=[/test/02test.js]")
-    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
-    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m")
-    this.logViewer.current?.addLogLine("\u001b[38;5;196mHello\u001b[39m \u001b[48;5;226mWorld\u001b[49m https://www.npmjs.com/package/anser")
-    this.logViewer.current?.addLogLine("2021-07-04 14:17:41.404 [http-nio-18081-exec-4] DEBUG org.clever.graaljs.core.utils.tree.BuildTreeUtils - 1 耗时：0ms")
+    this.reLoadData();
   }
 
   // 组件将要被卸载
@@ -92,32 +111,140 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   /** 保存组件状态 */
   public async saveState(): Promise<void> {
     if (this.saveStateLock) return;
-    const { hSplitSize } = this.state;
+    const { hSplitSize, requestTab, requestBodyTab, responseTab } = this.state;
     await fastApiStore.setItem(
       componentStateKey.RequestDebugPanelState,
-      { hSplitSize },
+      { hSplitSize, requestTab, requestBodyTab, responseTab },
     ).finally(() => {
       this.saveStateLock = false;
     });
   }
 
+  /** 重新加载数据 */
+  public reLoadData(spin: boolean = true, httpApiId?: string, force?: boolean) {
+    const { httpApiId: httpApiIdProps } = this.props;
+    const { httpApiId: httpApiIdState } = this.state;
+    if (!httpApiId) {
+      if (!force && httpApiIdProps === httpApiIdState) return;
+      httpApiId = httpApiIdProps;
+    }
+    if (!httpApiId) {
+      this.setState({ httpApiId, titleList: [], httpApiDebugRes: { ...defHttpApiDebugRes() } });
+      return;
+    }
+    if (spin) this.setState({ titleListLoading: true });
+    request.get(FastApi.HttpApiDebugManage.getTitleList, { params: { httpApiId } })
+      .then((data: Array<HttpApiDebugTitleRes>) => {
+        this.setState({ httpApiId, titleList: data, httpApiDebugRes: { ...defHttpApiDebugRes() } });
+        // TODO loadHttpApiDebugRes
+      }).finally(() => {
+      if (spin) this.setState({ titleListLoading: false });
+    });
+  }
+
+  public loadHttpApiDebugRes(id: string) {
+    if (!id) return;
+    request.get(FastApi.HttpApiDebugManage.getHttpApiDebug, { params: { id } })
+      .then((data: HttpApiDebugRes) => {
+        if (data) {
+          console.log("loadHttpApiDebugRes ", data)
+          this.setState({ httpApiDebugRes: { ...defHttpApiDebugRes(), ...data } });
+        } else {
+          this.setState({ httpApiDebugRes: { ...defHttpApiDebugRes() } });
+        }
+      }).finally();
+  }
+
+  public doDebug() {
+    const { httpApiDebugRes: { requestData }, debugResponseData } = this.state;
+    console.log("---> ", requestData);
+    const params: any = {};
+    requestData?.params?.forEach(param => {
+      params[param.key] = param.value;
+    });
+    const headers: any = {};
+    requestData?.headers?.forEach(header => {
+      headers[header.key] = header.value;
+    });
+    this.setState({ debugLoading: true });
+    debugRequest.request({
+      method: requestData.method as any,
+      url: requestData.path,
+      params,
+      headers,
+    }).then(data => {
+      console.log("---> ", data);
+      // debugResponseData.resBody = data?.data??{};
+      // debugResponseData.
+    }).finally(() => this.setState({ debugLoading: false }));
+
+    // request.get("/api/test/02test", { headers: { "api-debug": "01234567890123456789" } })
+    //   .then(data => {
+    //     this.logViewer.current?.clear();
+    //     if (data?.logs?.content) {
+    //       (data.logs.content as string[]).forEach(log => this.logViewer.current?.addLogLine(log));
+    //       this.logViewer.current?.addLogLine("");
+    //       this.logViewer.current?.addLogLine("");
+    //     }
+    //   }).finally();
+  }
+
   // 左边面板
   private getLeftPanel() {
+    const { titleList, titleListLoading, httpApiDebugRes } = this.state;
     return (
       <>
-        左
+        <div className={cls(styles.flexColumn, styles.leftPanelTools)}>
+          <div className={cls(styles.flexItemColumnWidthFull)}/>
+          <Icon component={Remove2} className={cls(styles.flexItemColumn, styles.icon)}/>
+          <Icon component={Add} className={cls(styles.flexItemColumn, styles.icon)}/>
+          <Icon
+            className={cls(styles.flexItemColumn, styles.icon)}
+            component={Refresh}
+            onClick={() => this.reLoadData(true, undefined, true)}
+          />
+        </div>
+        <div className={cls(styles.flexColumn, styles.leftPanelList)}>
+          <SimpleBar
+            style={{ height: "100%", width: "100%" }}
+            autoHide={false}
+            scrollbarMinSize={48}
+          >
+            {titleListLoading && <Spinner className={cls(styles.loading)} intent={Intent.PRIMARY} size={SpinnerSize.SMALL}/>}
+            {
+              !titleListLoading &&
+              titleList.map(title => (
+                <div
+                  key={title.id}
+                  className={cls(
+                    styles.flexColumn, styles.leftPanelListItem,
+                    { [styles.leftPanelListItemSelected]: httpApiDebugRes.id === title.id },
+                  )}
+                >
+                  <Icon component={HttpRequestsFiletype} className={cls(styles.flexItemColumn, styles.leftPanelListItemIcon)}/>
+                  <div
+                    className={cls(styles.flexItemColumnWidthFull, styles.leftPanelListItemText)}
+                    onClick={() => this.loadHttpApiDebugRes(title.id)}
+                  >
+                    {title.title}
+                  </div>
+                </div>
+              ))
+            }
+          </SimpleBar>
+        </div>
       </>
     );
   }
 
   // 中间面板
   private getCenterPanel() {
-    const { requestTab } = this.state;
+    const { requestTab, httpApiDebugRes, debugLoading } = this.state;
     return (
       <>
         <div className={cls(styles.requestTitle, styles.flexColumn)}>
           <div className={cls(styles.flexItemColumn, styles.requestTitleText)}>
-            请求001
+            {httpApiDebugRes?.title ?? "undefined"}
             <Icon className={cls(styles.editIcon)} component={Edit}/>
           </div>
           <div className={cls(styles.flexItemColumnWidthFull)}/>
@@ -129,9 +256,12 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         <div className={cls(styles.requestPath, styles.flexColumn)} style={{ alignItems: "center" }}>
           <select
             className={cls(styles.flexItemColumn)}
-            // disabled={true}
-            // value={requestMethod}
-            // onChange={e => this.setState({ addHttpApiForm: { path, name, requestMapping, requestMethod: (e?.target?.value as any) } })}
+            disabled={debugLoading}
+            value={httpApiDebugRes?.requestData?.method ?? "GET"}
+            onChange={e => {
+              if (!httpApiDebugRes?.requestData) return;
+              httpApiDebugRes.requestData.method = e.target.value as any;
+            }}
           >
             <option value={"GET"}>GET</option>
             <option value={"POST"}>POST</option>
@@ -148,17 +278,21 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
             style={{ cursor: "default", height: 24 }}
             type={"text"}
             placeholder={"输入接口路径"}
-            // readOnly={true}
-            // disabled={true}
-            // value={addHttpApiRequestMappingChanged ? requestMapping : defRequestMapping}
-            // onChange={e => this.setState({ addHttpApiForm: { path, name, requestMapping: e.target.value, requestMethod }, addHttpApiRequestMappingChanged: true })}
+            readOnly={debugLoading}
+            disabled={debugLoading}
+            value={httpApiDebugRes?.requestData?.path}
+            onChange={e => {
+              if (!httpApiDebugRes?.requestData) return;
+              httpApiDebugRes.requestData.path = e.target.value;
+            }}
           />
           <Button
             className={cls(styles.flexItemColumn)}
             intent={Intent.PRIMARY}
             icon={<Icon component={Execute} style={{ marginRight: 2 }}/>}
-            // loading={true}
-            // disabled={true}
+            loading={debugLoading}
+            disabled={debugLoading}
+            onClick={() => this.doDebug()}
           >
             <span style={{ marginRight: 4 }}>Send</span>
           </Button>
@@ -198,7 +332,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
       >
         <Tab id={ResponseTabEnum.Body} title="Body" panel={this.getResponseBodyPanel()}/>
         <Tab id={ResponseTabEnum.Headers} title="Headers" panel={this.getResponseHeadersPanel()}/>
-        <Tab id={ResponseTabEnum.Cookies} title="Cookies" panel={this.getResponseCookiesPanel()}/>
+        <Tab id={ResponseTabEnum.Cookies} title="Cookies" panel={this.getResponseCookiesPanel()} disabled={true}/>
         <Tab id={ResponseTabEnum.ServerLogs} title="ServerLogs" panel={this.getServerLogsPanel()} className={styles.serverLogs}/>
         <Tabs.Expander/>
         <div className={cls(styles.httpStatus)}>
@@ -221,33 +355,35 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 请求Params面板
   private getParamsPanel() {
+    const { httpApiDebugRes: { requestData } } = this.state;
     return (
       <SimpleBar
         style={{ height: "100%", width: "100%" }}
         autoHide={false}
         scrollbarMinSize={48}
       >
-        <DynamicForm/>
+        <DynamicForm data={requestData?.params}/>
       </SimpleBar>
     );
   }
 
   // 请求Headers面板
   private getRequestHeadersPanel() {
+    const { httpApiDebugRes: { requestData } } = this.state;
     return (
       <SimpleBar
         style={{ height: "100%", width: "100%" }}
         autoHide={false}
         scrollbarMinSize={48}
       >
-        <DynamicForm/>
+        <DynamicForm data={requestData?.headers}/>
       </SimpleBar>
     );
   }
 
   // 请求Body面板
   private getRequestBodyPanel() {
-    const { requestBodyTab } = this.state;
+    const { requestBodyTab, httpApiDebugRes: { requestData } } = this.state;
     return (
       <>
         <RadioGroup
@@ -266,6 +402,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           options={editorDefOptions}
           language={languageEnum.json}
           path={"/request_body.json"}
+          value={requestData?.jsonBody}
           saveViewState={false}
           keepCurrentModel={false}
         />

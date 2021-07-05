@@ -3,6 +3,9 @@
 const serverHost = "/fast_api";
 
 const FastApi = {
+  GlobalEnv: {
+    getGlobalEnv: `${serverHost}/global_env`,
+  },
   HttpApiManage: {
     getHttpApiTree: `${serverHost}/http_api_manage/http_api_tree`,
     getHttpApiFileResource: `${serverHost}/http_api_manage/http_api_file_resource`,
@@ -20,6 +23,12 @@ const FastApi = {
   ExtendFileManage: {
     getExtendTree: `${serverHost}/extend_file_manage/extend_tree`,
     getExtendFileList: `${serverHost}/extend_file_manage/extend_file_list`,
+  },
+  HttpApiDebugManage: {
+    getTitleList: `${serverHost}/http_api_debug_manage/title_list`,
+    getHttpApiDebug: `${serverHost}/http_api_debug_manage/http_api_debug`,
+    addHttpApiDebug: `${serverHost}/http_api_debug_manage/add_debug`,
+    updateHttpApiDebug: `${serverHost}/http_api_debug_manage/update_debug`,
   },
 };
 

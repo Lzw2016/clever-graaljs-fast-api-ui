@@ -50,6 +50,8 @@ interface WorkbenchProps {
 }
 
 interface WorkbenchState extends WorkbenchLoading, LayoutSize, EditorTabsState {
+  /** 全局环境变量 */
+  globalEnv: FastApiGlobalEnv;
   /** HttpApiTree当前选中的节点 */
   topStatusFileInfo?: TopStatusFileInfo;
 }
@@ -92,6 +94,7 @@ const initStorageState = (): Promise<any[]> => {
 
 // 组件状态默认值
 const getDefaultState = (): WorkbenchState => ({
+  globalEnv: { version: "", namespace: "", apiPrefix: "" },
   // WorkbenchLoading
   getApiFileResourceLoading: false,
   saveFileResourceLoading: false,
@@ -187,6 +190,11 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     // window.addEventListener("beforeunload", this.pageBeforeunload);
     window.addEventListener("resize", this.editorResize);
     initStorageState().then(() => this.forceUpdate());
+    request.get(FastApi.GlobalEnv.getGlobalEnv)
+      .then(data => {
+        if (!data) return;
+        this.setState({ globalEnv: data });
+      }).finally();
   }
 
   // 组件将要被卸载
@@ -198,6 +206,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
 
   /** 保存组件状态 */
   public async saveState(): Promise<void> {
+    // FastApiGlobalEnv
+    const { globalEnv } = this.state;
     // LayoutSize
     const { bottomPanel, vSplitSize, vSplitCollapsedSize, leftPanel, rightPanel, hSplitSize, hSplitCollapsedSize } = this.state;
     // TopStatusFileInfo
@@ -207,6 +217,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     await fastApiStore.setItem(
       componentStateKey.Workbench,
       {
+        globalEnv,
         bottomPanel, vSplitSize, vSplitCollapsedSize, leftPanel, rightPanel, hSplitSize, hSplitCollapsedSize,
         topStatusFileInfo,
         currentEditId, openFileMap,
@@ -392,11 +403,12 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getTopMenu() {
+    const { globalEnv } = this.state;
     return (
       <>
         <img className={cls(styles.flexItemColumn, styles.topMenuLogoImg)} src={logo} alt={"logo"}/>
         <div className={cls(styles.flexItemColumn, styles.topMenuLogoText)}>Fast-API</div>
-        <div className={cls(styles.flexItemColumn, styles.topMenuLogoTextVersion)}>0.0.1</div>
+        <div className={cls(styles.flexItemColumn, styles.topMenuLogoTextVersion)}>{globalEnv.version}</div>
         <div className={cls(styles.flexItemColumnWidthFull)}/>
         <IconFont type="icon-gitee" className={cls(styles.flexItemColumn, styles.icon)}/>
         <GithubOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
@@ -409,7 +421,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getTopStatus() {
-    const { topStatusFileInfo, openFileMap } = this.state;
+    const { globalEnv, topStatusFileInfo, openFileMap } = this.state;
     const needSave = topStatusFileInfo && openFileMap.get(topStatusFileInfo.fileResourceId)?.needSave;
     return (
       <>
@@ -418,7 +430,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           <AppstoreOutlined style={{ fontSize: 16 }}/>
         </div>
         <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)} style={{ margin: "0 8px 0 4px", fontWeight: "bold" }}>
-          [default]
+          [{globalEnv.namespace}]
         </div>
         {
           topStatusFileInfo &&
@@ -446,7 +458,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         {
           topStatusFileInfo?.httpApiId &&
           <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
-            [{topStatusFileInfo.requestMethod}]&nbsp;{topStatusFileInfo.requestMapping}
+            [{topStatusFileInfo.requestMethod}]&nbsp;{globalEnv.apiPrefix + topStatusFileInfo.requestMapping}
           </div>
         }
         {
@@ -454,7 +466,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           <Icon
             component={Copy}
             className={cls(styles.flexItemColumn, styles.icon, styles.copyIcon)}
-            onClick={() => copyToClipboard(topStatusFileInfo.requestMapping!)}
+            onClick={() => copyToClipboard(globalEnv.apiPrefix + topStatusFileInfo?.requestMapping!)}
           />
         }
         {
@@ -695,6 +707,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.RequestDebug })} style={style}>
           <RequestDebugPanel
             ref={this.requestDebugPane}
+            httpApiId={"233"}
           />
         </div>
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.ServerLogs })} style={style}>

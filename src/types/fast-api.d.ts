@@ -304,19 +304,55 @@ interface DelHttpApiRes {
   httpApiList: Array<HttpApi>;
 }
 
-interface RequestDebug {
+interface HttpApiDebugTitleRes {
+  /** 主键id */
+  id: string;
+  /** HTTP接口id */
+  httpApiId: string;
+  /** 标题 */
+  title: string;
+}
+
+interface HttpApiDebugRes {
+  /** 主键id */
+  id: string;
+  /** 命名空间 */
+  namespace: string;
+  /** HTTP接口id */
+  httpApiId: string;
+  /** 标题 */
+  title: string;
+  /** 请求数据 */
+  requestData: DebugRequestData;
+  /** 创建时间 */
+  createAt: string;
+  /** 更新时间 */
+  updateAt?: string;
+}
+
+interface RequestItemData {
+  key: string;
+  value: string;
+  description?: string;
+  selected?: boolean;
+}
+
+interface DebugRequestData {
   method: RequestMethod;
   path: string;
-  headers: { [key: string]: string };
+  params: Array<RequestItemData>;
+  headers: Array<RequestItemData>;
   // cookies: { [key: string]: string };
   jsonBody: any;
-  formBody: { [key: string]: { type: "text" | "file", value: string } };
+  formBody: Array<{ key: string; type: "text" | "file", value: string; }>;
+}
 
+interface DebugResponseData {
   resBody: any;
-  resHeaders: { [key: string]: string };
-  // resCookies: { [key: string]: string }; // Name Value Domain Path Expires HttpOnly Secure
-  resStatus: number;
-  resTime: number;
-  resSize: number;
-  logs: { firstIndex: number; lastIndex: number; content: Array<string> }
+  resHeaders: Array<RequestItemData>;
+  // resCookies?: { [key: string]: string }; // Name Value Domain Path Expires HttpOnly Secure
+  resStatus?: number;
+  resTime?: number;
+  resSize?: number;
+  logs?: { firstIndex: number; lastIndex: number; content: Array<string> }
 }

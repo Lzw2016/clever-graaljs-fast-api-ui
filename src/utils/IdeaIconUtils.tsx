@@ -313,6 +313,35 @@ const CloseDarkGrey = () => (
   </svg>
 );
 
+const Add = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <g fill="none" fillRule="evenodd">
+      <rect width="2" height="10" x="7" y="3" fill="#AFB1B3"/>
+      <rect width="2" height="10" x="7" y="3" fill="#AFB1B3" transform="rotate(90 8 8)"/>
+    </g>
+  </svg>
+);
+
+const Remove2 = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <rect width="2" height="10" x="7" y="3" fill="#AFB1B3" fillRule="evenodd" transform="rotate(90 8 8)"/>
+  </svg>
+);
+
+const HttpRequestsFiletype = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" version="1.1">
+    <g id="surface1">
+      <path style={{ stroke: "none", fillRule: "evenodd", fill: "rgb(20.784314%,57.254902%,76.862745%)", fillOpacity: 1 }}
+            d="M 0 16 L 0 8 L 16 8 L 16 16 Z M 13.492188 9.347656 L 13.492188 14.667969 L 14.664062 14.667969 L 14.664062 9.347656 Z M 8 14.667969 L 8 9.347656 L 10.171875 9.347656 C 10.800781 9.347656 11.296875 9.515625 11.664062 9.855469 C 12.027344 10.195312 12.210938 10.644531 12.210938 11.199219 C 12.210938 11.792969 12.007812 12.253906 11.601562 12.585938 C 11.195312 12.910156 10.683594 13.070312 10.058594 13.070312 L 9.171875 13.070312 L 9.171875 14.667969 Z M 9.171875 12.03125 L 10.097656 12.03125 C 10.386719 12.03125 10.613281 11.953125 10.773438 11.800781 C 10.941406 11.648438 11.023438 11.453125 11.023438 11.207031 C 11.023438 10.949219 10.941406 10.753906 10.773438 10.617188 C 10.605469 10.472656 10.375 10.402344 10.074219 10.402344 L 9.171875 10.402344 Z M 3.558594 9.308594 L 1.28125 14.667969 L 2.472656 14.667969 L 2.960938 13.472656 L 5.210938 13.472656 L 5.695312 14.667969 L 6.917969 14.667969 L 4.640625 9.308594 Z M 4.792969 12.441406 L 3.378906 12.441406 L 4.085938 10.714844 Z M 4.792969 12.441406 "/>
+      <path style={{ stroke: "none", fillRule: "evenodd", fill: "rgb(68.627451%,69.411765%,70.196078%)", fillOpacity: 1 }}
+            d="M 8 0 L 8 5.332031 L 2.667969 5.332031 L 2.667969 6.667969 L 13.332031 6.667969 L 13.332031 0 Z M 8 0 "/>
+      <path style={{ stroke: "none", fillRule: "evenodd", fill: "rgb(68.627451%,69.411765%,70.196078%)", fillOpacity: 1 }}
+            d="M 6.667969 0 L 2.667969 4 L 6.667969 4 Z M 6.667969 0 "/>
+    </g>
+  </svg>
+);
+
+// const ExpandAll = () => ();
 // const ExpandAll = () => ();
 // const ExpandAll = () => ();
 // const ExpandAll = () => ();
@@ -378,4 +407,7 @@ export {
   OpenTerminal,
   Edit,
   CloseDarkGrey,
+  Add,
+  Remove2,
+  HttpRequestsFiletype,
 }
