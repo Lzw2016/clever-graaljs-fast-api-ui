@@ -175,15 +175,17 @@
 }
 
 .responseData {
-  height: 100%;
-  //height: calc(100% - @toolHeight);
+  //height: 100%;
+  height: calc(100% - @toolHeight);
+
   :global {
     .bp3-tab-list {
       height: 30px !important;
     }
 
     .bp3-tab-panel {
-      height: calc(100% - 30px) !important;
+      height: calc(100% - 30px);
+      //height: calc(100% - 30px - @toolHeight);
     }
   }
 }
@@ -203,7 +205,7 @@
   color: #68D696;
 }
 
-.serverLogs {
+:global(.bp3-tab-panel).serverLogs {
   :global {
     .simplebar-content-wrapper {
       background-color: #2B2B2B;

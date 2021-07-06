@@ -493,19 +493,16 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   private getResponseBodyPanel() {
     const { debugResponseData } = this.state;
     return (
-      <>
-        <Editor
-          // wrapperClassName={cls(styles.requestEditor)}
-          theme={themeEnum.IdeaDracula}
-          loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
-          options={{ ...editorDefOptions, readOnly: true, domReadOnly: true }}
-          language={languageEnum.json}
-          path={"/response_body.json"}
-          value={debugResponseData.body}
-          saveViewState={false}
-          keepCurrentModel={false}
-        />
-      </>
+      <Editor
+        theme={themeEnum.IdeaDracula}
+        loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
+        options={{ ...editorDefOptions, readOnly: true, domReadOnly: true }}
+        language={languageEnum.json}
+        path={"/response_body.json"}
+        value={debugResponseData.body}
+        saveViewState={false}
+        keepCurrentModel={false}
+      />
     );
   }
 
@@ -540,7 +537,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   private getServerLogsPanel() {
     return (
       <SimpleBar
-        style={{ height: "calc(100% - 24px)", width: "100%" }}
+        style={{ height: "100%", width: "100%" }}
         autoHide={false}
         scrollbarMinSize={48}
       >
@@ -550,7 +547,6 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           follow={true}
           linkify={true}
         />
-        <div style={{ height: 8 }}/>
       </SimpleBar>
     );
   }

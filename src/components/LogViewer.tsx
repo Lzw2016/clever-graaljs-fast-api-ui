@@ -92,9 +92,9 @@ class LogViewer extends React.Component<LogViewerProps, LogViewerState> {
   render() {
     const { className, style } = this.props;
     return (
-      <code className={cls(styles.code, className)} style={style}>
+      <div className={cls(styles.code, className)} style={style}>
         {this.logs}
-      </code>
+      </div>
     );
   }
 }
