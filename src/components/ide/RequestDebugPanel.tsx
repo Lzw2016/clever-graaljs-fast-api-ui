@@ -107,6 +107,11 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
     this.reLoadData();
   }
 
+  // 组件更新成功
+  public componentDidUpdate(prevProps: Readonly<RequestDebugPanelProps>, prevState: Readonly<RequestDebugPanelState>, snapshot?: any) {
+    if (prevProps.httpApiId !== this.props.httpApiId) this.reLoadData();
+  }
+
   // 组件将要被卸载
   public componentWillUnmount() {
     this.saveState().finally();
@@ -248,35 +253,34 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
             onClick={() => this.reLoadData(true, undefined, true)}
           />
         </div>
-        <div className={cls(styles.flexColumn, styles.leftPanelList)}>
-          <SimpleBar
-            style={{ height: "100%", width: "100%" }}
-            autoHide={false}
-            scrollbarMinSize={48}
-          >
-            {titleListLoading && <Spinner className={cls(styles.loading)} intent={Intent.PRIMARY} size={SpinnerSize.SMALL}/>}
-            {
-              !titleListLoading &&
-              titleList.map(title => (
+        <SimpleBar
+          className={cls(styles.leftPanelList)}
+          style={{ width: "100%" }}
+          autoHide={false}
+          scrollbarMinSize={48}
+        >
+          {titleListLoading && <Spinner className={cls(styles.loading)} intent={Intent.PRIMARY} size={SpinnerSize.SMALL}/>}
+          {
+            !titleListLoading &&
+            titleList.map(title => (
+              <div
+                key={title.id}
+                className={cls(
+                  styles.flexColumn, styles.leftPanelListItem,
+                  { [styles.leftPanelListItemSelected]: httpApiDebug.id === title.id },
+                )}
+              >
+                <Icon component={HttpRequestsFiletype} className={cls(styles.flexItemColumn, styles.leftPanelListItemIcon)}/>
                 <div
-                  key={title.id}
-                  className={cls(
-                    styles.flexColumn, styles.leftPanelListItem,
-                    { [styles.leftPanelListItemSelected]: httpApiDebug.id === title.id },
-                  )}
+                  className={cls(styles.flexItemColumnWidthFull, styles.leftPanelListItemText)}
+                  onClick={() => this.loadHttpApiDebugRes(title.id)}
                 >
-                  <Icon component={HttpRequestsFiletype} className={cls(styles.flexItemColumn, styles.leftPanelListItemIcon)}/>
-                  <div
-                    className={cls(styles.flexItemColumnWidthFull, styles.leftPanelListItemText)}
-                    onClick={() => this.loadHttpApiDebugRes(title.id)}
-                  >
-                    {title.title}
-                  </div>
+                  {title.title}
                 </div>
-              ))
-            }
-          </SimpleBar>
-        </div>
+              </div>
+            ))
+          }
+        </SimpleBar>
       </>
     );
   }

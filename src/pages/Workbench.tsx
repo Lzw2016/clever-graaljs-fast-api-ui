@@ -697,7 +697,12 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getBottomContent() {
-    const { bottomPanel } = this.state;
+    const { bottomPanel, currentEditId, openFileMap } = this.state;
+    let httpApiId: string | undefined;
+    if (currentEditId) {
+      const openFile = openFileMap.get(currentEditId);
+      httpApiId = openFile?.httpApi?.id;
+    }
     const style: React.CSSProperties = { height: "100%" };
     return (
       <>
@@ -707,7 +712,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.RequestDebug })} style={style}>
           <RequestDebugPanel
             ref={this.requestDebugPane}
-            httpApiId={"233"}
+            httpApiId={httpApiId}
           />
         </div>
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.ServerLogs })} style={style}>
@@ -1038,7 +1043,6 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
 
   public render() {
     this.saveAppState();
-    console.log("### render", this.state);
     return this.getLayout();
   }
 }

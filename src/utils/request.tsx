@@ -109,7 +109,6 @@ axiosInstance.interceptors.response.use(
     }
     const { data: { message, validMessageList } } = response;
     if (validMessageList) {
-      console.log("####1")
       toaster.show({
         ...toastProps, message: (
           <div>
@@ -120,7 +119,6 @@ axiosInstance.interceptors.response.use(
           </div>
         ),
       });
-      console.log("####2")
       return Promise.reject(error.response);
     } else {
       const errorText = message ? message : (errorMsg[response.status] ?? "服务器异常");
