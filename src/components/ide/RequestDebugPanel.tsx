@@ -367,7 +367,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   // 右边面板
   private getRightPanel() {
     const { responseTab, httpApiDebugRes, debugResponseData } = this.state;
-    const isHide = lodash.toString(httpApiDebugRes.id).length <= 0;
+    const isHide = lodash.toString(httpApiDebugRes.id).length <= 0 || lodash.toString(debugResponseData.status).length <= 0;
     return (
       <Tabs
         className={cls(styles.responseData, { [styles.hide]: isHide })}
