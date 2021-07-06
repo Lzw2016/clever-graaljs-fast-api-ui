@@ -60,7 +60,7 @@ interface RequestDebugPanelState {
   /** 数据加载状态 */
   titleListLoading: boolean;
   /** HttpApiDebug Data */
-  httpApiDebugRes: HttpApiDebugRes;
+  httpApiDebug: HttpApiDebugRes;
   /** Debug Response Data */
   debugResponseData: DebugResponseData;
   /** debug请求状态 */
@@ -70,7 +70,7 @@ interface RequestDebugPanelState {
 // 读取组件状态
 const storageState: Partial<RequestDebugPanelState> = await fastApiStore.getItem(componentStateKey.RequestDebugPanelState) ?? {};
 // 组件状态默认值
-const defHttpApiDebugRes = (): HttpApiDebugRes => ({
+const defHttpApiDebug = (): HttpApiDebugRes => ({
   id: "", namespace: "", httpApiId: "", title: "",
   requestData: { method: "GET", path: "", params: [], headers: [], jsonBody: "", formBody: [] },
   createAt: "", updateAt: ""
@@ -83,7 +83,7 @@ const defaultState: RequestDebugPanelState = {
   responseTab: ResponseTabEnum.Body,
   titleList: [],
   titleListLoading: false,
-  httpApiDebugRes: { ...defHttpApiDebugRes() },
+  httpApiDebug: { ...defHttpApiDebug() },
   debugResponseData: { ...defDebugResponseData() },
   debugLoading: false,
   ...storageState,
@@ -133,13 +133,13 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
       httpApiId = httpApiIdProps;
     }
     if (!httpApiId) {
-      this.setState({ httpApiId, titleList: [], httpApiDebugRes: { ...defHttpApiDebugRes() } });
+      this.setState({ httpApiId, titleList: [], httpApiDebug: { ...defHttpApiDebug() } });
       return;
     }
     if (spin) this.setState({ titleListLoading: true });
     request.get(FastApi.HttpApiDebugManage.getTitleList, { params: { httpApiId } })
       .then((data: Array<HttpApiDebugTitleRes>) => {
-        this.setState({ httpApiId, titleList: data, httpApiDebugRes: { ...defHttpApiDebugRes() } });
+        this.setState({ httpApiId, titleList: data, httpApiDebug: { ...defHttpApiDebug() } });
         // TODO loadHttpApiDebugRes
       }).finally(() => {
       if (spin) this.setState({ titleListLoading: false });
@@ -152,16 +152,16 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
     request.get(FastApi.HttpApiDebugManage.getHttpApiDebug, { params: { id } })
       .then((data: HttpApiDebugRes) => {
         if (data) {
-          this.setState({ httpApiDebugRes: { ...defHttpApiDebugRes(), ...data }, debugResponseData: { ...defDebugResponseData() } });
+          this.setState({ httpApiDebug: { ...defHttpApiDebug(), ...data }, debugResponseData: { ...defDebugResponseData() } });
         } else {
-          this.setState({ httpApiDebugRes: { ...defHttpApiDebugRes() }, debugResponseData: { ...defDebugResponseData() } });
+          this.setState({ httpApiDebug: { ...defHttpApiDebug() }, debugResponseData: { ...defDebugResponseData() } });
         }
       }).finally();
   }
 
   // 调试接口
   private doDebug() {
-    const { httpApiDebugRes: { requestData }, debugResponseData } = this.state;
+    const { httpApiDebug: { requestData }, debugResponseData } = this.state;
     const params: any = {};
     requestData?.params?.forEach(param => {
       params[param.key] = param.value;
@@ -235,7 +235,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 左边面板
   private getLeftPanel() {
-    const { titleList, titleListLoading, httpApiDebugRes } = this.state;
+    const { titleList, titleListLoading, httpApiDebug } = this.state;
     return (
       <>
         <div className={cls(styles.flexColumn, styles.leftPanelTools)}>
@@ -262,7 +262,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
                   key={title.id}
                   className={cls(
                     styles.flexColumn, styles.leftPanelListItem,
-                    { [styles.leftPanelListItemSelected]: httpApiDebugRes.id === title.id },
+                    { [styles.leftPanelListItemSelected]: httpApiDebug.id === title.id },
                   )}
                 >
                   <Icon component={HttpRequestsFiletype} className={cls(styles.flexItemColumn, styles.leftPanelListItemIcon)}/>
@@ -283,13 +283,13 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 中间面板
   private getCenterPanel() {
-    const { requestTab, httpApiDebugRes, debugLoading } = this.state;
-    const isHide = lodash.toString(httpApiDebugRes.id).length <= 0;
+    const { requestTab, httpApiDebug, debugLoading } = this.state;
+    const isHide = lodash.toString(httpApiDebug.id).length <= 0;
     return (
       <>
         <div className={cls(styles.requestTitle, styles.flexColumn, { [styles.hide]: isHide })}>
           <div className={cls(styles.flexItemColumn, styles.requestTitleText)}>
-            {httpApiDebugRes?.title ?? "undefined"}
+            {httpApiDebug?.title ?? "undefined"}
             <Icon className={cls(styles.editIcon)} component={Edit}/>
           </div>
           <div className={cls(styles.flexItemColumnWidthFull)}/>
@@ -302,10 +302,10 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           <select
             className={cls(styles.flexItemColumn)}
             disabled={debugLoading}
-            value={httpApiDebugRes?.requestData?.method ?? "GET"}
+            value={httpApiDebug?.requestData?.method ?? "GET"}
             onChange={e => {
-              if (!httpApiDebugRes?.requestData) return;
-              httpApiDebugRes.requestData.method = e.target.value as any;
+              if (!httpApiDebug?.requestData) return;
+              httpApiDebug.requestData.method = e.target.value as any;
               this.forceUpdate();
             }}
           >
@@ -326,10 +326,10 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
             placeholder={"输入接口路径"}
             readOnly={debugLoading}
             disabled={debugLoading}
-            value={httpApiDebugRes?.requestData?.path}
+            value={httpApiDebug?.requestData?.path}
             onChange={e => {
-              if (!httpApiDebugRes?.requestData) return;
-              httpApiDebugRes.requestData.path = e.target.value;
+              if (!httpApiDebug?.requestData) return;
+              httpApiDebug.requestData.path = e.target.value;
               this.forceUpdate();
             }}
           />
@@ -366,8 +366,8 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 右边面板
   private getRightPanel() {
-    const { responseTab, httpApiDebugRes, debugResponseData } = this.state;
-    const isHide = lodash.toString(httpApiDebugRes.id).length <= 0 || lodash.toString(debugResponseData.status).length <= 0;
+    const { responseTab, httpApiDebug, debugResponseData } = this.state;
+    const isHide = lodash.toString(httpApiDebug.id).length <= 0 || lodash.toString(debugResponseData.status).length <= 0;
     return (
       <Tabs
         className={cls(styles.responseData, { [styles.hide]: isHide })}
@@ -421,7 +421,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 请求Params面板
   private getParamsPanel() {
-    const { httpApiDebugRes: { requestData } } = this.state;
+    const { httpApiDebug: { requestData } } = this.state;
     return (
       <SimpleBar
         style={{ height: "100%", width: "100%" }}
@@ -435,7 +435,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 请求Headers面板
   private getRequestHeadersPanel() {
-    const { httpApiDebugRes: { requestData } } = this.state;
+    const { httpApiDebug: { requestData } } = this.state;
     return (
       <SimpleBar
         style={{ height: "100%", width: "100%" }}
@@ -449,7 +449,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 请求Body面板
   private getRequestBodyPanel() {
-    const { requestBodyTab, httpApiDebugRes: { requestData } } = this.state;
+    const { requestBodyTab, httpApiDebug: { requestData } } = this.state;
     return (
       <>
         <RadioGroup
