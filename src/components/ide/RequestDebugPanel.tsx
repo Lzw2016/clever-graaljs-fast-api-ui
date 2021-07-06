@@ -10,7 +10,8 @@ import { DynamicForm } from "@/components/DynamicForm";
 import { LogViewer } from "@/components/LogViewer";
 import { FastApi } from "@/apis";
 import { debugRequest } from "@/utils/debug-request";
-import { hasValue } from "@/utils/utils";
+import { hasPropertyIn, hasValue } from "@/utils/utils";
+import { TypeEnum, variableTypeOf } from "@/utils/typeof";
 import { bytesFormat } from "@/utils/format";
 import { request } from "@/utils/request";
 import { editorDefOptions, languageEnum, themeEnum } from "@/utils/editor-utils";
@@ -74,6 +75,7 @@ const defHttpApiDebugRes = (): HttpApiDebugRes => ({
   requestData: { method: "GET", path: "", params: [], headers: [], jsonBody: "", formBody: [] },
   createAt: "", updateAt: ""
 });
+const defDebugResponseData = (): DebugResponseData => ({ body: "", headers: [] });
 const defaultState: RequestDebugPanelState = {
   hSplitSize: [15, 40, 45],
   requestTab: RequestTabEnum.Params,
@@ -82,7 +84,7 @@ const defaultState: RequestDebugPanelState = {
   titleList: [],
   titleListLoading: false,
   httpApiDebugRes: { ...defHttpApiDebugRes() },
-  debugResponseData: { body: "", headers: [] },
+  debugResponseData: { ...defDebugResponseData() },
   debugLoading: false,
   ...storageState,
 }
@@ -144,20 +146,21 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
     });
   }
 
-  public loadHttpApiDebugRes(id: string) {
+  // 加载HttpApiDebug数据
+  private loadHttpApiDebugRes(id: string) {
     if (!id) return;
     request.get(FastApi.HttpApiDebugManage.getHttpApiDebug, { params: { id } })
       .then((data: HttpApiDebugRes) => {
         if (data) {
-          // console.log("loadHttpApiDebugRes ", data)
-          this.setState({ httpApiDebugRes: { ...defHttpApiDebugRes(), ...data } });
+          this.setState({ httpApiDebugRes: { ...defHttpApiDebugRes(), ...data }, debugResponseData: { ...defDebugResponseData() } });
         } else {
-          this.setState({ httpApiDebugRes: { ...defHttpApiDebugRes() } });
+          this.setState({ httpApiDebugRes: { ...defHttpApiDebugRes() }, debugResponseData: { ...defDebugResponseData() } });
         }
       }).finally();
   }
 
-  public doDebug() {
+  // 调试接口
+  private doDebug() {
     const { httpApiDebugRes: { requestData }, debugResponseData } = this.state;
     const params: any = {};
     requestData?.params?.forEach(param => {
@@ -180,18 +183,45 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
       data: requestData.jsonBody,
     }).then(response => {
       const endTime = lodash.now();
-      const { data: { data, logs }, headers, status, statusText } = response;
+      const { data, headers, status, statusText } = response;
       const contentLength = headers["content-length"];
-      debugResponseData.body = data ? JSON.stringify(data, null, 4) : "";
       debugResponseData.headers = [];
       lodash.forEach(headers, (value, key) => debugResponseData.headers.push({ key, value }));
       debugResponseData.status = status;
       debugResponseData.statusText = statusText;
       debugResponseData.time = endTime - startTime;
       if (contentLength) debugResponseData.size = lodash.toNumber(contentLength) * 8;
-      debugResponseData.logs = logs;
-      const logViewer = this.logViewer.current;
+      // 处理body
+      debugResponseData.body = "";
+      debugResponseData.logs = undefined;
+      const dataType = variableTypeOf(data);
+      if (dataType === TypeEnum.string
+        || dataType === TypeEnum.number
+        || dataType === TypeEnum.boolean) {
+        debugResponseData.body = data;
+      } else if (dataType === TypeEnum.array
+        || dataType === TypeEnum.function
+        || dataType === TypeEnum.symbol
+        || dataType === TypeEnum.math
+        || dataType === TypeEnum.regexp
+        || dataType === TypeEnum.date) {
+        debugResponseData.body = JSON.stringify(data, null, 4);
+      } else if (dataType === TypeEnum.object || dataType === TypeEnum.json) {
+        if (hasPropertyIn(data, "data") && variableTypeOf(data?.logs?.content) === TypeEnum.array) {
+          const resData = data?.data;
+          const resDataType = variableTypeOf(resData);
+          if (resDataType === TypeEnum.string || resDataType === TypeEnum.number || resDataType === TypeEnum.boolean) {
+            debugResponseData.body = resData;
+          } else if (resDataType !== TypeEnum.null && resDataType !== TypeEnum.undefined && resDataType !== TypeEnum.nan) {
+            debugResponseData.body = JSON.stringify(resData, null, 4);
+          }
+          debugResponseData.logs = data?.logs;
+        } else {
+          debugResponseData.body = JSON.stringify(data, null, 4);
+        }
+      }
       // 服务端日志
+      const logViewer = this.logViewer.current;
       if (logViewer && debugResponseData.logs && debugResponseData.logs.content && debugResponseData.logs.content.length > 0) {
         logViewer.clear(debugResponseData.logs.firstIndex);
         debugResponseData.logs.content.forEach(log => logViewer.addLogLine(log));
@@ -254,9 +284,10 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   // 中间面板
   private getCenterPanel() {
     const { requestTab, httpApiDebugRes, debugLoading } = this.state;
+    const isHide = lodash.toString(httpApiDebugRes.id).length <= 0;
     return (
       <>
-        <div className={cls(styles.requestTitle, styles.flexColumn)}>
+        <div className={cls(styles.requestTitle, styles.flexColumn, { [styles.hide]: isHide })}>
           <div className={cls(styles.flexItemColumn, styles.requestTitleText)}>
             {httpApiDebugRes?.title ?? "undefined"}
             <Icon className={cls(styles.editIcon)} component={Edit}/>
@@ -267,7 +298,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
             component={MenuSaveAll}
           />
         </div>
-        <div className={cls(styles.requestPath, styles.flexColumn)} style={{ alignItems: "center" }}>
+        <div className={cls(styles.requestPath, styles.flexColumn, { [styles.hide]: isHide })}>
           <select
             className={cls(styles.flexItemColumn)}
             disabled={debugLoading}
@@ -314,7 +345,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           </Button>
         </div>
         <Tabs
-          className={cls(styles.requestArgs)}
+          className={cls(styles.requestArgs, { [styles.hide]: isHide })}
           id={"RequestDebugPanel-CenterPanel"}
           animate={false}
           renderActiveTabPanelOnly={false}
@@ -335,10 +366,11 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 右边面板
   private getRightPanel() {
-    const { responseTab, debugResponseData } = this.state;
+    const { responseTab, httpApiDebugRes, debugResponseData } = this.state;
+    const isHide = lodash.toString(httpApiDebugRes.id).length <= 0;
     return (
       <Tabs
-        className={cls(styles.responseData)}
+        className={cls(styles.responseData, { [styles.hide]: isHide })}
         id={"RequestDebugPanel-RightPanel"}
         animate={false}
         renderActiveTabPanelOnly={false}
