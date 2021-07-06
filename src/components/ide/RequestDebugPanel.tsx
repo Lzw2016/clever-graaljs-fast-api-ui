@@ -159,7 +159,6 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   public doDebug() {
     const { httpApiDebugRes: { requestData }, debugResponseData } = this.state;
-    // console.log("---> ", requestData);
     const params: any = {};
     requestData?.params?.forEach(param => {
       params[param.key] = param.value;
@@ -173,6 +172,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
     const startTime = lodash.now();
     if (!headers["api-debug"]) headers["api-debug"] = `debug_${startTime}_${lodash.uniqueId()}`;
     debugRequest.request({
+      withCredentials: true,
       method: requestData.method as any,
       url: requestData.path,
       params,
@@ -182,7 +182,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
       const endTime = lodash.now();
       const { data: { data, logs }, headers, status, statusText } = response;
       const contentLength = headers["content-length"];
-      debugResponseData.body = JSON.stringify(data ?? "", null, 4);
+      debugResponseData.body = data ? JSON.stringify(data, null, 4) : "";
       debugResponseData.headers = [];
       lodash.forEach(headers, (value, key) => debugResponseData.headers.push({ key, value }));
       debugResponseData.status = status;
@@ -191,10 +191,13 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
       if (contentLength) debugResponseData.size = lodash.toNumber(contentLength) * 8;
       debugResponseData.logs = logs;
       const logViewer = this.logViewer.current;
+      // 服务端日志
       if (logViewer && debugResponseData.logs && debugResponseData.logs.content && debugResponseData.logs.content.length > 0) {
-        logViewer.clear(debugResponseData.logs.firstIndex - 1);
+        logViewer.clear(debugResponseData.logs.firstIndex);
         debugResponseData.logs.content.forEach(log => logViewer.addLogLine(log));
         logViewer.addLogLine("");
+      } else if (logViewer) {
+        logViewer.clear();
       }
       this.forceUpdate();
     }).finally(() => this.setState({ debugLoading: false }));
