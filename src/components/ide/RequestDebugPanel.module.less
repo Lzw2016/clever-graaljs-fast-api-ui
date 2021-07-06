@@ -146,8 +146,8 @@
 }
 
 .requestArgs {
-  height: calc(100% - 58px - @toolHeight);
   //height: calc(100% - 58px);
+  height: calc(100% - 58px - @toolHeight);
 
   :global {
     .bp3-tab-list {
@@ -155,8 +155,8 @@
     }
 
     .bp3-tab-panel {
-      //overflow: auto;
       height: calc(100% - 30px) !important;
+      //height: calc(100% - 30px - @toolHeight);
     }
   }
 }
@@ -184,7 +184,7 @@
     }
 
     .bp3-tab-panel {
-      height: calc(100% - 30px);
+      height: calc(100% - 30px) !important;
       //height: calc(100% - 30px - @toolHeight);
     }
   }
