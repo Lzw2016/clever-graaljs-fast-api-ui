@@ -7,14 +7,16 @@ import Icon from "@ant-design/icons";
 import { Button, Classes, InputGroup, Intent, Radio, RadioGroup, Spinner, SpinnerSize, Tab, Tabs } from "@blueprintjs/core";
 import Editor from "@monaco-editor/react";
 import { DynamicForm } from "@/components/DynamicForm";
+import { LogViewer } from "@/components/LogViewer";
+import { FastApi } from "@/apis";
+import { debugRequest } from "@/utils/debug-request";
+import { hasValue } from "@/utils/utils";
+import { bytesFormat } from "@/utils/format";
 import { request } from "@/utils/request";
 import { editorDefOptions, languageEnum, themeEnum } from "@/utils/editor-utils";
 import { Add, Edit, Execute, HttpRequestsFiletype, MenuSaveAll, Refresh, Remove2 } from "@/utils/IdeaIconUtils";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import styles from "./RequestDebugPanel.module.less";
-import { LogViewer } from "@/components/LogViewer";
-import { FastApi } from "@/apis";
-import { debugRequest } from "@/utils/debug-request";
 
 enum RequestTabEnum {
   Params = "Params",
@@ -80,7 +82,7 @@ const defaultState: RequestDebugPanelState = {
   titleList: [],
   titleListLoading: false,
   httpApiDebugRes: { ...defHttpApiDebugRes() },
-  debugResponseData: { resBody: "", resHeaders: [] },
+  debugResponseData: { body: "", headers: [] },
   debugLoading: false,
   ...storageState,
 }
@@ -147,7 +149,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
     request.get(FastApi.HttpApiDebugManage.getHttpApiDebug, { params: { id } })
       .then((data: HttpApiDebugRes) => {
         if (data) {
-          console.log("loadHttpApiDebugRes ", data)
+          // console.log("loadHttpApiDebugRes ", data)
           this.setState({ httpApiDebugRes: { ...defHttpApiDebugRes(), ...data } });
         } else {
           this.setState({ httpApiDebugRes: { ...defHttpApiDebugRes() } });
@@ -157,7 +159,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   public doDebug() {
     const { httpApiDebugRes: { requestData }, debugResponseData } = this.state;
-    console.log("---> ", requestData);
+    // console.log("---> ", requestData);
     const params: any = {};
     requestData?.params?.forEach(param => {
       params[param.key] = param.value;
@@ -166,27 +168,36 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
     requestData?.headers?.forEach(header => {
       headers[header.key] = header.value;
     });
+    headers["content-type"] = "application/json;charset=utf-8";
     this.setState({ debugLoading: true });
+    const startTime = lodash.now();
+    if (!headers["api-debug"]) headers["api-debug"] = `debug_${startTime}_${lodash.uniqueId()}`;
     debugRequest.request({
       method: requestData.method as any,
       url: requestData.path,
       params,
       headers,
-    }).then(data => {
-      console.log("---> ", data);
-      // debugResponseData.resBody = data?.data??{};
-      // debugResponseData.
+      data: requestData.jsonBody,
+    }).then(response => {
+      const endTime = lodash.now();
+      const { data: { data, logs }, headers, status, statusText } = response;
+      const contentLength = headers["content-length"];
+      debugResponseData.body = JSON.stringify(data ?? "", null, 4);
+      debugResponseData.headers = [];
+      lodash.forEach(headers, (value, key) => debugResponseData.headers.push({ key, value }));
+      debugResponseData.status = status;
+      debugResponseData.statusText = statusText;
+      debugResponseData.time = endTime - startTime;
+      if (contentLength) debugResponseData.size = lodash.toNumber(contentLength) * 8;
+      debugResponseData.logs = logs;
+      const logViewer = this.logViewer.current;
+      if (logViewer && debugResponseData.logs && debugResponseData.logs.content && debugResponseData.logs.content.length > 0) {
+        logViewer.clear(debugResponseData.logs.firstIndex - 1);
+        debugResponseData.logs.content.forEach(log => logViewer.addLogLine(log));
+        logViewer.addLogLine("");
+      }
+      this.forceUpdate();
     }).finally(() => this.setState({ debugLoading: false }));
-
-    // request.get("/api/test/02test", { headers: { "api-debug": "01234567890123456789" } })
-    //   .then(data => {
-    //     this.logViewer.current?.clear();
-    //     if (data?.logs?.content) {
-    //       (data.logs.content as string[]).forEach(log => this.logViewer.current?.addLogLine(log));
-    //       this.logViewer.current?.addLogLine("");
-    //       this.logViewer.current?.addLogLine("");
-    //     }
-    //   }).finally();
   }
 
   // 左边面板
@@ -261,6 +272,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
             onChange={e => {
               if (!httpApiDebugRes?.requestData) return;
               httpApiDebugRes.requestData.method = e.target.value as any;
+              this.forceUpdate();
             }}
           >
             <option value={"GET"}>GET</option>
@@ -284,6 +296,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
             onChange={e => {
               if (!httpApiDebugRes?.requestData) return;
               httpApiDebugRes.requestData.path = e.target.value;
+              this.forceUpdate();
             }}
           />
           <Button
@@ -319,7 +332,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 右边面板
   private getRightPanel() {
-    const { responseTab } = this.state;
+    const { responseTab, debugResponseData } = this.state;
     return (
       <Tabs
         className={cls(styles.responseData)}
@@ -338,15 +351,33 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         <div className={cls(styles.httpStatus)}>
           <span className={cls(styles.httpStatusItem)}>
             Status:
-            <span className={cls(styles.httpStatusValue)}>200 OK</span>
+            <span className={cls(styles.httpStatusValue)}>
+              {
+                debugResponseData.status ?
+                  `${debugResponseData.status} ${debugResponseData.statusText}` :
+                  "-"
+              }
+            </span>
           </span>
           <span className={cls(styles.httpStatusItem)}>
             Time:
-            <span className={cls(styles.httpStatusValue)}>93 ms</span>
+            <span className={cls(styles.httpStatusValue)}>
+              {
+                hasValue(debugResponseData.time) ?
+                  `${debugResponseData.time} ms` :
+                  "-"
+              }
+            </span>
           </span>
           <span className={cls(styles.httpStatusItem)}>
             Size:
-            <span className={cls(styles.httpStatusValue)}>21.15 KB</span>
+            <span className={cls(styles.httpStatusValue)}>
+                 {
+                   hasValue(debugResponseData.size) ?
+                     bytesFormat(debugResponseData.size!) :
+                     "-"
+                 }
+            </span>
           </span>
         </div>
       </Tabs>
@@ -403,6 +434,10 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           language={languageEnum.json}
           path={"/request_body.json"}
           value={requestData?.jsonBody}
+          onChange={value => {
+            if (!requestData) return;
+            requestData.jsonBody = value;
+          }}
           saveViewState={false}
           keepCurrentModel={false}
         />
@@ -421,6 +456,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 响应Body面板
   private getResponseBodyPanel() {
+    const { debugResponseData } = this.state;
     return (
       <>
         <Editor
@@ -430,6 +466,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           options={{ ...editorDefOptions, readOnly: true, domReadOnly: true }}
           language={languageEnum.json}
           path={"/response_body.json"}
+          value={debugResponseData.body}
           saveViewState={false}
           keepCurrentModel={false}
         />
@@ -437,21 +474,22 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
     );
   }
 
-  // 响应Cookies面板
-  private getResponseCookiesPanel() {
+  // 响应Headers面板
+  private getResponseHeadersPanel() {
+    const { debugResponseData } = this.state;
     return (
       <SimpleBar
         style={{ height: "100%", width: "100%" }}
         autoHide={false}
         scrollbarMinSize={48}
       >
-        <DynamicForm readOnly={true} noCheckbox={true} noDescription={true}/>
+        <DynamicForm readOnly={true} noCheckbox={true} noDescription={true} data={debugResponseData.headers}/>
       </SimpleBar>
     );
   }
 
-  // 响应Headers面板
-  private getResponseHeadersPanel() {
+  // 响应Cookies面板
+  private getResponseCookiesPanel() {
     return (
       <SimpleBar
         style={{ height: "100%", width: "100%" }}

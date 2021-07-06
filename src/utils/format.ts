@@ -277,7 +277,7 @@ const bytesFormat = (num: number): string => {
   const prefix = num >= 0 ? "" : "-";
   num = num >= 0 ? num : num * -1;
   if (!num) return "-";
-  if (num === 0) return "0B";
+  if (num === 0) return "0 B";
   for (let i = 0; i < BytesArray.length; i++) {
     const { value, unit } = BytesArray[i];
     const result: number = num / value;

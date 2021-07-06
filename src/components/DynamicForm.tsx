@@ -4,14 +4,7 @@ import Icon from "@ant-design/icons";
 import { CloseDarkGrey } from "@/utils/IdeaIconUtils";
 import styles from "./DynamicForm.module.less";
 
-interface ItemData {
-  key: string;
-  value: string;
-  description?: string;
-  selected?: boolean;
-}
-
-interface ItemDataState extends ItemData {
+interface ItemDataState extends RequestItemData {
   /** 是否是种子数据 */
   addRow: boolean;
 }
@@ -22,7 +15,7 @@ interface DynamicFormProps {
   /** 自定义样式 */
   style?: React.CSSProperties;
   /** 数据 */
-  data?: Array<ItemData>;
+  data?: Array<RequestItemData>;
   /** 是否只读 */
   readOnly?: boolean;
   /** 是否没有Checkbox */
@@ -45,13 +38,6 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
   constructor(props: DynamicFormProps) {
     super(props);
     this.state = { ...defaultState, dataMap: transformDataMap(props.data) };
-    // 加入种子数据
-    this.addSeedItemData();
-  }
-
-  private addSeedItemData() {
-    const { dataMap } = this.state;
-    dataMap.set(dataMap.size + 1, { key: "", value: "", description: "", selected: false, addRow: true });
   }
 
   private updateData() {
@@ -59,6 +45,7 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
   }
 
   private getInputRow(item: ItemDataState, index: number): React.ReactNode {
+    const { dataMap } = this.state;
     const { readOnly, noCheckbox, noDescription } = this.props;
     return (
       <div key={index} className={cls(styles.row)}>
@@ -75,7 +62,7 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
                 if (item.addRow) {
                   item.addRow = false;
                   item.selected = true;
-                  this.addSeedItemData();
+                  addSeedItemData(dataMap);
                 }
                 this.updateData();
               }}
@@ -93,7 +80,7 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
             if (item.addRow) {
               item.addRow = false;
               item.selected = true;
-              this.addSeedItemData();
+              addSeedItemData(dataMap);
             }
             this.updateData();
           }}
@@ -113,7 +100,7 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
             if (item.addRow) {
               item.addRow = false;
               item.selected = true;
-              this.addSeedItemData();
+              addSeedItemData(dataMap);
             }
             this.updateData();
           }}
@@ -134,7 +121,7 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
               if (item.addRow) {
                 item.addRow = false;
                 item.selected = true;
-                this.addSeedItemData();
+                addSeedItemData(dataMap);
               }
               this.updateData();
             }}
@@ -160,6 +147,14 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
     const { className, style, data, noCheckbox, noDescription } = this.props;
     let { dataMap } = this.state;
     if (data) dataMap = transformDataMap(data);
+    let hasAddRow = false;
+    dataMap.forEach(item => {
+      if (hasAddRow) return;
+      hasAddRow = item.addRow;
+    });
+    if (!hasAddRow) {
+      addSeedItemData(this.state.dataMap);
+    }
     const inputArray: React.ReactNode[] = [];
     dataMap.forEach((item, index) => inputArray.push(this.getInputRow(item, index)));
     return (
@@ -204,13 +199,21 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
   }
 }
 
-const transformDataMap = (data?: Array<ItemData>): Map<number, ItemDataState> => {
+// 加入种子数据
+const addSeedItemData = (dataMap: Map<number, ItemDataState>) => {
+  dataMap.set(dataMap.size + 1, { key: "", value: "", description: "", selected: false, addRow: true });
+}
+
+const transformDataMap = (data?: Array<RequestItemData>): Map<number, ItemDataState> => {
   const dataMap = new Map<number, ItemDataState>();
   let index = 0;
   data?.forEach(item => {
     index++;
-    dataMap.set(index, { ...item, addRow: false });
+    const itemDataState: ItemDataState = (item as ItemDataState);
+    itemDataState.addRow = false;
+    dataMap.set(index, itemDataState);
   });
+  addSeedItemData(dataMap);
   return dataMap;
 }
 

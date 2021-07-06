@@ -348,11 +348,12 @@ interface DebugRequestData {
 }
 
 interface DebugResponseData {
-  resBody: any;
-  resHeaders: Array<RequestItemData>;
+  body: string;
+  headers: Array<RequestItemData>;
   // resCookies?: { [key: string]: string }; // Name Value Domain Path Expires HttpOnly Secure
-  resStatus?: number;
-  resTime?: number;
-  resSize?: number;
+  status?: number;
+  statusText?: string;
+  time?: number;
+  size?: number;
   logs?: { firstIndex: number; lastIndex: number; content: Array<string> }
 }

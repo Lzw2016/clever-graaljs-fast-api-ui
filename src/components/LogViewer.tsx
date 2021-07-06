@@ -57,9 +57,9 @@ class LogViewer extends React.Component<LogViewerProps, LogViewerState> {
     this.forceUpdate();
   }
 
-  public clear() {
+  public clear(lineNo: number = 0) {
     this.logs.length = 0;
-    this.lineNo = 0;
+    this.lineNo = lineNo;
     this.forceUpdate();
   }
 
