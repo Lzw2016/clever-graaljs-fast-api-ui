@@ -29,6 +29,7 @@ const FastApi = {
     getHttpApiDebug: `${serverHost}/http_api_debug_manage/http_api_debug`,
     addHttpApiDebug: `${serverHost}/http_api_debug_manage/add_debug`,
     updateHttpApiDebug: `${serverHost}/http_api_debug_manage/update_debug`,
+    delHttpApiDebug: `${serverHost}/http_api_debug_manage/del_debug`,
   },
 };
 

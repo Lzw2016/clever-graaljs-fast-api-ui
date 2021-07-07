@@ -168,23 +168,21 @@ input.bp3-input::placeholder {
 }
 
 .bp3-button, .bp3-portal .bp3-alert-footer .bp3-button {
-  padding: 0 !important;
-  min-height: 20px !important;
-  min-width: 20px !important;
-  background-image: none !important;
-}
-
-.bp3-button, .bp3-portal .bp3-alert-footer .bp3-button {
   padding: 3px 5px !important;
   min-height: 20px !important;
   min-width: 20px !important;
   font-size: 13px !important;
   background-color: #4C5052 !important;
+  background-image: none !important;
   border: 1px solid #5E6060 !important;
   color: @fontColor !important;
   box-shadow: none !important;
   border-radius: 2px !important;
   user-select: none !important;
+}
+
+.bp3-button, .bp3-portal .bp3-alert-footer .bp3-button.bp3-dialog-close-button {
+  border: none !important;
 }
 
 .bp3-button.bp3-intent-primary {

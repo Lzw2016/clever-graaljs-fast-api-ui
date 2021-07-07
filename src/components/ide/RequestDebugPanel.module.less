@@ -54,7 +54,7 @@
     background-color: unset !important;
   }
 
-  svg, svg g, svg g path, svg g rect {
+  svg, svg g, svg g path, svg g rect, svg rect {
     fill: @fontDisableColor !important;
   }
 }
@@ -263,4 +263,18 @@
   max-height: 256px;
 }
 
-//HttpApi_debug
+.dialog {
+  font-size: 12px;
+
+  :global {
+    .bp3-form-group.bp3-inline {
+      margin-left: 16px;
+      margin-right: 16px;
+
+      .bp3-form-content {
+        flex-grow: 1;
+        flex-shrink: 1;
+      }
+    }
+  }
+}

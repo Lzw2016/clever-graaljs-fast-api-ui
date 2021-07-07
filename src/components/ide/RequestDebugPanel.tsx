@@ -4,18 +4,18 @@ import lodash from "lodash";
 import Split from "react-split";
 import SimpleBar from "simplebar-react";
 import Icon from "@ant-design/icons";
-import { Button, Classes, InputGroup, Intent, Radio, RadioGroup, Spinner, SpinnerSize, Tab, Tabs } from "@blueprintjs/core";
+import { Alert, Button, Classes, Dialog, FormGroup, InputGroup, Intent, Radio, RadioGroup, Spinner, SpinnerSize, Tab, Tabs } from "@blueprintjs/core";
 import Editor from "@monaco-editor/react";
 import { DynamicForm } from "@/components/DynamicForm";
 import { LogViewer } from "@/components/LogViewer";
 import { FastApi } from "@/apis";
 import { debugRequest } from "@/utils/debug-request";
-import { hasPropertyIn, hasValue } from "@/utils/utils";
+import { hasPropertyIn, hasValue, noValue } from "@/utils/utils";
 import { TypeEnum, variableTypeOf } from "@/utils/typeof";
 import { bytesFormat } from "@/utils/format";
 import { request } from "@/utils/request";
 import { editorDefOptions, languageEnum, themeEnum } from "@/utils/editor-utils";
-import { Add, Edit, Execute, HttpRequestsFiletype, MenuSaveAll, Refresh, Remove2 } from "@/utils/IdeaIconUtils";
+import { Add, AddFile, Edit, Execute, HttpRequestsFiletype, MenuSaveAll, Refresh, Remove2 } from "@/utils/IdeaIconUtils";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import styles from "./RequestDebugPanel.module.less";
 
@@ -37,6 +37,11 @@ enum ResponseTabEnum {
 enum RequestBodyTabEnum {
   JsonBody = "JsonBody",
   FormBody = "FormBody",
+}
+
+interface AddHttpApiDebugForm {
+  /** 标题 */
+  title: string;
 }
 
 interface RequestDebugPanelProps {
@@ -61,10 +66,26 @@ interface RequestDebugPanelState {
   titleListLoading: boolean;
   /** HttpApiDebug Data */
   httpApiDebug: HttpApiDebugRes;
+  /** HttpApiDebug数据加载状态 */
+  httpApiDebugLoading: boolean;
   /** Debug Response Data */
   debugResponseData: DebugResponseData;
   /** debug请求状态 */
   debugLoading: boolean;
+  /** 显示新增对话框 */
+  showAddDialog: boolean;
+  /** 新增表单数据 */
+  addForm: AddHttpApiDebugForm;
+  /** 新增Loading: */
+  addLoading: boolean;
+  /** 删除数据对话框 */
+  showDeleteDialog: boolean;
+  /** 删除数据Loading */
+  deleteLoading: boolean;
+  /** 更新数据对话框 */
+  showUpdateDialog: boolean;
+  /** 更新数据Loading */
+  updateLoading: boolean;
 }
 
 // 读取组件状态
@@ -84,8 +105,16 @@ const defaultState: RequestDebugPanelState = {
   titleList: [],
   titleListLoading: false,
   httpApiDebug: { ...defHttpApiDebug() },
+  httpApiDebugLoading: false,
   debugResponseData: { ...defDebugResponseData() },
   debugLoading: false,
+  showAddDialog: false,
+  addForm: { title: "" },
+  addLoading: false,
+  showDeleteDialog: false,
+  deleteLoading: false,
+  showUpdateDialog: false,
+  updateLoading: false,
   ...storageState,
 }
 
@@ -132,7 +161,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   /** 重新加载数据 */
   public reLoadData(spin: boolean = true, httpApiId?: string, force?: boolean) {
     const { httpApiId: httpApiIdProps } = this.props;
-    const { httpApiId: httpApiIdState } = this.state;
+    const { httpApiId: httpApiIdState, httpApiDebug } = this.state;
     if (!httpApiId) {
       if (!force && httpApiIdProps === httpApiIdState) return;
       httpApiId = httpApiIdProps;
@@ -144,8 +173,11 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
     if (spin) this.setState({ titleListLoading: true });
     request.get(FastApi.HttpApiDebugManage.getTitleList, { params: { httpApiId } })
       .then((data: Array<HttpApiDebugTitleRes>) => {
-        this.setState({ httpApiId, titleList: data, httpApiDebug: { ...defHttpApiDebug() } });
-        // TODO loadHttpApiDebugRes
+        const newState: Partial<RequestDebugPanelState> = { httpApiId, titleList: data };
+        if (!httpApiDebug || !data.map(item => item.id).includes(httpApiDebug.id)) {
+          newState.httpApiDebug = { ...defHttpApiDebug() };
+        }
+        this.setState(newState as any);
       }).finally(() => {
       if (spin) this.setState({ titleListLoading: false });
     });
@@ -154,6 +186,8 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   // 加载HttpApiDebug数据
   private loadHttpApiDebugRes(id: string) {
     if (!id) return;
+    const { httpApiDebug } = this.state;
+    this.setState({ httpApiDebugLoading: true, httpApiDebug: { ...httpApiDebug, id } });
     request.get(FastApi.HttpApiDebugManage.getHttpApiDebug, { params: { id } })
       .then((data: HttpApiDebugRes) => {
         if (data) {
@@ -161,7 +195,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         } else {
           this.setState({ httpApiDebug: { ...defHttpApiDebug() }, debugResponseData: { ...defDebugResponseData() } });
         }
-      }).finally();
+      }).finally(() => this.setState({ httpApiDebugLoading: false }));
   }
 
   // 调试接口
@@ -238,19 +272,64 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
     }).finally(() => this.setState({ debugLoading: false }));
   }
 
+  // 删除调试数据
+  private delHttpApiDebug() {
+    const { httpApiDebug } = this.state;
+    this.setState({ deleteLoading: true });
+    request.delete(FastApi.HttpApiDebugManage.delHttpApiDebug, { params: { id: httpApiDebug.id } })
+      .then(() => this.setState({
+          showDeleteDialog: false,
+          httpApiDebug: { ...defHttpApiDebug() },
+          debugResponseData: { ...defDebugResponseData() },
+        }, () => this.reLoadData(false, undefined, true)
+      )).finally(() => this.setState({ deleteLoading: false }));
+  }
+
+  // 新增调试数据
+  private addHttpApiDebug() {
+    const { httpApiId } = this.props;
+    const { addForm: { title } } = this.state;
+    this.setState({ addLoading: true });
+    request.post(FastApi.HttpApiDebugManage.addHttpApiDebug, { httpApiId, title })
+      .then(() => this.setState({
+          showAddDialog: false,
+        }, () => this.reLoadData(false, undefined, true)
+      )).finally(() => this.setState({ addLoading: false }));
+  }
+
   // 左边面板
   private getLeftPanel() {
+    const { httpApiId } = this.props;
     const { titleList, titleListLoading, httpApiDebug } = this.state;
+    const delDisable = lodash.toString(httpApiDebug?.id).length <= 0;
+    const addDisable = noValue(httpApiId);
     return (
       <>
         <div className={cls(styles.flexColumn, styles.leftPanelTools)}>
           <div className={cls(styles.flexItemColumnWidthFull)}/>
-          <Icon component={Remove2} className={cls(styles.flexItemColumn, styles.icon)}/>
-          <Icon component={Add} className={cls(styles.flexItemColumn, styles.icon)}/>
           <Icon
-            className={cls(styles.flexItemColumn, styles.icon)}
+            component={Remove2}
+            className={cls(styles.flexItemColumn, styles.icon, { [styles.iconDisable]: delDisable })}
+            onClick={() => {
+              if (delDisable) return;
+              this.setState({ showDeleteDialog: true });
+            }}
+          />
+          <Icon
+            component={Add}
+            className={cls(styles.flexItemColumn, styles.icon, { [styles.iconDisable]: addDisable })}
+            onClick={() => {
+              if (addDisable) return;
+              this.setState({ showAddDialog: true, addForm: { title: "" } });
+            }}
+          />
+          <Icon
+            className={cls(styles.flexItemColumn, styles.icon, { [styles.iconDisable]: addDisable })}
             component={Refresh}
-            onClick={() => this.reLoadData(true, undefined, true)}
+            onClick={() => {
+              if (addDisable) return;
+              this.reLoadData(true, undefined, true);
+            }}
           />
         </div>
         <SimpleBar
@@ -273,7 +352,10 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
                 <Icon component={HttpRequestsFiletype} className={cls(styles.flexItemColumn, styles.leftPanelListItemIcon)}/>
                 <div
                   className={cls(styles.flexItemColumnWidthFull, styles.leftPanelListItemText)}
-                  onClick={() => this.loadHttpApiDebugRes(title.id)}
+                  onClick={() => {
+                    if (httpApiDebug.id === title.id) return;
+                    this.loadHttpApiDebugRes(title.id);
+                  }}
                 >
                   {title.title}
                 </div>
@@ -555,6 +637,69 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
     );
   }
 
+  private getDeleteDialog() {
+    const { httpApiDebug, showDeleteDialog, deleteLoading } = this.state;
+    return (
+      <Alert
+        icon={"trash"}
+        intent={Intent.DANGER}
+        cancelButtonText={"取消"}
+        confirmButtonText={"删除"}
+        canEscapeKeyCancel={!deleteLoading}
+        canOutsideClickCancel={!deleteLoading}
+        transitionDuration={0.1}
+        isOpen={showDeleteDialog && hasValue(httpApiDebug?.id)}
+        loading={deleteLoading}
+        onCancel={() => this.setState({ showDeleteDialog: false })}
+        onConfirm={() => this.delHttpApiDebug()}
+      >
+        <p>
+          确认删除调试数据: <br/>
+          {httpApiDebug.title}？
+        </p>
+      </Alert>
+    );
+  }
+
+  private getAddDialog() {
+    const { showAddDialog, addForm: { title }, addLoading } = this.state;
+    return (
+      <Dialog
+        className={cls(Classes.DARK, styles.dialog, styles.addHttpApiDialog)}
+        style={{ width: 350 }}
+        lazy={true}
+        icon={<Icon component={AddFile} className={cls(styles.menuIcon)} style={{ marginRight: 8 }}/>}
+        title={"新增调试数据"}
+        transitionDuration={0.1}
+        usePortal={true}
+        isCloseButtonShown={!addLoading}
+        canEscapeKeyClose={!addLoading}
+        canOutsideClickClose={false}
+        autoFocus={true}
+        enforceFocus={true}
+        isOpen={showAddDialog}
+        onClose={() => this.setState({ showAddDialog: false })}
+      >
+        <FormGroup style={{ marginTop: 12 }} inline={true} label={"名称"}>
+          <InputGroup
+            type={"text"}
+            placeholder={"输入名称"}
+            disabled={addLoading}
+            autoFocus={true}
+            value={title}
+            onChange={e => this.setState({ addForm: { title: e.target.value } })}
+          />
+        </FormGroup>
+        <div className={Classes.DIALOG_FOOTER}>
+          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+            <Button onClick={() => this.setState({ showAddDialog: false })} disabled={addLoading}>取消</Button>
+            <Button intent={Intent.PRIMARY} onClick={() => this.addHttpApiDebug()} loading={addLoading}>确认</Button>
+          </div>
+        </div>
+      </Dialog>
+    );
+  }
+
   render() {
     this.saveComponentState();
     const { hSplitSize } = this.state;
@@ -588,6 +733,8 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         <div className={cls(styles.rightPanel)}>
           {this.getRightPanel()}
         </div>
+        {this.getDeleteDialog()}
+        {this.getAddDialog()}
       </Split>
     );
   }
