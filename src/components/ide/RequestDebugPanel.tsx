@@ -14,7 +14,7 @@ import { hasPropertyIn, hasValue, noValue } from "@/utils/utils";
 import { TypeEnum, variableTypeOf } from "@/utils/typeof";
 import { bytesFormat } from "@/utils/format";
 import { request } from "@/utils/request";
-import { editorDefOptions, languageEnum, themeEnum } from "@/utils/editor-utils";
+import { editorDefOptions, initEditorConfig, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
 import { Add, AddFile, Edit, Execute, HttpRequestsFiletype, MenuSaveAll, Refresh, Remove2 } from "@/utils/IdeaIconUtils";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import styles from "./RequestDebugPanel.module.less";
@@ -551,10 +551,19 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           wrapperClassName={cls(styles.requestEditor)}
           theme={themeEnum.IdeaDracula}
           loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
-          options={editorDefOptions}
+          options={{ ...editorDefOptions, contextmenu: false }}
           language={languageEnum.json}
           path={"/request_body.json"}
           value={requestData?.jsonBody}
+          onMount={(editor, monaco) => {
+            initEditorConfig(editor);
+            initKeyBinding(editor, monaco);
+            // editor.addCommand(
+            //   MonacoApi.KeyMod.CtrlCmd | MonacoApi.KeyCode.KEY_S,
+            //   () => {
+            //   },
+            // );
+          }}
           onChange={value => {
             if (!requestData) return;
             requestData.jsonBody = value;
@@ -582,7 +591,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
       <Editor
         theme={themeEnum.IdeaDracula}
         loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
-        options={{ ...editorDefOptions, readOnly: true, domReadOnly: true }}
+        options={{ ...editorDefOptions, readOnly: true, domReadOnly: true, contextmenu: false }}
         language={languageEnum.json}
         path={"/response_body.json"}
         value={debugResponseData.body}
