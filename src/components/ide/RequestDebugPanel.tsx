@@ -264,7 +264,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
       if (logViewer && debugResponseData.logs && debugResponseData.logs.content && debugResponseData.logs.content.length > 0) {
         logViewer.clear(debugResponseData.logs.firstIndex);
         debugResponseData.logs.content.forEach(log => logViewer.addLogLine(log));
-        logViewer.addLogLine("");
+        logViewer.addLogLine("\n\n\n");
       } else if (logViewer) {
         logViewer.clear();
       }
