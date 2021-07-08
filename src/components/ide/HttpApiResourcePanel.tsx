@@ -125,7 +125,7 @@ class HttpApiResourcePanel extends React.Component<HttpApiResourcePanelProps, Ht
 
   // 组件挂载后
   public componentDidMount() {
-    this.reLoadTreeData();
+    this.reLoadTreeData(true, false);
   }
 
   // 组件将要被卸载
@@ -151,13 +151,13 @@ class HttpApiResourcePanel extends React.Component<HttpApiResourcePanelProps, Ht
   }
 
   /** 重新加载数据 */
-  public reLoadTreeData(spin: boolean = true) {
+  public reLoadTreeData(spin: boolean = true, triggerOnSelectChange: boolean = true) {
     if (spin) this.setState({ loading: true });
     request.get(FastApi.HttpApiManage.getHttpApiTree)
       .then(treeData => {
         treeData = transformTreeData(treeData);
         const { onSelectChange } = this.props;
-        if (onSelectChange) {
+        if (triggerOnSelectChange && onSelectChange) {
           const { selectedId } = this.state;
           let selectNode: TreeNodeInfo<ApiFileResourceRes> | undefined;
           (treeData as Array<TreeNodeInfo<ApiFileResourceRes>>).forEach(node => forEachTreeNode(node, n => {
