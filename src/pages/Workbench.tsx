@@ -179,6 +179,34 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     const div = document.getElementById(`fileTab#${currentEditId}`);
     if (div) div.scrollIntoView();
   };
+  /** 全局快捷键 */
+  private hotkeys: ((e: KeyboardEvent) => void) = e => {
+    let preventDefault = false;
+    if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === "C") {
+      // Ctrl + Shift + C  -> 接口配置面板切换
+      preventDefault = true;
+      this.toggleBottomPanel(BottomPanelEnum.Interface);
+    } else if ((e.ctrlKey && e.shiftKey && e.key.toUpperCase() === "D") || (e.ctrlKey && e.key.toUpperCase() === "J")) {
+      // Ctrl + Shift + D  -> 接口调试面板切换
+      // Ctrl + J          -> 接口调试面板切换
+      preventDefault = true;
+      this.toggleBottomPanel(BottomPanelEnum.RequestDebug);
+    } else if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === "S") {
+      // Ctrl + Shift + S  -> 服务端日志面板切换
+      preventDefault = true;
+      this.toggleBottomPanel(BottomPanelEnum.ServerLogs);
+    } else if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === "G") {
+      // Ctrl + Shift + G  -> 全局请求参数面板切换
+      preventDefault = true;
+      this.toggleBottomPanel(BottomPanelEnum.GlobalConfig);
+    } else if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === "E") {
+      // Ctrl + Shift + E  -> 系统日志面板切换
+      preventDefault = true;
+      this.toggleBottomPanel(BottomPanelEnum.SysEvent);
+    }
+    // 警用浏览器默认行为
+    if (preventDefault) e.preventDefault();
+  };
 
   constructor(props: Readonly<WorkbenchProps>) {
     super(props);
@@ -189,6 +217,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   public componentDidMount() {
     // window.addEventListener("beforeunload", this.pageBeforeunload);
     window.addEventListener("resize", this.editorResize);
+    window.addEventListener("keydown", this.hotkeys);
     initStorageState().then(() => this.forceUpdate());
     request.get(FastApi.GlobalEnv.getGlobalEnv)
       .then(data => {
@@ -200,6 +229,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   // 组件将要被卸载
   public componentWillUnmount() {
     window.removeEventListener("resize", this.editorResize);
+    window.removeEventListener("keydown", this.hotkeys);
     // window.removeEventListener("beforeunload", this.pageBeforeunload);
     this.saveState().finally();
   }
@@ -359,7 +389,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     openFileMap.delete(fileResourceId);
     let editFile: EditorTabItem | undefined;
     let lastEditTime: number = 0;
-    openFileMap.forEach((item, fileResourceId) => {
+    openFileMap.forEach(item => {
       if (item.lastEditTime > lastEditTime) {
         lastEditTime = item.lastEditTime;
         editFile = item;
