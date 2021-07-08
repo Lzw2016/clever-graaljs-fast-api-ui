@@ -155,7 +155,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
       openFile.needSave = changed;
       this.forceUpdate();
     }
-  }, 150, { maxWait: 1000 });
+  }, 50, { maxWait: 500 });
   /** 更新TopStatusFileInfo */
   private setTopStatusFileInfo = () => {
     const { currentEditId, openFileMap, topStatusFileInfo } = this.state;

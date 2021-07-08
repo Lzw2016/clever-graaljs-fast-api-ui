@@ -41,7 +41,7 @@
     background-color: @toolItemIconActiveBgColor;
   }
 
-  svg, svg g, svg g path, svg g rect {
+  svg, svg g, svg g path, svg g rect, svg path {
     fill: @iconColor;
   }
 }
@@ -54,9 +54,13 @@
     background-color: unset !important;
   }
 
-  svg, svg g, svg g path, svg g rect, svg rect {
+  svg, svg g, svg g path, svg g rect, svg rect, svg path {
     fill: @fontDisableColor !important;
   }
+}
+
+.iconActive {
+  background-color: @toolItemIconActiveBgColor;
 }
 
 .leftPanel {
@@ -77,9 +81,9 @@
 }
 
 .requestTitle {
-  height: 28px;
-  padding: 2px 12px;
-  line-height: 28px;
+  height: 30px;
+  padding: 1px 12px 5px 12px;
+  line-height: 30px;
   font-size: 14px;
 
   :global {
@@ -94,7 +98,7 @@
 
 .requestTitleText {
   cursor: default;
-  padding-right: 16px;
+  padding-right: 18px;
 
   &:hover .editIcon {
     display: unset;
@@ -103,15 +107,47 @@
 
 .editIcon {
   display: none;
-  margin-left: 8px;
+  position: relative;
+  margin-left: 6px;
+  top: 2px;
 
   &:hover {
     cursor: pointer;
+    display: unset;
 
     svg, svg path {
       fill: @fontActiveColor;
     }
   }
+}
+
+.requestTitleInput {
+  input.bp3-input {
+    font-size: 14px !important;
+  }
+}
+
+.requestTitleBut {
+  :global(.bp3-button) {
+    height: 20px !important;
+    width: 20px !important;
+    margin: 0 !important;
+    top: 0 !important;
+    right: 2px !important;
+    background-color: #3C3F41 !important;
+
+    &:hover {
+      background-color: @toolItemIconHoverBgColor !important;
+    }
+
+    &:active {
+      background-color: @toolItemIconActiveBgColor !important;
+    }
+  }
+}
+
+.requestTitleTextNeedUpdate {
+  color: @fileModifyColor;
 }
 
 .requestPath {
@@ -146,8 +182,8 @@
 }
 
 .requestArgs {
-  //height: calc(100% - 58px);
-  height: calc(100% - 58px - @toolHeight);
+  //height: calc(100% - 60px);
+  height: calc(100% - 60px - @toolHeight);
 
   :global {
     .bp3-tab-list {

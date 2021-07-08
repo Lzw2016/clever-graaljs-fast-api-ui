@@ -313,6 +313,23 @@ interface HttpApiDebugTitleRes {
   title: string;
 }
 
+interface HttpApiDebug {
+  /** 主键id */
+  id: string;
+  /** 命名空间 */
+  namespace: string;
+  /** HTTP接口id */
+  httpApiId: string;
+  /** 标题 */
+  title: string;
+  /** 请求数据json格式*/
+  requestData: string;
+  /** 创建时间 */
+  createAt: string;
+  /** 更新时间 */
+  updateAt: string;
+}
+
 interface HttpApiDebugRes {
   /** 主键id */
   id: string;

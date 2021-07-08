@@ -25,6 +25,8 @@ interface DynamicFormProps {
   noDescription?: boolean;
   /** 是否强制更新组件 */
   forceUpdate?: boolean;
+  /** 修改事件 */
+  onChange?: (dataMap: Map<number, ItemDataState>) => void;
 }
 
 interface DynamicFormState {
@@ -42,6 +44,11 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
   }
 
   private updateData() {
+    const { onChange } = this.props;
+    if (onChange) {
+      const { dataMap } = this.state;
+      onChange(dataMap);
+    }
     this.forceUpdate();
   }
 

@@ -5,6 +5,8 @@ import Split from "react-split";
 import SimpleBar from "simplebar-react";
 import Icon from "@ant-design/icons";
 import { Alert, Button, Classes, Dialog, FormGroup, InputGroup, Intent, Radio, RadioGroup, Spinner, SpinnerSize, Tab, Tabs } from "@blueprintjs/core";
+import { Tooltip2 } from "@blueprintjs/popover2";
+import * as MonacoApi from "monaco-editor";
 import Editor from "@monaco-editor/react";
 import { DynamicForm } from "@/components/DynamicForm";
 import { LogViewer } from "@/components/LogViewer";
@@ -15,7 +17,7 @@ import { TypeEnum, variableTypeOf } from "@/utils/typeof";
 import { bytesFormat } from "@/utils/format";
 import { request } from "@/utils/request";
 import { editorDefOptions, initEditorConfig, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
-import { Add, AddFile, Edit, Execute, HttpRequestsFiletype, MenuSaveAll, Refresh, Remove2 } from "@/utils/IdeaIconUtils";
+import { Add, AddFile, Commit, Edit, Execute, HttpRequestsFiletype, MenuSaveAll, Refresh, Remove2 } from "@/utils/IdeaIconUtils";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import styles from "./RequestDebugPanel.module.less";
 
@@ -82,8 +84,10 @@ interface RequestDebugPanelState {
   showDeleteDialog: boolean;
   /** 删除数据Loading */
   deleteLoading: boolean;
-  /** 更新数据对话框 */
-  showUpdateDialog: boolean;
+  /** 显示更新输入框 */
+  showUpdateInput: boolean;
+  /** 需要更新httpApiDebug */
+  needUpdate: boolean;
   /** 更新数据Loading */
   updateLoading: boolean;
 }
@@ -113,7 +117,8 @@ const defaultState: RequestDebugPanelState = {
   addLoading: false,
   showDeleteDialog: false,
   deleteLoading: false,
-  showUpdateDialog: false,
+  showUpdateInput: false,
+  needUpdate: false,
   updateLoading: false,
   ...storageState,
 }
@@ -125,6 +130,14 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   private saveComponentState = lodash.debounce(() => this.saveState().finally(), 1_000, { maxWait: 3_000 });
   /** 显示日志组件 */
   private logViewer = React.createRef<LogViewer>();
+  /** 设置请求RequestData JsonBody */
+  private setRequestDataJsonBody = lodash.debounce((value: string) => {
+    const { httpApiDebug: { requestData } } = this.state;
+    requestData.jsonBody = value;
+    this.setNeedUpdate();
+  }, 50, { maxWait: 500 });
+  /** 设置需要更新标识 */
+  private setNeedUpdate = lodash.debounce(() => this.setState({ needUpdate: true }), 50, { maxWait: 500 });
 
   constructor(props: RequestDebugPanelProps) {
     super(props);
@@ -191,9 +204,9 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
     request.get(FastApi.HttpApiDebugManage.getHttpApiDebug, { params: { id } })
       .then((data: HttpApiDebugRes) => {
         if (data) {
-          this.setState({ httpApiDebug: { ...defHttpApiDebug(), ...data }, debugResponseData: { ...defDebugResponseData() } });
+          this.setState({ httpApiDebug: { ...defHttpApiDebug(), ...data }, debugResponseData: { ...defDebugResponseData() }, needUpdate: false });
         } else {
-          this.setState({ httpApiDebug: { ...defHttpApiDebug() }, debugResponseData: { ...defDebugResponseData() } });
+          this.setState({ httpApiDebug: { ...defHttpApiDebug() }, debugResponseData: { ...defDebugResponseData() }, needUpdate: false });
         }
       }).finally(() => this.setState({ httpApiDebugLoading: false }));
   }
@@ -297,6 +310,22 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
       )).finally(() => this.setState({ addLoading: false }));
   }
 
+  // 更新调试数据
+  private updateHttpApiDebug() {
+    const { httpApiDebug, titleList } = this.state;
+    const { id, title, requestData } = httpApiDebug;
+    this.setState({ updateLoading: true });
+    request.put(FastApi.HttpApiDebugManage.updateHttpApiDebug, { id, title, requestData })
+      .then((data: HttpApiDebug) => {
+        titleList.forEach(title => {
+          if (title.id === data.id) {
+            title.title = data.title;
+          }
+        });
+        this.setState({ needUpdate: false, showUpdateInput: false, });
+      }).finally(() => this.setState({ updateLoading: false }));
+  }
+
   // 左边面板
   private getLeftPanel() {
     const { httpApiId } = this.props;
@@ -369,19 +398,58 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 中间面板
   private getCenterPanel() {
-    const { requestTab, httpApiDebug, debugLoading } = this.state;
+    const { requestTab, httpApiDebug, debugLoading, showUpdateInput, needUpdate, updateLoading } = this.state;
     const isHide = lodash.toString(httpApiDebug.id).length <= 0;
     return (
       <>
         <div className={cls(styles.requestTitle, styles.flexColumn, { [styles.hide]: isHide })}>
-          <div className={cls(styles.flexItemColumn, styles.requestTitleText)}>
-            {httpApiDebug?.title ?? "undefined"}
-            <Icon className={cls(styles.editIcon)} component={Edit}/>
-          </div>
-          <div className={cls(styles.flexItemColumnWidthFull)}/>
+          {
+            !showUpdateInput &&
+            <div className={cls(styles.flexItemColumn, styles.requestTitleText, { [styles.requestTitleTextNeedUpdate]: needUpdate })}>
+              {httpApiDebug?.title ?? "undefined"}
+              <Icon
+                className={cls(styles.editIcon)}
+                component={Edit}
+                onClick={() => this.setState({ showUpdateInput: true })}
+              />
+            </div>
+          }
+          {
+            !showUpdateInput &&
+            <div className={cls(styles.flexItemColumnWidthFull)}/>
+          }
+          {
+            showUpdateInput &&
+            <InputGroup
+              className={cls(styles.flexItemColumnWidthFull, styles.requestTitleInput)}
+              type={"text"}
+              small={true}
+              rightElement={(
+                <Tooltip2 className={cls(styles.requestTitleBut)}>
+                  <Button
+                    icon={<Icon component={Commit}/>}
+                    intent={Intent.NONE}
+                    minimal={true}
+                    onClick={() => this.setState({ showUpdateInput: false })}
+                  />
+                </Tooltip2>
+              )}
+              placeholder="新名称"
+              value={httpApiDebug?.title ?? ""}
+              onChange={e => {
+                httpApiDebug.title = e.target.value;
+                this.setNeedUpdate();
+              }}
+            />
+          }
+          <div className={cls(styles.flexItemColumn)} style={{ width: 43 }}/>
           <Icon
-            className={cls(styles.flexItemColumn, styles.icon)}
+            className={cls(styles.flexItemColumn, styles.icon, { [styles.iconDisable]: !needUpdate }, { [styles.iconActive]: updateLoading })}
             component={MenuSaveAll}
+            onClick={() => {
+              if (updateLoading || !needUpdate) return;
+              this.updateHttpApiDebug();
+            }}
           />
         </div>
         <div className={cls(styles.requestPath, styles.flexColumn, { [styles.hide]: isHide })}>
@@ -392,7 +460,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
             onChange={e => {
               if (!httpApiDebug?.requestData) return;
               httpApiDebug.requestData.method = e.target.value as any;
-              this.forceUpdate();
+              this.setState({ needUpdate: true });
             }}
           >
             <option value={"GET"}>GET</option>
@@ -416,7 +484,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
             onChange={e => {
               if (!httpApiDebug?.requestData) return;
               httpApiDebug.requestData.path = e.target.value;
-              this.forceUpdate();
+              this.setState({ needUpdate: true });
             }}
           />
           <Button
@@ -514,7 +582,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         autoHide={false}
         scrollbarMinSize={48}
       >
-        <DynamicForm data={requestData?.params}/>
+        <DynamicForm data={requestData?.params} onChange={() => this.setNeedUpdate()}/>
       </SimpleBar>
     );
   }
@@ -528,7 +596,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         autoHide={false}
         scrollbarMinSize={48}
       >
-        <DynamicForm data={requestData?.headers}/>
+        <DynamicForm data={requestData?.headers} onChange={() => this.setNeedUpdate()}/>
       </SimpleBar>
     );
   }
@@ -558,15 +626,14 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           onMount={(editor, monaco) => {
             initEditorConfig(editor);
             initKeyBinding(editor, monaco);
-            // editor.addCommand(
-            //   MonacoApi.KeyMod.CtrlCmd | MonacoApi.KeyCode.KEY_S,
-            //   () => {
-            //   },
-            // );
+            editor.addCommand(
+              MonacoApi.KeyMod.CtrlCmd | MonacoApi.KeyCode.KEY_S,
+              () => this.updateHttpApiDebug(),
+            );
           }}
           onChange={value => {
             if (!requestData) return;
-            requestData.jsonBody = value;
+            this.setRequestDataJsonBody(value ?? "");
           }}
           saveViewState={false}
           keepCurrentModel={false}
