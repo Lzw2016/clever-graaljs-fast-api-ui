@@ -540,7 +540,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 请求Body面板
   private getRequestBodyPanel() {
-    const { httpApiDebug: { requestData }, needUpdate } = this.state;
+    const { httpApiDebug: { requestData } } = this.state;
     return (
       <>
         <RadioGroup
@@ -570,7 +570,9 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
             editor.addCommand(
               MonacoApi.KeyMod.CtrlCmd | MonacoApi.KeyCode.KEY_S,
               () => {
-                if (needUpdate) this.updateHttpApiDebug();
+                if (this.state.needUpdate) {
+                  this.updateHttpApiDebug();
+                }
               },
             );
           }}
