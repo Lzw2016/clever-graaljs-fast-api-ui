@@ -46,6 +46,7 @@ import {
 } from "@/types/workbench-layout";
 import wechat from "~/public/wechat.png";
 import styles from "./Workbench.module.less";
+import { GlobalConfigPanel } from "@/components/ide/GlobalConfigPanel";
 
 interface WorkbenchProps {
 }
@@ -812,7 +813,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           RunResult
         </div>
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.GlobalConfig })} style={style}>
-          GlobalConfig
+          <GlobalConfigPanel/>
         </div>
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.SysEvent })} style={style}>
           SysEvent
