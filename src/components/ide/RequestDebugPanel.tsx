@@ -249,7 +249,8 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 更新调试数据
   private updateHttpApiDebug() {
-    const { httpApiDebug, titleList } = this.state;
+    const { httpApiDebug, titleList, updateLoading } = this.state;
+    if (updateLoading) return;
     const { id, title, requestData } = httpApiDebug;
     this.setState({ updateLoading: true });
     request.put(FastApi.HttpApiDebugManage.updateHttpApiDebug, { id, title, requestData })
@@ -712,7 +713,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   render() {
     this.saveComponentState();
-    const { hSplitSize } = this.state;
+    const { hSplitSize, httpApiDebug, needUpdate } = this.state;
     return (
       <Split
         className={cls(styles.panel, styles.horizontalSplit, Classes.DARK)}
@@ -737,7 +738,21 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         <div className={cls(styles.leftPanel)}>
           {this.getLeftPanel()}
         </div>
-        <div className={cls(styles.centerPanel)}>
+        <div
+          className={cls(styles.centerPanel)}
+          onKeyDown={e => {
+            let preventDefault = false;
+            if (e.ctrlKey && e.key.toUpperCase() === "S") {
+              preventDefault = true;
+              const isHide = lodash.toString(httpApiDebug.id).length <= 0;
+              if (!isHide && needUpdate) this.updateHttpApiDebug();
+            }
+            if (preventDefault) {
+              e.stopPropagation();
+              e.preventDefault();
+            }
+          }}
+        >
           {this.getCenterPanel()}
         </div>
         <div className={cls(styles.rightPanel)}>
