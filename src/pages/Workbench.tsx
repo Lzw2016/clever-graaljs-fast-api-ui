@@ -219,7 +219,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     window.addEventListener("resize", this.editorResize);
     window.addEventListener("keydown", this.hotkeys);
     initStorageState().then(() => this.forceUpdate());
-    request.get(FastApi.GlobalEnv.getGlobalEnv)
+    request.get(FastApi.Global.getGlobalEnv)
       .then(data => {
         if (!data) return;
         this.setState({ globalEnv: data });

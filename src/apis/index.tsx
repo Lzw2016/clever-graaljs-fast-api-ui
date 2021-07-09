@@ -3,8 +3,9 @@
 const serverHost = "/fast_api";
 
 const FastApi = {
-  GlobalEnv: {
+  Global: {
     getGlobalEnv: `${serverHost}/global_env`,
+    getStatus: `${serverHost}/script_engine_status`,
   },
   HttpApiManage: {
     getHttpApiTree: `${serverHost}/http_api_manage/http_api_tree`,

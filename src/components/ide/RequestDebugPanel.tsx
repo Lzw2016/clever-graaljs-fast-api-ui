@@ -11,9 +11,8 @@ import Editor from "@monaco-editor/react";
 import { DynamicForm } from "@/components/DynamicForm";
 import { LogViewer } from "@/components/LogViewer";
 import { FastApi } from "@/apis";
-import { debugRequest } from "@/utils/debug-request";
-import { hasPropertyIn, hasValue, noValue } from "@/utils/utils";
-import { TypeEnum, variableTypeOf } from "@/utils/typeof";
+import { doDebugRequest2 } from "@/utils/debug-request";
+import { hasValue, noValue } from "@/utils/utils";
 import { bytesFormat } from "@/utils/format";
 import { request } from "@/utils/request";
 import { editorDefOptions, initEditorConfig, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
@@ -214,75 +213,20 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   // 调试接口
   private doDebug() {
     const { httpApiDebug: { requestData }, debugResponseData } = this.state;
-    const params: any = {};
-    requestData?.params?.forEach(param => {
-      params[param.key] = param.value;
-    });
-    const headers: any = {};
-    requestData?.headers?.forEach(header => {
-      headers[header.key] = header.value;
-    });
-    headers["content-type"] = "application/json;charset=utf-8";
     this.setState({ debugLoading: true });
-    const startTime = lodash.now();
-    if (!headers["api-debug"]) headers["api-debug"] = `debug_${startTime}_${lodash.uniqueId()}`;
-    debugRequest.request({
-      withCredentials: true,
-      method: requestData.method as any,
-      url: requestData.path,
-      params,
-      headers,
-      data: requestData.jsonBody,
-    }).then(response => {
-      const endTime = lodash.now();
-      const { data, headers, status, statusText } = response;
-      const contentLength = headers["content-length"];
-      debugResponseData.headers = [];
-      lodash.forEach(headers, (value, key) => debugResponseData.headers.push({ key, value }));
-      debugResponseData.status = status;
-      debugResponseData.statusText = statusText;
-      debugResponseData.time = endTime - startTime;
-      if (contentLength) debugResponseData.size = lodash.toNumber(contentLength) * 8;
-      // 处理body
-      debugResponseData.body = "";
-      debugResponseData.logs = undefined;
-      const dataType = variableTypeOf(data);
-      if (dataType === TypeEnum.string
-        || dataType === TypeEnum.number
-        || dataType === TypeEnum.boolean) {
-        debugResponseData.body = data;
-      } else if (dataType === TypeEnum.array
-        || dataType === TypeEnum.function
-        || dataType === TypeEnum.symbol
-        || dataType === TypeEnum.math
-        || dataType === TypeEnum.regexp
-        || dataType === TypeEnum.date) {
-        debugResponseData.body = JSON.stringify(data, null, 4);
-      } else if (dataType === TypeEnum.object || dataType === TypeEnum.json) {
-        if (hasPropertyIn(data, "data") && variableTypeOf(data?.logs?.content) === TypeEnum.array) {
-          const resData = data?.data;
-          const resDataType = variableTypeOf(resData);
-          if (resDataType === TypeEnum.string || resDataType === TypeEnum.number || resDataType === TypeEnum.boolean) {
-            debugResponseData.body = resData;
-          } else if (resDataType !== TypeEnum.null && resDataType !== TypeEnum.undefined && resDataType !== TypeEnum.nan) {
-            debugResponseData.body = JSON.stringify(resData, null, 4);
-          }
-          debugResponseData.logs = data?.logs;
-        } else {
-          debugResponseData.body = JSON.stringify(data, null, 4);
+    doDebugRequest2(requestData, debugResponseData)
+      .then(() => {
+        // 服务端日志
+        const logViewer = this.logViewer.current;
+        if (logViewer && debugResponseData.logs && debugResponseData.logs.content && debugResponseData.logs.content.length > 0) {
+          logViewer.clear(debugResponseData.logs.firstIndex);
+          debugResponseData.logs.content.forEach(log => logViewer.addLogLine(log));
+          logViewer.addLogLine("\n\n\n");
+        } else if (logViewer) {
+          logViewer.clear();
         }
-      }
-      // 服务端日志
-      const logViewer = this.logViewer.current;
-      if (logViewer && debugResponseData.logs && debugResponseData.logs.content && debugResponseData.logs.content.length > 0) {
-        logViewer.clear(debugResponseData.logs.firstIndex);
-        debugResponseData.logs.content.forEach(log => logViewer.addLogLine(log));
-        logViewer.addLogLine("\n\n\n");
-      } else if (logViewer) {
-        logViewer.clear();
-      }
-      this.forceUpdate();
-    }).finally(() => this.setState({ debugLoading: false }));
+        this.forceUpdate();
+      }).finally(() => this.setState({ debugLoading: false }));
   }
 
   // 删除调试数据

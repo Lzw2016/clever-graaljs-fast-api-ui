@@ -360,7 +360,7 @@ interface DebugRequestData {
   params: Array<RequestItemData>;
   headers: Array<RequestItemData>;
   // cookies: { [key: string]: string };
-  jsonBody: any;
+  jsonBody?: string;
   formBody: Array<{ key: string; type: "text" | "file", value: string; }>;
 }
 

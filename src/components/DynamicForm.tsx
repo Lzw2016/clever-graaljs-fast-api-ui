@@ -199,7 +199,7 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
         <div key={"label"} className={cls(styles.row, styles.rowTitle)}>
           {
             !noCheckbox &&
-            <div key={"label-checked"} className={cls(styles.input, styles.inputCheckboxTitle)}>
+            <div key={"label-checked"} className={cls(styles.input, styles.inputCheckboxTitle)} style={{ overflow: "hidden" }}>
               &nbsp;
             </div>
           }
