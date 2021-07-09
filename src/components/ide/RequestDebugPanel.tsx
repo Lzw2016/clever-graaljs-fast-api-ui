@@ -1,6 +1,7 @@
 import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
+import cookie from "cookie";
 import Split from "react-split";
 import SimpleBar from "simplebar-react";
 import Icon from "@ant-design/icons";
@@ -11,7 +12,7 @@ import Editor from "@monaco-editor/react";
 import { DynamicForm } from "@/components/DynamicForm";
 import { LogViewer } from "@/components/LogViewer";
 import { FastApi } from "@/apis";
-import { doDebugRequest2 } from "@/utils/debug-request";
+import { doDebugRequest } from "@/utils/debug-request";
 import { hasValue, noValue } from "@/utils/utils";
 import { bytesFormat } from "@/utils/format";
 import { request } from "@/utils/request";
@@ -214,7 +215,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   private doDebug() {
     const { httpApiDebug: { requestData }, debugResponseData } = this.state;
     this.setState({ debugLoading: true });
-    doDebugRequest2(requestData, debugResponseData)
+    doDebugRequest(requestData, debugResponseData)
       .then(() => {
         // 服务端日志
         const logViewer = this.logViewer.current;
@@ -233,6 +234,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   private delHttpApiDebug() {
     const { httpApiDebug } = this.state;
     this.setState({ deleteLoading: true });
+
     request.delete(FastApi.HttpApiDebugManage.delHttpApiDebug, { params: { id: httpApiDebug.id } })
       .then(() => this.setState({
           showDeleteDialog: false,
@@ -455,7 +457,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           <Tab id={RequestTabEnum.Headers} title="Headers" panel={this.getRequestHeadersPanel()}/>
           <Tab id={RequestTabEnum.Body} title="Body" panel={this.getRequestBodyPanel()}/>
           <Tabs.Expander/>
-          <Tab id={RequestTabEnum.Cookies} title="Cookies" panel={this.getRequestCookiesPanel()} disabled={true}/>
+          <Tab id={RequestTabEnum.Cookies} title="Cookies" panel={this.getRequestCookiesPanel()}/>
           <Tab id={RequestTabEnum.CURL} title="CURL" panel={this.getRequestCookiesPanel()} disabled={true}/>
         </Tabs>
       </>
@@ -478,7 +480,6 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
       >
         <Tab id={ResponseTabEnum.Body} title="Body" panel={this.getResponseBodyPanel()}/>
         <Tab id={ResponseTabEnum.Headers} title="Headers" panel={this.getResponseHeadersPanel()}/>
-        <Tab id={ResponseTabEnum.Cookies} title="Cookies" panel={this.getResponseCookiesPanel()} disabled={true}/>
         <Tab id={ResponseTabEnum.ServerLogs} title="ServerLogs" panel={this.getServerLogsPanel()} className={styles.serverLogs}/>
         <Tabs.Expander/>
         <div className={cls(styles.httpStatus)}>
@@ -588,10 +589,17 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 请求Cookies面板
   private getRequestCookiesPanel() {
+    const cookies = cookie.parse(document.cookie);
+    const data: Array<RequestItemData> = [];
+    lodash(cookies).forEach((value: string, key: string) => data.push({ key, value }));
     return (
-      <>
-        444
-      </>
+      <SimpleBar
+        style={{ height: "100%", width: "100%" }}
+        autoHide={false}
+        scrollbarMinSize={48}
+      >
+        <DynamicForm readOnly={true} noCheckbox={true} noDescription={true} data={data}/>
+      </SimpleBar>
     );
   }
 
@@ -622,19 +630,6 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         scrollbarMinSize={48}
       >
         <DynamicForm readOnly={true} noCheckbox={true} noDescription={true} data={debugResponseData.headers}/>
-      </SimpleBar>
-    );
-  }
-
-  // 响应Cookies面板
-  private getResponseCookiesPanel() {
-    return (
-      <SimpleBar
-        style={{ height: "100%", width: "100%" }}
-        autoHide={false}
-        scrollbarMinSize={48}
-      >
-        <DynamicForm readOnly={true} noCheckbox={true} noDescription={true}/>
       </SimpleBar>
     );
   }

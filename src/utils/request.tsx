@@ -90,7 +90,7 @@ axiosInstance.interceptors.request.use(
     return request;
   },
   error => {
-    toaster.show({ ...toastProps, message: "请求发送失败" })
+    toaster.show({ ...toastProps, message: "请求发送失败" });
     return Promise.reject(error);
   },
 );

@@ -3,6 +3,10 @@ import axios, { Method } from "axios";
 import lodash from "lodash";
 import { hasPropertyIn, hasValue } from "@/utils/utils";
 import { TypeEnum, variableTypeOf } from "@/utils/typeof";
+import { Intent, IToastProps, Toaster } from "@blueprintjs/core";
+
+const toaster = Toaster.create({ maxToasts: 3, canEscapeKeyClear: true, position: "bottom-right" });
+const toastProps: IToastProps = { timeout: 5000, intent: Intent.DANGER, icon: "error", message: "请求处理失败" };
 
 const debugRequest = axios.create({
   withCredentials: true,
@@ -33,6 +37,9 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
   const headers = transform(requestData?.headers);
   if (requestData.jsonBody) {
     headers["content-type"] = "application/json;charset=utf-8";
+  }
+  if (requestData.method === "GET" && requestData.jsonBody) {
+    toaster.show({ ...toastProps, intent: Intent.NONE, message: "GET请求的Body数据无效，应该使用POST" });
   }
   const startTime = lodash.now();
   if (!headers["api-debug"]) {
@@ -87,51 +94,4 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
   });
 };
 
-function fetchHeadersTransform(rawData?: Array<RequestItemData>): string[][] {
-  const data: Map<string, string[]> = new Map<string, string[]>();
-  rawData?.forEach(item => {
-    const { key, value, selected } = item;
-    if (!selected) return;
-    let header = data.get(key);
-    if (!header) {
-      header = [];
-      data.set(key, header);
-    }
-    header.push(value);
-  });
-  const headers: string[][] = [];
-  data.forEach(header => headers.push(header));
-  return headers;
-}
-
-const doDebugRequest2 = async (requestData: DebugRequestData, responseData: DebugResponseData) => {
-  const params = transform(requestData?.params);
-  const headers = fetchHeadersTransform(requestData?.headers);
-  // if (requestData.jsonBody) {
-  //   headers["content-type"] = "application/json;charset=utf-8";
-  // }
-  const startTime = lodash.now();
-  // if (!headers["api-debug"]) {
-  //   headers["api-debug"] = `debug_${startTime}_${lodash.uniqueId()}`;
-  // }
-  const url = `${requestData.path}?${qs.stringify(params, { arrayFormat: "repeat" })}`;
-  const myHeaders = new Headers();
-  myHeaders.append("aaa", "111");
-  myHeaders.append("aaa", "222");
-  myHeaders.append("aaa", "333");
-  return fetch(url, {
-    keepalive: true,
-    redirect: "manual",
-    credentials: "include",
-    method: requestData.method,
-    headers: myHeaders,
-    // body: requestData.jsonBody ? requestData.jsonBody : null,
-  }).then(response => {
-    console.log("response -> ", response);
-    console.log("set-cookie -> ", response.headers.get("set-cookie"));
-    return response;
-  })
-};
-//
-
-export { debugRequest, doDebugRequest, doDebugRequest2 };
+export { debugRequest, doDebugRequest };
