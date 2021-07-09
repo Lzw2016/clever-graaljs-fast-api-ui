@@ -273,7 +273,7 @@ class HttpApiResourcePanel extends React.Component<HttpApiResourcePanelProps, Ht
     const { expandedIds, treeData, selectedId, nodeNameSort } = this.state;
     return (
       <>
-        <select className={cls(styles.flexItemColumn, styles.viewSelect)}>
+        <select className={cls(styles.flexItemColumn, styles.viewSelect)} disabled={true}>
           <option value="fileView">文件视图</option>
           <option value="apiView">接口视图</option>
         </select>

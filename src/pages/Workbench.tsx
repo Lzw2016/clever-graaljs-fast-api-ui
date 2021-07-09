@@ -21,7 +21,7 @@ import Icon, {
   UnlockOutlined,
   WechatOutlined
 } from "@ant-design/icons";
-import { Intent, ProgressBar, Spinner, SpinnerSize } from "@blueprintjs/core";
+import { Alert, Intent, ProgressBar, Spinner, SpinnerSize } from "@blueprintjs/core";
 import * as MonacoApi from "monaco-editor";
 import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
@@ -44,6 +44,7 @@ import {
   transformEditorTabItem2TopStatusFileInfo,
   WorkbenchLoading
 } from "@/types/workbench-layout";
+import wechat from "~/public/wechat.png";
 import styles from "./Workbench.module.less";
 
 interface WorkbenchProps {
@@ -54,6 +55,10 @@ interface WorkbenchState extends WorkbenchLoading, LayoutSize, EditorTabsState {
   globalEnv: FastApiGlobalEnv;
   /** HttpApiTree当前选中的节点 */
   topStatusFileInfo?: TopStatusFileInfo;
+  /** 显示微信二维码 */
+  wechatQRCode: boolean;
+  /** 引擎实例状态 */
+  engineInstanceStatus?: ScriptEngineInstanceStatus;
 }
 
 // 读取组件状态
@@ -95,6 +100,7 @@ const initStorageState = (): Promise<any[]> => {
 // 组件状态默认值
 const getDefaultState = (): WorkbenchState => ({
   globalEnv: { version: "", namespace: "", apiPrefix: "" },
+  wechatQRCode: false,
   // WorkbenchLoading
   getApiFileResourceLoading: false,
   saveFileResourceLoading: false,
@@ -114,6 +120,8 @@ const getDefaultState = (): WorkbenchState => ({
 });
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
+  /** 组件挂载状态 */
+  private mounted: boolean = false;
   /** HTTP API组件 */
   private httpApiResourcePane = React.createRef<HttpApiResourcePanel>();
   /** 自定义扩展组件 */
@@ -179,6 +187,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     const div = document.getElementById(`fileTab#${currentEditId}`);
     if (div) div.scrollIntoView();
   };
+  /** 获取引擎状态定时任务 */
+  private getEngineInstanceStatusTask: NodeJS.Timeout | undefined;
   /** 全局快捷键 */
   private hotkeys: ((e: KeyboardEvent) => void) = e => {
     let preventDefault = false;
@@ -215,6 +225,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
 
   // 组件挂载后
   public componentDidMount() {
+    this.mounted = true;
     // window.addEventListener("beforeunload", this.pageBeforeunload);
     window.addEventListener("resize", this.editorResize);
     window.addEventListener("keydown", this.hotkeys);
@@ -224,10 +235,19 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         if (!data) return;
         this.setState({ globalEnv: data });
       }).finally();
+    // 定时获取引擎状态
+    this.getEngineInstanceStatusTask = setInterval(() => {
+      request.get(FastApi.Global.getStatus)
+        .then((status: ScriptEngineInstanceStatus) => {
+          if (this.mounted) this.setState({ engineInstanceStatus: status });
+        }).catch(() => this.setState({ engineInstanceStatus: undefined })).finally();
+    }, 3000)
   }
 
   // 组件将要被卸载
   public componentWillUnmount() {
+    this.mounted = false;
+    if (this.getEngineInstanceStatusTask) clearInterval(this.getEngineInstanceStatusTask);
     window.removeEventListener("resize", this.editorResize);
     window.removeEventListener("keydown", this.hotkeys);
     // window.removeEventListener("beforeunload", this.pageBeforeunload);
@@ -417,6 +437,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     return hSplitCollapsedSize;
   }
 
+  /** 返回左边面板 */
   private getLeftPanel(openFile?: EditorTabItem): { leftPanel: LeftPanelEnum | undefined, changed: boolean } {
     const { leftPanel, currentEditId, openFileMap } = this.state;
     let newLeftPanel = leftPanel;
@@ -432,6 +453,24 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     return { leftPanel: newLeftPanel, changed: newLeftPanel !== leftPanel };
   }
 
+  /** 微信二维码 */
+  private getWechatQRCode() {
+    const { wechatQRCode } = this.state;
+    return (
+      <Alert
+        intent={Intent.NONE}
+        confirmButtonText={"关闭"}
+        canEscapeKeyCancel={false}
+        canOutsideClickCancel={false}
+        transitionDuration={0.1}
+        isOpen={wechatQRCode}
+        onConfirm={() => this.setState({ wechatQRCode: false })}
+      >
+        <img src={wechat} style={{ width: 358 }} alt={"微信二维码"}/>
+      </Alert>
+    );
+  }
+
   private getTopMenu() {
     const { globalEnv } = this.state;
     return (
@@ -440,11 +479,24 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         <div className={cls(styles.flexItemColumn, styles.topMenuLogoText)}>Fast-API</div>
         <div className={cls(styles.flexItemColumn, styles.topMenuLogoTextVersion)}>{globalEnv.version}</div>
         <div className={cls(styles.flexItemColumnWidthFull)}/>
-        <IconFont type="icon-gitee" className={cls(styles.flexItemColumn, styles.icon)}/>
-        <GithubOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
-        <QqOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
-        <WechatOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
-        <QuestionCircleOutlined className={cls(styles.flexItemColumn, styles.icon)}/>
+        <IconFont
+          type="icon-gitee"
+          className={cls(styles.flexItemColumn, styles.icon)}
+          onClick={() => window.open("https://gitee.com/LiZhiW/clever-graaljs")}
+        />
+        <GithubOutlined
+          className={cls(styles.flexItemColumn, styles.icon)}
+          onClick={() => window.open("https://github.com/Lzw2016/clever-graaljs")}
+        />
+        <QqOutlined
+          className={cls(styles.flexItemColumn, styles.icon)}
+          onClick={() => window.open("https://qm.qq.com/cgi-bin/qm/qr?k=h6BQqIoVb_MqBy2esg1TPljIqoZNyFUi&jump_from=webapi")}
+        />
+        <WechatOutlined
+          className={cls(styles.flexItemColumn, styles.icon)}
+          onClick={() => this.setState({ wechatQRCode: true })}
+        />
+        <QuestionCircleOutlined className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
         <div className={cls(styles.flexItemColumn)} style={{ marginRight: 16 }}/>
       </>
     );
@@ -518,29 +570,40 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getBottomStatus() {
-    const { getApiFileResourceLoading, saveFileResourceLoading } = this.state;
+    const { engineInstanceStatus, getApiFileResourceLoading, saveFileResourceLoading } = this.state;
     let loadingText = "";
     if (getApiFileResourceLoading) loadingText = "加载API数据";
     else if (saveFileResourceLoading) loadingText = "保存文件";
     return (
       <>
         <div className={cls(styles.flexItemColumn, styles.bottomStatusFirst)}/>
-        <div className={cls(styles.flexItemColumn, styles.bottomStatusItem)} style={{ paddingLeft: 0 }}>
-          正在检查更新，请稍候...
-        </div>
-        <div className={cls(styles.flexItemColumnWidthFull)}/>
         {
           (getApiFileResourceLoading || saveFileResourceLoading) &&
           (
             <>
-              <div className={cls(styles.flexItemColumn, styles.bottomStatusItem, styles.bottomLoadingText)}>
+              <div
+                className={cls(styles.flexItemColumn, styles.bottomStatusItem, styles.bottomLoadingText)}
+                style={{ paddingLeft: 0, paddingRight: 4 }}
+              >
                 <span>{loadingText}</span>
               </div>
               <ProgressBar className={cls(styles.flexItemColumn, styles.bottomLoadingProgressBar)} intent={Intent.NONE}/>
             </>
           )
         }
-        <div className={cls(styles.flexItemColumn, styles.bottomStatusItem)}/>
+        <div className={cls(styles.flexItemColumnWidthFull)}/>
+        {
+          engineInstanceStatus &&
+          <div className={cls(styles.flexItemColumn, styles.bottomStatusItem, styles.engineInstanceStatus)}>
+            <div
+              className={cls(styles.engineInstanceStatusPercentage)}
+              style={{ width: `${engineInstanceStatus.numActive * 100 / engineInstanceStatus.maxTotal}%` }}
+            />
+            <div className={cls(styles.engineInstanceStatusText)}>
+              引擎状态: {engineInstanceStatus.numActive} / {engineInstanceStatus.maxTotal}
+            </div>
+          </div>
+        }
       </>
     );
   }
@@ -1067,6 +1130,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             {this.getBottomContent()}
           </div>
         </Split>
+        {this.getWechatQRCode()}
       </>
     );
   }

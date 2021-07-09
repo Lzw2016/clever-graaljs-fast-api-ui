@@ -18,6 +18,77 @@ interface FastApiGlobalEnv {
   apiPrefix: string;
 }
 
+interface ScriptEngineInstanceStatus {
+  /** 配置-最大数量 */
+  maxTotal: number;
+  /** 配置-最大空闲 */
+  maxIdle: number;
+  /** 配置-最小空闲 */
+  minIdle: number;
+  /** 配置-最大等待时间 */
+  maxWaitMillis: string;
+  /**
+   * 配置-对象在符合逐出条件之前可以在池中处于空闲状态的最短时间
+   */
+  minEvictableIdleTimeMillis: string;
+  /**
+   * 配置-退出程序运行之间的休眠毫秒数
+   */
+  timeBetweenEvictionRunsMillis: string;
+  /**
+   * 状态-当前最活动数量
+   */
+  numActive: number;
+  /**
+   * 状态-当前空闲数量
+   */
+  numIdle: number;
+  /**
+   * 状态-当前阻塞的等待池中对象的线程数的估计值
+   */
+  numWaiters: number;
+  /**
+   * 状态-在最近返回的对象中从池中签出对象的平均时间
+   */
+  activeTimes: string;
+  /**
+   * 状态-在最近借用的对象中，对象在池中空闲的平均时间
+   */
+  idleTimes: string;
+  /**
+   * 状态-最近服务的线程必须等待从池中借用对象的平均时间（毫秒）
+   */
+  waitTimes: string;
+  /**
+   * 状态-自创建池以来的最大等待时间（毫秒）
+   */
+  maxBorrowWaitTimeMillis: string;
+  /**
+   * 状态-创建数量
+   */
+  createdCount: string;
+  /**
+   * 状态-借数量
+   */
+  borrowedCount: string;
+  /**
+   * 状态-还数量
+   */
+  returnedCount: string;
+  /**
+   * 状态-销户数量
+   */
+  destroyedCount: string;
+  /**
+   * 状态-验证销毁对象计数
+   */
+  destroyedByBorrowValidationCount: string;
+  /**
+   * 状态-逐出器销毁的对象计数
+   */
+  destroyedByEvictorCount: string;
+}
+
 /** 树节点 */
 interface SimpleTreeNode<T = any> {
   /**
@@ -377,3 +448,4 @@ interface DebugResponseData {
   size?: number;
   logs?: { firstIndex: number; lastIndex: number; content: Array<string> }
 }
+
