@@ -354,12 +354,15 @@ interface RequestItemData {
   selected?: boolean;
 }
 
+type RequestBodyTypeEnum = "None" | "JsonBody" | "FormBody";
+
 interface DebugRequestData {
   method: RequestMethod;
   path: string;
   params: Array<RequestItemData>;
   headers: Array<RequestItemData>;
   // cookies: { [key: string]: string };
+  bodyType: RequestBodyTypeEnum;
   jsonBody?: string;
   formBody: Array<{ key: string; type: "text" | "file", value: string; }>;
 }

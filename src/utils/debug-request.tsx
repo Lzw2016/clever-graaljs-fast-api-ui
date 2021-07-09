@@ -35,10 +35,10 @@ function transform(rawData?: Array<RequestItemData>): ({ [key: string]: string |
 const doDebugRequest = async (requestData: DebugRequestData, responseData: DebugResponseData) => {
   const params = transform(requestData?.params);
   const headers = transform(requestData?.headers);
-  if (requestData.jsonBody) {
+  if (requestData.bodyType === "JsonBody" && requestData.jsonBody) {
     headers["content-type"] = "application/json;charset=utf-8";
   }
-  if (requestData.method === "GET" && requestData.jsonBody) {
+  if (requestData.bodyType !== "None" && requestData.method === "GET" && requestData.jsonBody) {
     toaster.show({ ...toastProps, intent: Intent.NONE, message: "GET请求的Body数据无效，应该使用POST" });
   }
   const startTime = lodash.now();
@@ -50,7 +50,7 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
     url: requestData.path,
     params,
     headers,
-    data: requestData.jsonBody ? requestData.jsonBody : undefined,
+    data: (requestData.bodyType === "JsonBody" && requestData.jsonBody) ? requestData.jsonBody : undefined,
   }).then(response => {
     const endTime = lodash.now();
     const { data, headers, status, statusText } = response;

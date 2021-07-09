@@ -32,13 +32,7 @@ enum RequestTabEnum {
 enum ResponseTabEnum {
   Body = "Body",
   Headers = "Headers",
-  Cookies = "Cookies",
   ServerLogs = "ServerLogs",
-}
-
-enum RequestBodyTabEnum {
-  JsonBody = "JsonBody",
-  FormBody = "FormBody",
 }
 
 interface AddHttpApiDebugForm {
@@ -56,8 +50,6 @@ interface RequestDebugPanelState {
   hSplitSize: [number, number, number];
   /** 请求叶签 */
   requestTab: RequestTabEnum;
-  /** 请求Body叶签 */
-  requestBodyTab: RequestBodyTabEnum;
   /** 响应叶签 */
   responseTab: ResponseTabEnum;
   /** HTTP接口id */
@@ -97,14 +89,13 @@ const storageState: Partial<RequestDebugPanelState> = await fastApiStore.getItem
 // 组件状态默认值
 const defHttpApiDebug = (): HttpApiDebugRes => ({
   id: "", namespace: "", httpApiId: "", title: "",
-  requestData: { method: "GET", path: "", params: [], headers: [], jsonBody: "", formBody: [] },
+  requestData: { method: "GET", path: "", params: [], headers: [], bodyType: "JsonBody", jsonBody: "", formBody: [] },
   createAt: "", updateAt: ""
 });
 const defDebugResponseData = (): DebugResponseData => ({ body: "", headers: [] });
 const defaultState: RequestDebugPanelState = {
   hSplitSize: [15, 40, 45],
   requestTab: RequestTabEnum.Params,
-  requestBodyTab: RequestBodyTabEnum.JsonBody,
   responseTab: ResponseTabEnum.Body,
   titleList: [],
   titleListLoading: false,
@@ -162,10 +153,10 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   /** 保存组件状态 */
   public async saveState(): Promise<void> {
     if (this.saveStateLock) return;
-    const { hSplitSize, requestTab, requestBodyTab, responseTab } = this.state;
+    const { hSplitSize, requestTab, responseTab } = this.state;
     await fastApiStore.setItem(
       componentStateKey.RequestDebugPanelState,
-      { hSplitSize, requestTab, requestBodyTab, responseTab },
+      { hSplitSize, requestTab, responseTab },
     ).finally(() => {
       this.saveStateLock = false;
     });
@@ -548,17 +539,21 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 请求Body面板
   private getRequestBodyPanel() {
-    const { requestBodyTab, httpApiDebug: { requestData } } = this.state;
+    const { httpApiDebug: { requestData } } = this.state;
     return (
       <>
         <RadioGroup
           className={cls(styles.requestBodyRadio)}
           inline={true}
-          onChange={event => this.setState({ requestBodyTab: (event.currentTarget.value as any) })}
-          selectedValue={requestBodyTab}
+          onChange={event => {
+            requestData.bodyType = event.currentTarget.value as any;
+            this.setState({ needUpdate: true });
+          }}
+          selectedValue={requestData.bodyType}
         >
-          <Radio label="json-body" value={RequestBodyTabEnum.JsonBody}/>
-          <Radio label="form-body" value={RequestBodyTabEnum.FormBody} disabled={true}/>
+          <Radio label="none" value={"None"}/>
+          <Radio label="json-body" value={"JsonBody"}/>
+          <Radio label="form-body" value={"FormBody"} disabled={true}/>
         </RadioGroup>
         <Editor
           wrapperClassName={cls(styles.requestEditor)}
