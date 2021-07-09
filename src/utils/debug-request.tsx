@@ -60,7 +60,6 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
     responseData.status = status;
     responseData.statusText = statusText;
     responseData.time = endTime - startTime;
-    if (contentLength) responseData.size = lodash.toNumber(contentLength) * 8;
     // 处理body
     responseData.body = "";
     responseData.logs = undefined;
@@ -89,6 +88,11 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
       } else {
         responseData.body = JSON.stringify(data, null, 4);
       }
+    }
+    if (contentLength) {
+      responseData.size = lodash.toNumber(contentLength) * 8;
+    } else if (responseData.body) {
+      responseData.size = responseData.body.length * 16;
     }
     return response;
   });
