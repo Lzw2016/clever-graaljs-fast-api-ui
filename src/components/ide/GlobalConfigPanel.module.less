@@ -4,3 +4,146 @@
   height: 100%;
   color: @fontColor !important;
 }
+
+.horizontalSplit {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.horizontalSplitGutter {
+  height: 100%;
+  width: 16px !important;
+  margin: 0 -12px 0 -4px;
+  background: none;
+  opacity: 0;
+  box-sizing: border-box;
+  border: none;
+  cursor: ew-resize !important;
+  z-index: 999;
+}
+
+.leftPanel {
+  box-sizing: border-box;
+  border-right: 1px solid @borderColor;
+  height: 100%;
+}
+
+.centerPanel {
+  box-sizing: border-box;
+  height: 100%;
+
+  :global {
+    .bp3-tab-list {
+      height: 30px !important;
+    }
+
+    .bp3-tab-panel {
+      height: calc(100% - 30px - @toolHeight);
+      //height: calc(100% - 30px) !important;
+    }
+  }
+}
+
+//noinspection DuplicatedCode
+.icon {
+  height: @toolHeight;
+  margin: 1px;
+  padding: 4px 4px;
+  border-radius: 2px;
+  font-size: 16px;
+  color: @iconColor;
+  user-select: none;
+
+  &:hover {
+    background-color: @toolItemIconHoverBgColor;
+  }
+
+  &:active {
+    background-color: @toolItemIconActiveBgColor;
+  }
+
+  svg, svg g, svg g path, svg g rect, svg path {
+    fill: @iconColor;
+  }
+}
+
+.iconDisable {
+  color: @fontDisableColor !important;
+  cursor: default !important;
+
+  &:hover {
+    background-color: unset !important;
+  }
+
+  svg, svg g, svg g path, svg g rect, svg rect, svg path {
+    fill: @fontDisableColor !important;
+  }
+}
+
+
+.leftPanelTools {
+  height: 28px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  color: @fontColor;
+  //background-color: @splitBgColor;
+  border-bottom: 1px solid @borderColor;
+  align-items: center;
+}
+
+.leftPanelList {
+  //height: calc(100% - 28px);
+  height: calc(100% - 28px - @toolHeight);
+}
+
+.leftPanelListItem {
+  box-sizing: border-box;
+  height: 22px;
+  user-select: none;
+  padding-right: 4px;
+
+  &:hover {
+    background-color: #0D293E;
+  }
+}
+
+.leftPanelListItemSelected {
+  background-color: #4B6EAF;
+
+  &:hover {
+    background-color: #4B6EAF;
+  }
+}
+
+.leftPanelListItemIcon {
+  padding: 3px 4px 3px 8px;
+}
+
+.leftPanelListItemText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 22px;
+}
+
+.loading {
+  min-height: 64px;
+  max-height: 256px;
+}
+
+.dialog {
+  font-size: 12px;
+
+  :global {
+    .bp3-form-group.bp3-inline {
+      margin-left: 16px;
+      margin-right: 16px;
+
+      .bp3-form-content {
+        flex-grow: 1;
+        flex-shrink: 1;
+      }
+    }
+  }
+}

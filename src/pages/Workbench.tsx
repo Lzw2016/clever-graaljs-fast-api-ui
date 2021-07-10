@@ -27,7 +27,7 @@ import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
 import logo from "@/assets/logo.svg";
 import { FastApi } from "@/apis";
-import { ExtendResourcePanel, HttpApiResourcePanel, RequestDebugPanel } from "@/components/ide";
+import { EngineInstancePanel, ExtendResourcePanel, GlobalConfigPanel, HttpApiResourcePanel, RequestDebugPanel } from "@/components/ide";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
@@ -46,7 +46,6 @@ import {
 } from "@/types/workbench-layout";
 import wechat from "~/public/wechat.png";
 import styles from "./Workbench.module.less";
-import { GlobalConfigPanel } from "@/components/ide/GlobalConfigPanel";
 
 interface WorkbenchProps {
 }
@@ -58,8 +57,6 @@ interface WorkbenchState extends WorkbenchLoading, LayoutSize, EditorTabsState {
   topStatusFileInfo?: TopStatusFileInfo;
   /** 显示微信二维码 */
   wechatQRCode: boolean;
-  /** 引擎实例状态 */
-  engineInstanceStatus?: ScriptEngineInstanceStatus;
 }
 
 // 读取组件状态
@@ -121,8 +118,6 @@ const getDefaultState = (): WorkbenchState => ({
 });
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
-  /** 组件挂载状态 */
-  private mounted: boolean = false;
   /** HTTP API组件 */
   private httpApiResourcePane = React.createRef<HttpApiResourcePanel>();
   /** 自定义扩展组件 */
@@ -188,8 +183,6 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     const div = document.getElementById(`fileTab#${currentEditId}`);
     if (div) div.scrollIntoView();
   };
-  /** 获取引擎状态定时任务 */
-  private getEngineInstanceStatusTask: NodeJS.Timeout | undefined;
   /** 全局快捷键 */
   private hotkeys: ((e: KeyboardEvent) => void) = e => {
     let preventDefault = false;
@@ -226,7 +219,6 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
 
   // 组件挂载后
   public componentDidMount() {
-    this.mounted = true;
     // window.addEventListener("beforeunload", this.pageBeforeunload);
     window.addEventListener("resize", this.editorResize);
     window.addEventListener("keydown", this.hotkeys);
@@ -236,19 +228,10 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         if (!data) return;
         this.setState({ globalEnv: data });
       }).finally();
-    // 定时获取引擎状态
-    this.getEngineInstanceStatusTask = setInterval(() => {
-      request.get(FastApi.Global.getStatus)
-        .then((status: ScriptEngineInstanceStatus) => {
-          if (this.mounted) this.setState({ engineInstanceStatus: status });
-        }).catch(() => this.setState({ engineInstanceStatus: undefined })).finally();
-    }, 3000)
   }
 
   // 组件将要被卸载
   public componentWillUnmount() {
-    this.mounted = false;
-    if (this.getEngineInstanceStatusTask) clearInterval(this.getEngineInstanceStatusTask);
     window.removeEventListener("resize", this.editorResize);
     window.removeEventListener("keydown", this.hotkeys);
     // window.removeEventListener("beforeunload", this.pageBeforeunload);
@@ -571,7 +554,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   }
 
   private getBottomStatus() {
-    const { engineInstanceStatus, getApiFileResourceLoading, saveFileResourceLoading } = this.state;
+    const { getApiFileResourceLoading, saveFileResourceLoading } = this.state;
     let loadingText = "";
     if (getApiFileResourceLoading) loadingText = "加载API数据";
     else if (saveFileResourceLoading) loadingText = "保存文件";
@@ -593,18 +576,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           )
         }
         <div className={cls(styles.flexItemColumnWidthFull)}/>
-        {
-          engineInstanceStatus &&
-          <div className={cls(styles.flexItemColumn, styles.bottomStatusItem, styles.engineInstanceStatus)}>
-            <div
-              className={cls(styles.engineInstanceStatusPercentage)}
-              style={{ width: `${engineInstanceStatus.numActive * 100 / engineInstanceStatus.maxTotal}%` }}
-            />
-            <div className={cls(styles.engineInstanceStatusText)}>
-              引擎状态: {engineInstanceStatus.numActive} / {engineInstanceStatus.maxTotal}
-            </div>
-          </div>
-        }
+        <EngineInstancePanel className={cls(styles.flexItemColumn, styles.bottomStatusItem)}/>
       </>
     );
   }

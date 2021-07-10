@@ -449,3 +449,10 @@ interface DebugResponseData {
   logs?: { firstIndex: number; lastIndex: number; content: Array<string> }
 }
 
+interface GlobalRequestData {
+  id: string;
+  title: string;
+  params: Array<RequestItemData>;
+  headers: Array<RequestItemData>;
+  cookies: Array<RequestItemData>;
+}

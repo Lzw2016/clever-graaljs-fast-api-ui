@@ -7,6 +7,11 @@ const FastApi = {
     getGlobalEnv: `${serverHost}/global_env`,
     getStatus: `${serverHost}/script_engine_status`,
   },
+  HttpGlobalRequestDataManage: {
+    getAll: `${serverHost}/http_global_request_data_manage/all`,
+    saveOrUpdate: `${serverHost}/http_global_request_data_manage/save_or_update`,
+    delete: `${serverHost}/http_global_request_data_manage/delete`,
+  },
   HttpApiManage: {
     getHttpApiTree: `${serverHost}/http_api_manage/http_api_tree`,
     getHttpApiFileResource: `${serverHost}/http_api_manage/http_api_file_resource`,

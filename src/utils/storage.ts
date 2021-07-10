@@ -11,7 +11,7 @@ const componentStateKey = {
   HttpApiResourcePanelState: "HttpApiResourcePanelState",
   ExtendResourcePanelState: "ExtendResourcePanelState",
   RequestDebugPanelState: "RequestDebugPanelState",
+  GlobalConfigPanelState: "GlobalConfigPanelState",
 }
 
 export { fastApiStore, componentStateKey };
-
