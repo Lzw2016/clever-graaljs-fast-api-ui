@@ -7,7 +7,7 @@ import { Alert, Button, Classes, Dialog, FormGroup, InputGroup, Intent, Spinner,
 import { DynamicForm } from "@/components/DynamicForm";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
 import { hasValue, noValue } from "@/utils/utils";
-import Icon from "@ant-design/icons";
+import Icon, { ArrowRightOutlined } from "@ant-design/icons";
 import { Add, AddFile, ConfigFile, MenuSaveAll, Refresh, Remove2 } from "@/utils/IdeaIconUtils";
 import { request } from "@/utils/request";
 import { FastApi } from "@/apis";
@@ -91,6 +91,11 @@ class GlobalConfigPanel extends React.Component<GlobalConfigPanelProps, GlobalCo
   // 组件挂载后
   public componentDidMount() {
     this.reLoadData();
+  }
+
+  // 组件更新成功
+  public componentDidUpdate(prevProps: Readonly<GlobalConfigPanelProps>, prevState: Readonly<GlobalConfigPanelState>, snapshot?: any) {
+    // if (prevProps.httpApiId !== this.props.httpApiId) this.reLoadData();
   }
 
   // 组件将要被卸载
@@ -232,6 +237,10 @@ class GlobalConfigPanel extends React.Component<GlobalConfigPanelProps, GlobalCo
         selectedTabId={requestTab}
         onChange={newTabId => this.setState({ requestTab: (newTabId as any) })}
       >
+        <div style={{ lineHeight: "30px", fontSize: 14, fontWeight: "bold" }}>
+          <span className={cls({ [styles.titleTextNeedUpdate]: needUpdate })}>{globalRequestData.title}</span>
+          <ArrowRightOutlined style={{ fontSize: 10, padding: "0 8px 0 8px" }}/>
+        </div>
         <Tab id={RequestTabEnum.Params} title="Params" panel={this.getParamsPanel(globalRequestData)}/>
         <Tab id={RequestTabEnum.Headers} title="Headers" panel={this.getHeadersPanel(globalRequestData)}/>
         <Tab id={RequestTabEnum.Cookies} title="Cookies" panel={this.getCookiesPanel(globalRequestData)}/>
