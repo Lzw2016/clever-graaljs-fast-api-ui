@@ -364,7 +364,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
               type={"text"}
               small={true}
               rightElement={(
-                <Tooltip2 className={cls(styles.requestTitleBut)}>
+                <Tooltip2 className={cls(styles.requestTitleBut)} disabled={true}>
                   <Button
                     icon={<Icon component={Commit}/>}
                     intent={Intent.NONE}
