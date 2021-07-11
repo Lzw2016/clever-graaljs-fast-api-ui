@@ -2,6 +2,7 @@ import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
 import cookie from "cookie";
+import Cookies from "js-cookie";
 import Split from "react-split";
 import SimpleBar from "simplebar-react";
 import Icon from "@ant-design/icons";
@@ -450,7 +451,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           <Tab id={RequestTabEnum.Body} title="Body" panel={this.getRequestBodyPanel()}/>
           <Tabs.Expander/>
           <Tab id={RequestTabEnum.Cookies} title="Cookies" panel={this.getRequestCookiesPanel()}/>
-          <Tab id={RequestTabEnum.CURL} title="CURL" panel={this.getRequestCookiesPanel()} disabled={true}/>
+          <Tab id={RequestTabEnum.CURL} title="CURL" panel={this.getCURL()} disabled={true}/>
         </Tabs>
       </>
     );
@@ -598,9 +599,21 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         autoHide={false}
         scrollbarMinSize={48}
       >
-        <DynamicForm readOnly={true} noCheckbox={true} noDescription={true} data={data}/>
+        <DynamicForm
+          readOnly={true}
+          canDeleted={true}
+          noCheckbox={true}
+          noDescription={true}
+          data={data}
+          onDelete={item => Cookies.remove(item.key)}
+        />
       </SimpleBar>
     );
+  }
+
+  // 请求CURL命令行
+  private getCURL() {
+    return <div/>;
   }
 
   // 响应Body面板

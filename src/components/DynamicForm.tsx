@@ -19,6 +19,8 @@ interface DynamicFormProps {
   data?: Array<RequestItemData>;
   /** 是否只读 */
   readOnly?: boolean;
+  /** 是否可以删除 */
+  canDeleted?: boolean;
   /** 是否没有Checkbox */
   noCheckbox?: boolean;
   /** 是否没有Description */
@@ -27,6 +29,8 @@ interface DynamicFormProps {
   forceUpdate?: boolean;
   /** 修改事件 */
   onChange?: (dataMap: Map<number, ItemDataState>) => void;
+  /** 删除事件 */
+  onDelete?: (item: ItemDataState, dataMap: Map<number, ItemDataState>) => void;
 }
 
 interface DynamicFormState {
@@ -82,7 +86,7 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
   }
 
   private getInputRow(dataMap: Map<number, ItemDataState>, item: ItemDataState, index: number): React.ReactNode {
-    const { data, readOnly, noCheckbox, noDescription } = this.props;
+    const { data, readOnly, canDeleted, noCheckbox, noDescription, onDelete } = this.props;
     return (
       <div key={index} className={cls(styles.row)}>
         {
@@ -164,7 +168,7 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
           />
         }
         {
-          !readOnly &&
+          (!readOnly || canDeleted) &&
           <Icon
             className={cls(styles.editIcon, { [styles.hide]: (item.addRow) })}
             component={CloseDarkGrey}
@@ -178,6 +182,7 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
                   data.push(item);
                 });
               }
+              if (onDelete) onDelete(item, dataMap);
               this.updateData();
             }}
           />

@@ -12,6 +12,7 @@ import { Add, AddFile, ConfigFile, MenuSaveAll, Refresh, Remove2 } from "@/utils
 import { request } from "@/utils/request";
 import { FastApi } from "@/apis";
 import styles from "./GlobalConfigPanel.module.less";
+import { globalDebugRequestData } from "@/utils/debug-request";
 
 enum RequestTabEnum {
   Params = "Params",
@@ -91,11 +92,6 @@ class GlobalConfigPanel extends React.Component<GlobalConfigPanelProps, GlobalCo
   // 组件挂载后
   public componentDidMount() {
     this.reLoadData();
-  }
-
-  // 组件更新成功
-  public componentDidUpdate(prevProps: Readonly<GlobalConfigPanelProps>, prevState: Readonly<GlobalConfigPanelState>, snapshot?: any) {
-    // if (prevProps.httpApiId !== this.props.httpApiId) this.reLoadData();
   }
 
   // 组件将要被卸载
@@ -226,7 +222,11 @@ class GlobalConfigPanel extends React.Component<GlobalConfigPanelProps, GlobalCo
   private getCenterPanel() {
     const { requestTab, needUpdate, updateLoading, globalRequestDataArray, globalRequestDataId } = this.state;
     const globalRequestData = globalRequestDataArray.find(data => data.id === globalRequestDataId);
-    if (!globalRequestData) return <div/>;
+    if (!globalRequestData) {
+      globalDebugRequestData.clear();
+      return <div/>;
+    }
+    globalDebugRequestData.setValue(globalRequestData);
     return (
       <Tabs
         className={cls(styles.centerPanel)}
@@ -282,9 +282,6 @@ class GlobalConfigPanel extends React.Component<GlobalConfigPanelProps, GlobalCo
   }
 
   private getCookiesPanel(globalRequestData: GlobalRequestData) {
-    // const cookies = cookie.parse(document.cookie);
-    // const data: Array<RequestItemData> = [];
-    // lodash(cookies).forEach((value: string, key: string) => data.push({ key, value }));
     return (
       <SimpleBar
         style={{ height: "100%", width: "100%" }}

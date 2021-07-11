@@ -1,9 +1,35 @@
 import qs from "qs";
 import axios, { Method } from "axios";
 import lodash from "lodash";
+import Cookies from "js-cookie";
 import { hasPropertyIn, hasValue } from "@/utils/utils";
 import { TypeEnum, variableTypeOf } from "@/utils/typeof";
 import { Intent, IToastProps, Toaster } from "@blueprintjs/core";
+
+interface GlobalDebugRequestData extends GlobalRequestData {
+  clear: () => void;
+  setValue: (data: GlobalRequestData) => void;
+}
+
+const globalDebugRequestData: GlobalDebugRequestData = {
+  id: "",
+  title: "",
+  params: [],
+  headers: [],
+  cookies: [],
+  clear: function () {
+    this.params.length = 0;
+    this.headers.length = 0;
+    this.cookies.length = 0;
+  },
+  setValue: function (data: GlobalRequestData) {
+    this.clear();
+    const { params, headers, cookies } = data;
+    if (params) params.forEach(item => this.params.push(item));
+    if (headers) headers.forEach(item => this.headers.push(item));
+    if (cookies) cookies.forEach(item => this.cookies.push(item));
+  },
+};
 
 const toaster = Toaster.create({ maxToasts: 3, canEscapeKeyClear: true, position: "bottom-right" });
 const toastProps: IToastProps = { timeout: 5000, intent: Intent.DANGER, icon: "error", message: "请求处理失败" };
@@ -33,8 +59,15 @@ function transform(rawData?: Array<RequestItemData>): ({ [key: string]: string |
 }
 
 const doDebugRequest = async (requestData: DebugRequestData, responseData: DebugResponseData) => {
-  const params = transform(requestData?.params);
-  const headers = transform(requestData?.headers);
+  // 全局请求参数，自定义请求参数
+  const paramsArr: Array<RequestItemData> = [...requestData?.params, ...globalDebugRequestData.params];
+  const headersArr: Array<RequestItemData> = [...requestData?.headers, ...globalDebugRequestData.headers];
+  globalDebugRequestData.cookies
+    .filter(cookie => cookie.selected)
+    .forEach(cookie => Cookies.set(cookie.key, cookie.value));
+  // 请求处理
+  const params = transform(paramsArr);
+  const headers = transform(headersArr);
   if (requestData.bodyType === "JsonBody" && requestData.jsonBody) {
     headers["content-type"] = "application/json;charset=utf-8";
   }
@@ -95,7 +128,13 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
       responseData.size = responseData.body.length * 16;
     }
     return response;
+  }).catch(err => {
+    if (err?.message) {
+      toaster.show({ ...toastProps, message: err.message });
+    } else {
+      toaster.show({ ...toastProps, message: "请求发送失败" });
+    }
   });
 };
 
-export { debugRequest, doDebugRequest };
+export { globalDebugRequestData, debugRequest, doDebugRequest };
