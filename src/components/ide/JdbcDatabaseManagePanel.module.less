@@ -1,0 +1,94 @@
+@import "/src/assets/variables";
+
+.panel {
+  height: 100%;
+  color: @fontColor !important;
+}
+
+//noinspection DuplicatedCode
+.icon {
+  height: @toolHeight;
+  margin: 1px;
+  padding: 4px 4px;
+  border-radius: 2px;
+  font-size: 16px;
+  color: @iconColor;
+  user-select: none;
+
+  &:hover {
+    background-color: @toolItemIconHoverBgColor;
+  }
+
+  &:active {
+    background-color: @toolItemIconActiveBgColor;
+  }
+
+  svg, svg g, svg g path, svg g rect, svg path {
+    fill: @iconColor;
+  }
+}
+
+.iconDisable {
+  color: @fontDisableColor !important;
+  cursor: default !important;
+
+  &:hover {
+    background-color: unset !important;
+  }
+
+  svg, svg g, svg g path, svg g rect, svg rect, svg path {
+    fill: @fontDisableColor !important;
+  }
+}
+
+.loading {
+  min-height: 64px;
+  max-height: 256px;
+}
+
+.leftPanelTools {
+  height: 28px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  color: @fontColor;
+  background-color: @splitBgColor;
+  border-bottom: 1px solid @borderColor;
+  align-items: center;
+}
+
+.leftPanelList {
+  height: calc(100% - 28px);
+  //height: calc(100% - 28px - @toolHeight);
+}
+
+.leftPanelListItem {
+  box-sizing: border-box;
+  height: 22px;
+  user-select: none;
+  padding-right: 4px;
+
+  &:hover {
+    background-color: #0D293E;
+  }
+}
+
+.leftPanelListItemSelected {
+  background-color: #4B6EAF;
+
+  &:hover {
+    background-color: #4B6EAF;
+  }
+}
+
+.leftPanelListItemIcon {
+  padding: 3px 4px 3px 8px;
+}
+
+.leftPanelListItemText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 22px;
+}
+
+

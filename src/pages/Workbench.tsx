@@ -27,7 +27,16 @@ import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
 import logo from "@/assets/logo.svg";
 import { FastApi } from "@/apis";
-import { EngineInstancePanel, ExtendResourcePanel, GlobalConfigPanel, HttpApiResourcePanel, RequestDebugPanel } from "@/components/ide";
+import {
+  EngineInstancePanel,
+  ExtendResourcePanel,
+  GlobalConfigPanel,
+  HttpApiResourcePanel,
+  InterfaceConfigPanel,
+  JdbcDatabaseManagePanel,
+  RedisManagePanel,
+  RequestDebugPanel
+} from "@/components/ide";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, fastApiStore } from "@/utils/storage";
@@ -124,6 +133,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   private extendResourcePane = React.createRef<ExtendResourcePanel>();
   /** 接口调试组件 */
   private requestDebugPane = React.createRef<RequestDebugPanel>();
+  /** 全局请求参数组件 */
+  private globalConfigPanel = React.createRef<GlobalConfigPanel>();
   /** 执行保存整个应用状态的全局锁 */
   private saveAppStateLock: boolean = false;
   /** 保存整个应用的状态 */
@@ -136,6 +147,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
       this.httpApiResourcePane.current?.saveState(),
       this.extendResourcePane.current?.saveState(),
       this.requestDebugPane.current?.saveState(),
+      this.globalConfigPanel.current?.saveState(),
     ]).finally(() => {
       this.saveAppStateLock = false;
     });
@@ -537,7 +549,11 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         }
         {
           topStatusFileInfo?.httpApiId &&
-          <SettingOutlined className={cls(styles.flexItemColumn, styles.icon)} style={{ fontSize: 15, padding: "4px" }}/>
+          <SettingOutlined
+            className={cls(styles.flexItemColumn, styles.icon)}
+            style={{ fontSize: 15, padding: "4px" }}
+            onClick={() => this.toggleBottomPanel(BottomPanelEnum.Interface)}
+          />
         }
         <div className={cls(styles.flexItemColumnWidthFull)}/>
         <Icon component={Execute} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
@@ -765,15 +781,25 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   private getBottomContent() {
     const { bottomPanel, currentEditId, openFileMap } = this.state;
     let httpApiId: string | undefined;
+    let openFile: EditorTabItem | undefined;
     if (currentEditId) {
-      const openFile = openFileMap.get(currentEditId);
+      openFile = openFileMap.get(currentEditId);
       httpApiId = openFile?.httpApi?.id;
     }
     const style: React.CSSProperties = { height: "100%" };
     return (
       <>
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.Interface })} style={style}>
-          Interface
+          <InterfaceConfigPanel
+            openFile={openFile}
+            onSaved={res => {
+              if (openFile) {
+                openFile.fileResource = res.fileResource;
+                openFile.httpApi = res.httpApi;
+              }
+              this.httpApiResourcePane.current?.reLoadTreeData(false, true);
+            }}
+          />
         </div>
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.RequestDebug })} style={style}>
           <RequestDebugPanel
@@ -785,7 +811,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           RunResult
         </div>
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.GlobalConfig })} style={style}>
-          <GlobalConfigPanel/>
+          <GlobalConfigPanel ref={this.globalConfigPanel}/>
         </div>
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.SysEvent })} style={style}>
           SysEvent
@@ -882,10 +908,10 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     return (
       <>
         <div className={cls({ [styles.hide]: rightPanel !== RightPanelEnum.JDBC })}>
-          JDBC
+          <JdbcDatabaseManagePanel/>
         </div>
         <div className={cls({ [styles.hide]: rightPanel !== RightPanelEnum.Redis })}>
-          Redis
+          <RedisManagePanel/>
         </div>
         <div className={cls({ [styles.hide]: rightPanel !== RightPanelEnum.Elasticsearch })}>
           Elasticsearch

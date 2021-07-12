@@ -456,3 +456,63 @@ interface GlobalRequestData {
   headers: Array<RequestItemData>;
   cookies: Array<RequestItemData>;
 }
+
+interface JdbcInfo {
+  driverClassName: string;
+  jdbcUrl: string;
+  isAutoCommit: boolean;
+  isReadOnly: boolean;
+  dbType: string;
+  isClosed: boolean;
+}
+
+interface JdbcDataSourceStatus {
+  totalConnections: number;
+  activeConnections: number;
+  idleConnections: number;
+  threadsAwaitingConnection: number;
+}
+
+interface DataSourceConfig {
+  id: string;
+  namespace: string;
+  type: string;
+  name: string;
+  config: string;
+  disable: number;
+  createAt: string;
+  updateAt: string;
+}
+
+interface JdbcInfoRes {
+  name: string;
+  def: boolean;
+  immutable: boolean;
+  jdbcInfo: JdbcInfo;
+  status: JdbcDataSourceStatus;
+  dataSourceConfig: DataSourceConfig;
+}
+
+interface RedisInfo {
+  // ...
+}
+
+interface RedisDataSourceStatus {
+  totalConnections: number;
+  activeConnections: number;
+  idleConnections: number;
+  threadsAwaitingConnection: number;
+  maxBorrowWaitTimeMillis: string;
+  meanBorrowWaitTimeMillis: string;
+  meanActiveTimeMillis: string;
+  meanIdleTimeMillis: string;
+}
+
+interface RedisInfoRes {
+  name: string;
+  def: boolean;
+  immutable: boolean;
+  redisInfo: RedisInfo;
+  status: RedisDataSourceStatus;
+  dataSourceConfig: DataSourceConfig;
+}
