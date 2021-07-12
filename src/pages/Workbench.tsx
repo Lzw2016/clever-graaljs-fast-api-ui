@@ -44,7 +44,7 @@ import {
   transformEditorTabItem2TopStatusFileInfo,
   WorkbenchLoading
 } from "@/types/workbench-layout";
-import wechat from "~/public/wechat.png";
+import wechat from "/wechat.png";
 import styles from "./Workbench.module.less";
 
 interface WorkbenchProps {
