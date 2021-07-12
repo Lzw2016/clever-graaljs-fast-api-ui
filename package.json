@@ -71,6 +71,7 @@
     "@types/qs": "^6.9.6",
     "@types/numeral": "^2.0.1",
     "less": "^4.1.1",
+    "less-loader": "^10.0.1",
     "postcss": "^8.3.5",
     "postcss-focus": "^5.0.1",
     "vite": "^2.3.8",
