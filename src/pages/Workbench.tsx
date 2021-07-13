@@ -39,7 +39,7 @@ import {
 } from "@/components/ide";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
-import { componentStateKey, fastApiStore } from "@/utils/storage";
+import { componentStateKey, storeGetData, storeSaveData } from "@/utils/storage";
 import { ChevronDown, ChevronUp, Copy, Debugger, Execute, Find, getFileIcon, History, MenuSaveAll, NoEvents, OpenTerminal, Rollback } from "@/utils/IdeaIconUtils";
 import { editorDefOptions, getLanguage, initEditorConfig, initKeyBinding, themeEnum } from "@/utils/editor-utils";
 import {
@@ -69,8 +69,8 @@ interface WorkbenchState extends WorkbenchLoading, LayoutSize, EditorTabsState {
 }
 
 // 读取组件状态
-const storageState: Partial<WorkbenchState> = await fastApiStore.getItem(componentStateKey.Workbench) ?? {};
 const initStorageState = (): Promise<any[]> => {
+  const storageState: WorkbenchState = storeGetData(componentStateKey.Workbench);
   const all: Array<Promise<any>> = [];
   if (storageState.openFileMap && storageState.openFileMap.size > 0) {
     const files = [...storageState.openFileMap.values()];
@@ -122,8 +122,6 @@ const getDefaultState = (): WorkbenchState => ({
   hSplitCollapsedSize: [15, 75, 10],
   // EditorTabsState
   openFileMap: new Map<string, EditorTabItem>(),
-  // StorageState
-  ...storageState,
 });
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
@@ -226,7 +224,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
 
   constructor(props: Readonly<WorkbenchProps>) {
     super(props);
-    this.state = { ...getDefaultState() };
+    this.state = { ...getDefaultState(), ...storeGetData(componentStateKey.Workbench) };
   }
 
   // 组件挂载后
@@ -260,7 +258,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     const { topStatusFileInfo } = this.state;
     // EditorTabsState
     const { currentEditId, openFileMap } = this.state;
-    await fastApiStore.setItem(
+    await storeSaveData(
       componentStateKey.Workbench,
       {
         globalEnv,

@@ -11,7 +11,7 @@ import { ContextMenu2 } from "@blueprintjs/popover2";
 import { FastApi } from "@/apis";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
-import { componentStateKey, fastApiStore } from "@/utils/storage";
+import { componentStateKey, storeGetData, storeSaveData } from "@/utils/storage";
 import { AddFile, AddFolder, CollapseAll, Copy, EditSource, ExpandAll, Find, Folder, getFileIcon, Locate, Refresh, Remove } from "@/utils/IdeaIconUtils";
 import styles from "./HttpApiResourcePanel.module.less";
 
@@ -88,8 +88,6 @@ interface HttpApiResourcePanelState {
   deleteApiLoading: boolean;
 }
 
-// 读取组件状态
-const storageState: Partial<HttpApiResourcePanelState> = await fastApiStore.getItem(componentStateKey.HttpApiResourcePanelState) ?? {};
 // 组件状态默认值
 const defaultState: HttpApiResourcePanelState = {
   loading: true,
@@ -109,7 +107,6 @@ const defaultState: HttpApiResourcePanelState = {
   renameLoading: false,
   showDeleteDialog: false,
   deleteApiLoading: false,
-  ...storageState,
 }
 
 class HttpApiResourcePanel extends React.Component<HttpApiResourcePanelProps, HttpApiResourcePanelState> {
@@ -120,7 +117,7 @@ class HttpApiResourcePanel extends React.Component<HttpApiResourcePanelProps, Ht
 
   constructor(props: HttpApiResourcePanelProps) {
     super(props);
-    this.state = { ...defaultState };
+    this.state = { ...defaultState, ...storeGetData(componentStateKey.HttpApiResourcePanelState) };
   }
 
   // 组件挂载后
@@ -142,7 +139,7 @@ class HttpApiResourcePanel extends React.Component<HttpApiResourcePanelProps, Ht
     expandedIds.forEach(id => {
       if (!allIds.has(id)) expandedIds.delete(id);
     });
-    await fastApiStore.setItem(
+    await storeSaveData(
       componentStateKey.HttpApiResourcePanelState,
       { expandedIds, selectedId, nodeNameSort },
     ).finally(() => {

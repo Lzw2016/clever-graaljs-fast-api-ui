@@ -11,7 +11,7 @@ import { ContextMenu2 } from "@blueprintjs/popover2";
 import { FastApi } from "@/apis";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
-import { componentStateKey, fastApiStore } from "@/utils/storage";
+import { componentStateKey, storeGetData, storeSaveData } from "@/utils/storage";
 import { AddFile, AddFolder, CollapseAll, Copy, EditSource, ExpandAll, Find, Folder, getFileIcon, Locate, Refresh, Remove } from "@/utils/IdeaIconUtils";
 import styles from "./ExtendResourcePanel.module.less";
 
@@ -84,8 +84,6 @@ interface ExtendResourcePanelState {
   deleteApiLoading: boolean;
 }
 
-// 读取组件状态
-const storageState: Partial<FileResourceTreeNodeRes> = await fastApiStore.getItem(componentStateKey.ExtendResourcePanelState) ?? {};
 // 组件状态默认值
 const defaultState: ExtendResourcePanelState = {
   loading: true,
@@ -104,7 +102,6 @@ const defaultState: ExtendResourcePanelState = {
   renameLoading: false,
   showDeleteDialog: false,
   deleteApiLoading: false,
-  ...storageState,
 }
 
 class ExtendResourcePanel extends React.Component<ExtendResourcePanelProps, ExtendResourcePanelState> {
@@ -115,7 +112,7 @@ class ExtendResourcePanel extends React.Component<ExtendResourcePanelProps, Exte
 
   constructor(props: ExtendResourcePanelProps) {
     super(props);
-    this.state = { ...defaultState };
+    this.state = { ...defaultState, ...storeGetData(componentStateKey.ExtendResourcePanelState) };
   }
 
   // 组件挂载后
@@ -137,13 +134,12 @@ class ExtendResourcePanel extends React.Component<ExtendResourcePanelProps, Exte
     expandedIds.forEach(id => {
       if (!allIds.has(id)) expandedIds.delete(id);
     });
-    await fastApiStore
-      .setItem(
-        componentStateKey.ExtendResourcePanelState,
-        { expandedIds, selectedId, nodeNameSort }
-      ).finally(() => {
-        this.saveStateLock = false;
-      });
+    await storeSaveData(
+      componentStateKey.ExtendResourcePanelState,
+      { expandedIds, selectedId, nodeNameSort }
+    ).finally(() => {
+      this.saveStateLock = false;
+    });
   }
 
   /** 重新加载数据 */

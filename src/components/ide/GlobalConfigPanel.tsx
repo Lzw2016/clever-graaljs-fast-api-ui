@@ -5,7 +5,7 @@ import Split from "react-split";
 import SimpleBar from "simplebar-react";
 import { Alert, Button, Classes, Dialog, FormGroup, InputGroup, Intent, Spinner, SpinnerSize, Tab, Tabs } from "@blueprintjs/core";
 import { DynamicForm } from "@/components/DynamicForm";
-import { componentStateKey, fastApiStore } from "@/utils/storage";
+import { componentStateKey, storeGetData, storeSaveData } from "@/utils/storage";
 import { hasValue, noValue } from "@/utils/utils";
 import Icon, { ArrowRightOutlined } from "@ant-design/icons";
 import { Add, AddFile, ConfigFile, MenuSaveAll, Refresh, Remove2 } from "@/utils/IdeaIconUtils";
@@ -58,7 +58,6 @@ interface GlobalConfigPanelState {
 }
 
 // 读取组件状态
-const storageState: Partial<GlobalConfigPanelState> = await fastApiStore.getItem(componentStateKey.GlobalConfigPanelState) ?? {};
 const defaultState: GlobalConfigPanelState = {
   hSplitSize: [15, 85],
   requestTab: RequestTabEnum.Params,
@@ -73,7 +72,6 @@ const defaultState: GlobalConfigPanelState = {
   deleteLoading: false,
   showUpdateDialog: false,
   updateLoading: false,
-  ...storageState,
 }
 
 class GlobalConfigPanel extends React.Component<GlobalConfigPanelProps, GlobalConfigPanelState> {
@@ -86,7 +84,7 @@ class GlobalConfigPanel extends React.Component<GlobalConfigPanelProps, GlobalCo
 
   constructor(props: GlobalConfigPanelProps) {
     super(props);
-    this.state = { ...defaultState };
+    this.state = { ...defaultState, ...storeGetData(componentStateKey.GlobalConfigPanelState) };
   }
 
   // 组件挂载后
@@ -103,7 +101,7 @@ class GlobalConfigPanel extends React.Component<GlobalConfigPanelProps, GlobalCo
   public async saveState(): Promise<void> {
     if (this.saveStateLock) return;
     const { hSplitSize, requestTab, globalRequestDataId } = this.state;
-    await fastApiStore.setItem(
+    await storeSaveData(
       componentStateKey.GlobalConfigPanelState,
       { hSplitSize, requestTab, globalRequestDataId },
     ).finally(() => {

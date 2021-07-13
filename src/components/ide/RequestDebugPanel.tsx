@@ -19,7 +19,7 @@ import { bytesFormat } from "@/utils/format";
 import { request } from "@/utils/request";
 import { editorDefOptions, initEditorConfig, initKeyBinding, languageEnum, themeEnum } from "@/utils/editor-utils";
 import { Add, AddFile, Commit, Edit, Execute, HttpRequestsFiletype, MenuSaveAll, Refresh, Remove2 } from "@/utils/IdeaIconUtils";
-import { componentStateKey, fastApiStore } from "@/utils/storage";
+import { componentStateKey, storeGetData, storeSaveData } from "@/utils/storage";
 import styles from "./RequestDebugPanel.module.less";
 
 enum RequestTabEnum {
@@ -85,8 +85,6 @@ interface RequestDebugPanelState {
   updateLoading: boolean;
 }
 
-// 读取组件状态
-const storageState: Partial<RequestDebugPanelState> = await fastApiStore.getItem(componentStateKey.RequestDebugPanelState) ?? {};
 // 组件状态默认值
 const defHttpApiDebug = (): HttpApiDebugRes => ({
   id: "", namespace: "", httpApiId: "", title: "",
@@ -112,7 +110,6 @@ const defaultState: RequestDebugPanelState = {
   showUpdateInput: false,
   needUpdate: false,
   updateLoading: false,
-  ...storageState,
 }
 
 class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestDebugPanelState> {
@@ -133,7 +130,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   constructor(props: RequestDebugPanelProps) {
     super(props);
-    this.state = { ...defaultState };
+    this.state = { ...defaultState, ...storeGetData(componentStateKey.RequestDebugPanelState) };
   }
 
   // 组件挂载后
@@ -155,7 +152,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   public async saveState(): Promise<void> {
     if (this.saveStateLock) return;
     const { hSplitSize, requestTab, responseTab } = this.state;
-    await fastApiStore.setItem(
+    await storeSaveData(
       componentStateKey.RequestDebugPanelState,
       { hSplitSize, requestTab, responseTab },
     ).finally(() => {

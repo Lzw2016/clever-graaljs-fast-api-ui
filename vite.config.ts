@@ -3,6 +3,8 @@ import legacy from "@vitejs/plugin-legacy";
 import vitePluginImp from "vite-plugin-imp";
 import reactRefresh from "@vitejs/plugin-react-refresh";
 import { minifyHtml } from "vite-plugin-html";
+import resolve from "rollup-plugin-node-resolve";
+import commonjs from "rollup-plugin-commonjs";
 
 const path = require("path");
 
@@ -13,7 +15,6 @@ export default defineConfig({
     // isProdEnv: NODE_ENV === "production",
     apiGlobalPrefix: JSON.stringify(""),
     "process.env": "{}",
-    global: {},
   },
   plugins: [
     legacy({
@@ -73,7 +74,18 @@ export default defineConfig({
     assetsDir: "assets",
     assetsInlineLimit: 4096,
     cssCodeSplit: true,
-    rollupOptions: {},
-    commonjsOptions: {}
+    rollupOptions: {
+      external: [
+        // "localforage",
+        // "dom4",
+        // "@blueprintjs",
+      ],
+      output: {},
+      plugins: [
+        resolve(),
+        commonjs(),
+      ],
+    },
+    commonjsOptions: {},
   },
 });
