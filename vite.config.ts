@@ -10,7 +10,7 @@ const path = require("path");
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // base: "https://cdn-static-resources.oss-cn-hangzhou.aliyuncs.com/clever-graaljs-fast-api-ui/1.0.0-beta1/",
+  // base: "https://cdn-static-resources.oss-cn-hangzhou.aliyuncs.com/clever-graaljs-fast-api-ui/1.0.0-beta2/",
   base: "/",
   define: {
     // isProdEnv: NODE_ENV === "production",
@@ -60,11 +60,11 @@ export default defineConfig({
         changeOrigin: true,
         // rewrite: path => path,
       },
-      "/api": {
-        target: "http://127.0.0.1:18081",
-        changeOrigin: true,
-        // rewrite: path => path,
-      },
+      // "/api": {
+      //   target: "http://127.0.0.1:18081",
+      //   changeOrigin: true,
+      //   // rewrite: path => path,
+      // },
     },
     force: true,
   },
