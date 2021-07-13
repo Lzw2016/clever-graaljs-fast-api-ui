@@ -75,11 +75,7 @@ export default defineConfig({
     assetsInlineLimit: 4096,
     cssCodeSplit: true,
     rollupOptions: {
-      external: [
-        // "localforage",
-        // "dom4",
-        // "@blueprintjs",
-      ],
+      external: [],
       output: {},
       plugins: [
         resolve(),

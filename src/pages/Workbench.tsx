@@ -22,7 +22,7 @@ import Icon, {
   WechatOutlined
 } from "@ant-design/icons";
 import { Alert, Intent, ProgressBar, Spinner, SpinnerSize } from "@blueprintjs/core";
-import * as MonacoApi from "monaco-editor";
+import * as MonacoApi from "monaco-editor/esm/vs/editor/editor.api";
 import Editor from "@monaco-editor/react";
 import IconFont from "@/components/IconFont";
 import logo from "@/assets/logo.svg";

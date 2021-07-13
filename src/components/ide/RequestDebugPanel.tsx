@@ -8,7 +8,7 @@ import SimpleBar from "simplebar-react";
 import Icon from "@ant-design/icons";
 import { Alert, Button, Classes, Dialog, FormGroup, InputGroup, Intent, Radio, RadioGroup, Spinner, SpinnerSize, Tab, Tabs } from "@blueprintjs/core";
 import { Tooltip2 } from "@blueprintjs/popover2";
-import * as MonacoApi from "monaco-editor";
+import * as MonacoApi from "monaco-editor/esm/vs/editor/editor.api";
 import Editor from "@monaco-editor/react";
 import { DynamicForm } from "@/components/DynamicForm";
 import { LogViewer } from "@/components/LogViewer";
