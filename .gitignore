@@ -87,3 +87,6 @@ typings/
 server/node_modules
 secret.txt
 !node_modules/react-split/index.d.ts
+/target
+.flattened-pom.xml
+*.iml
