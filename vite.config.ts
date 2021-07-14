@@ -60,11 +60,11 @@ export default defineConfig({
         changeOrigin: true,
         // rewrite: path => path,
       },
-      // "/api": {
-      //   target: "http://127.0.0.1:18081",
-      //   changeOrigin: true,
-      //   // rewrite: path => path,
-      // },
+      "/api": {
+        target: "http://127.0.0.1:18081",
+        changeOrigin: true,
+        // rewrite: path => path,
+      },
     },
     force: true,
   },
