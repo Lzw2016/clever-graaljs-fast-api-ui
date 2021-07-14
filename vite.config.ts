@@ -10,7 +10,7 @@ const path = require("path");
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // base: "https://cdn-static-resources.oss-cn-hangzhou.aliyuncs.com/clever-graaljs-fast-api-ui/1.0.0-beta2/",
+  // base: "https://cdn-static-resources.oss-cn-hangzhou.aliyuncs.com/clever-graaljs-fast-api-ui/1.0.0-beta3/",
   base: "/",
   define: {
     // isProdEnv: NODE_ENV === "production",

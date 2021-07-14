@@ -3,7 +3,8 @@ import Workbench from "@/pages/Workbench";
 
 const routesConfig: RouteConfig[] = [
   { path: "/", exact: true, component: Workbench },
-
+  { path: "/index.html", exact: true, component: Workbench },
+  { path: "/fast-api.html", exact: true, component: Workbench },
   // // APP 路由
   // {
   //   path: '/hybird',
