@@ -9,7 +9,7 @@ const fastApiStore = localforage.createInstance({
 const allData: { [key: string]: any } = {};
 
 /** 组件状态key */
-const componentStateKey: { [key: string]: string } = {
+const componentStateKey = {
   Workbench: "Workbench",
   HttpApiResourcePanelState: "HttpApiResourcePanelState",
   ExtendResourcePanelState: "ExtendResourcePanelState",
@@ -24,7 +24,7 @@ const loadAllData = (): Promise<any> => {
       allData[value] = data;
     }));
   });
-  return Promise.any(all);
+  return Promise.all(all);
 }
 
 const storeSaveData = <T = any>(key: string, value: T): Promise<T> => {
