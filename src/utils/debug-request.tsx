@@ -1,6 +1,7 @@
 import qs from "qs";
 import axios, { Method } from "axios";
 import lodash from "lodash";
+import * as uuid from "uuid";
 import Cookies from "js-cookie";
 import { hasPropertyIn, hasValue } from "@/utils/utils";
 import { TypeEnum, variableTypeOf } from "@/utils/typeof";
@@ -74,10 +75,10 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
   if (requestData.bodyType !== "None" && requestData.method === "GET" && requestData.jsonBody) {
     toaster.show({ ...toastProps, intent: Intent.NONE, message: "GET请求的Body数据无效，应该使用POST" });
   }
-  const startTime = lodash.now();
   if (!headers["api-debug"]) {
-    headers["api-debug"] = `debug_${startTime}_${lodash.uniqueId()}`;
+    headers["api-debug"] = `debug-${uuid.v4()}`;
   }
+  const startTime = lodash.now();
   return debugRequest.request({
     method: requestData.method as Method,
     url: requestData.path,

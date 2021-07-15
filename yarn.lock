@@ -553,6 +553,11 @@
   dependencies:
     simplebar "*"
 
+"@types/uuid@^8.3.1":
+  version "8.3.1"
+  resolved "https://registry.nlark.com/@types/uuid/download/@types/uuid-8.3.1.tgz#1a32969cf8f0364b3d8c8af9cc3555b7805df14f"
+  integrity sha1-GjKWnPjwNks9jIr5zDVVt4Bd8U8=
+
 "@types/whatwg-streams@^0.0.7":
   version "0.0.7"
   resolved "https://registry.npm.taobao.org/@types/whatwg-streams/download/@types/whatwg-streams-0.0.7.tgz#28bfe73dc850562296367249c4b32a50db81e9d3"
@@ -2011,6 +2016,11 @@ use-memo-one@^1.1.1:
   version "1.1.2"
   resolved "https://registry.npm.taobao.org/use-memo-one/download/use-memo-one-1.1.2.tgz#0c8203a329f76e040047a35a1197defe342fab20"
   integrity sha1-DIIDoyn3bgQAR6NaEZfe/jQvqyA=
+
+uuid@^8.3.2:
+  version "8.3.2"
+  resolved "https://registry.nlark.com/uuid/download/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
+  integrity sha1-gNW1ztJxu5r2xEXyGhoExgbO++I=
 
 value-equal@^1.0.1:
   version "1.0.1"
