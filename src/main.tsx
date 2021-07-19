@@ -27,17 +27,20 @@ document.addEventListener("keydown", e => {
   if (preventDefault) e.preventDefault();
 });
 
+// 初始化 dayjs
 dayjs.locale("zh-cn");
 loader.config({
   paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.25.2/min/vs" },
   "vs/nls": { availableLanguages: { "*": "zh-cn" } },
 });
+
+// 初始化 monaco
 loader.init().then(monaco => {
   registerTheme(monaco);
-  initMonaco(monaco);
+  initMonaco(monaco).finally();
 });
 
-
+// 加载组件状态
 loadAllData().finally(() => {
   ReactDOM.render(
     (

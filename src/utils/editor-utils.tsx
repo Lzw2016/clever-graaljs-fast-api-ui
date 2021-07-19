@@ -41,6 +41,7 @@ const languageEnum = {
   xml: "xml",
   json: "json",
   yaml: "yaml",
+  sql: "sql",
 };
 
 /**
@@ -120,8 +121,50 @@ const registerTheme = (monaco: typeof MonacoApi) => {
 /**
  * 初始化Monaco编辑器
  */
-const initMonaco = (monaco: typeof MonacoApi) => {
-  // 设置语法检测
+const initMonaco = (monaco: typeof MonacoApi): Promise<void> => {
+  // 设置sql提示
+  monaco.languages.registerCompletionItemProvider(languageEnum.sql, {
+    triggerCharacters: ' $.:{}=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+    provideCompletionItems(
+      model: MonacoApi.editor.ITextModel,
+      position: MonacoApi.Position,
+      context: MonacoApi.languages.CompletionContext,
+      token: MonacoApi.CancellationToken): MonacoApi.languages.ProviderResult<MonacoApi.languages.CompletionList> {
+      const word = model.getWordUntilPosition(position);
+      const range = {
+        startLineNumber: position.lineNumber,
+        endLineNumber: position.lineNumber,
+        startColumn: word.startColumn,
+        endColumn: word.endColumn
+      };
+      return {
+        suggestions: [
+          {
+            label: 'select',
+            kind: monaco.languages.CompletionItemKind.Keyword,
+            documentation: "Describe your library here",
+            insertText: 'select',
+            // insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range: range
+          },
+          {
+            label: {
+              name: 'f001',
+              qualifier: "t001.f001",
+              type: "字段",
+            },
+            kind: monaco.languages.CompletionItemKind.Field,
+            documentation: "字段含义",
+            insertText: 'f001',
+            // insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range: range
+          }
+        ],
+      };
+    }
+  });
+
+  // 设置js/ts语法检测
   monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
     noSemanticValidation: false,
     noSyntaxValidation: false,
@@ -159,7 +202,7 @@ const initMonaco = (monaco: typeof MonacoApi) => {
     emitDecoratorMetadata: true,
   });
   // 加载扩展lib定义
-  request.get(FastApi.ExtendFileManage.getExtendFileList)
+  return request.get(FastApi.ExtendFileManage.getExtendFileList)
     .then((extList: Array<FileResource>) => extList.forEach(ext => {
       if (ext.isFile !== 1 || !ext.content) return;
       // monaco.languages.typescript.javascriptDefaults.addExtraLib(ext.content, ext.path + ext.name);
@@ -289,6 +332,8 @@ const getLanguage = (filename?: string): string => {
     case ".yml":
     case ".yaml":
       return languageEnum.yaml;
+    case ".sql":
+      return languageEnum.sql;
   }
   return languageEnum.javascript
 }

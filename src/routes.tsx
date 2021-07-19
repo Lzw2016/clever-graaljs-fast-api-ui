@@ -1,10 +1,12 @@
 import { RouteConfig } from "react-router-config";
 import Workbench from "@/pages/Workbench";
+import { Test } from "@/pages/Test";
 
 const routesConfig: RouteConfig[] = [
   { path: "/", exact: true, component: Workbench },
   { path: "/index.html", exact: true, component: Workbench },
   { path: "/fast-api.html", exact: true, component: Workbench },
+  { path: "/test", exact: true, component: Test },
   // // APP 路由
   // {
   //   path: '/hybird',
