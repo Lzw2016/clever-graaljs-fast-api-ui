@@ -52,6 +52,10 @@ const FastApi = {
     updateRedis: `${serverHost}/redis_manage/update`,
     getStatus: `${serverHost}/redis_manage/status`,
   },
+  TaskManage: {
+    getJsJobTree: `${serverHost}/task_manage/js_job_tree`,
+    getJsJobInfo: `${serverHost}/task_manage/js_job_info`,
+  },
 };
 
 export { FastApi };

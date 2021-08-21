@@ -35,7 +35,8 @@ import {
   InterfaceConfigPanel,
   JdbcDatabaseManagePanel,
   RedisManagePanel,
-  RequestDebugPanel
+  RequestDebugPanel,
+  TaskResourcePanel,
 } from "@/components/ide";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
@@ -858,9 +859,9 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           }}
           onDelHttpApi={files => files.forEach(file => this.closeEditFile(file.id))}
         />
-        <div className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.TimedTask })}>
-          TimedTask
-        </div>
+        <TaskResourcePanel
+          className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.TimedTask })}
+        />
         <ExtendResourcePanel
           ref={this.extendResourcePane}
           className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.Extend })}

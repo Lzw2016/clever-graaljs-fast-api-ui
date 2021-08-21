@@ -1,5 +1,6 @@
-export * from "./ExtendResourcePanel";
 export * from "./HttpApiResourcePanel";
+export * from "./ExtendResourcePanel";
+export * from "./TaskResourcePanel";
 export * from "./RequestDebugPanel";
 export * from "./EngineInstancePanel";
 export * from "./GlobalConfigPanel";

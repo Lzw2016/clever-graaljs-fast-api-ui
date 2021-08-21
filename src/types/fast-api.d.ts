@@ -516,3 +516,63 @@ interface RedisInfoRes {
   status: RedisDataSourceStatus;
   dataSourceConfig: DataSourceConfig;
 }
+
+interface JobFileResourceRes {
+  jobId?: string;
+  jobTriggerId?: string;
+  /** 资源文件id */
+  fileResourceId: string;
+  /** 父级编号(资源文件id) */
+  parentFileResourceId?: string;
+  /** 命名空间 */
+  namespace: string;
+  /** 文件路径(以"/"结束) */
+  path: string;
+  /** 文件名称 */
+  name: string;
+  /** 数据类型：0-文件夹，1-文件 */
+  isFile: IsFile;
+  /** 读写权限：0-可读可写，1-只读 */
+  readOnly: ReadOnly;
+  // -------------------------------------------------------------------------------- Job
+  /** 最大重入执行数量(对于单个节点当前任务未执行完成就触发了下一次执行导致任务重入执行)，小于等于0：表示禁止重入执行 */
+  maxReentry: number;
+  /** 是否允许多节点并发执行，使用悲观锁实现(不建议使用)，0：禁止，1：允许 */
+  allowConcurrent: number;
+  /** 执行失败时的最大重试次数 */
+  maxRetryCount: number;
+  /** 路由策略，0：不启用，1：指定节点优先，2：固定节点白名单，3：固定节点黑名单 */
+  routeStrategy: number;
+  /** 路由策略，1-指定节点优先，调度器名称集合 */
+  firstScheduler: string;
+  /** 路由策略，2-固定节点白名单，调度器名称集合 */
+  whitelistScheduler: string;
+  /** 路由策略，3-固定节点黑名单，调度器名称集合 */
+  blacklistScheduler: string;
+  /** 负载均衡策略，1：抢占，2：随机，3：轮询，4：一致性HASH */
+  loadBalance: number;
+  /** 是否禁用：0-启用，1-禁用 */
+  disable: number;
+  // -------------------------------------------------------------------------------- JobTrigger
+  /** 触发开始时间 */
+  startTime: string;
+  /** 触发结束时间 */
+  endTime: string;
+  /** 上一次触发时间 */
+  lastFireTime: string;
+  /** 下一次触发时间 */
+  nextFireTime: string;
+  /** 错过触发策略，1：忽略，2：立即补偿触发一次 */
+  misfireStrategy: number;
+  /** 是否允许多节点并行触发，使用悲观锁实现，0：禁止，1：允许 */
+  triggerAllowConcurrent: number;
+  /** 任务类型，1：cron触发，2：固定速率触发 */
+  type: number;
+  /** cron表达式 */
+  cron?: string;
+  /** 固定速率触发，间隔时间(单位：秒) */
+  fixedInterval?: string;
+  /** 是否禁用：0-启用，1-禁用 */
+  triggerDisable: number;
+}
+
