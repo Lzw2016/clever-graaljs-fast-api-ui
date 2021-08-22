@@ -90,3 +90,28 @@
 .emptyDiv {
   height: 24px;
 }
+
+.dialog {
+  font-size: 12px;
+
+  :global {
+    .bp3-form-group.bp3-inline {
+      margin-left: 16px;
+      margin-right: 16px;
+
+      .bp3-form-content {
+        flex-grow: 1;
+        flex-shrink: 1;
+      }
+    }
+  }
+}
+
+.renameDialog {
+  :global {
+    .bp3-label {
+      width: 50px;
+    }
+  }
+}
+

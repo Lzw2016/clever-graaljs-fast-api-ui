@@ -128,6 +128,8 @@ const getDefaultState = (): WorkbenchState => ({
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   /** HTTP API组件 */
   private httpApiResourcePane = React.createRef<HttpApiResourcePanel>();
+  /** 定时任务组件 */
+  private taskResourcePanel = React.createRef<TaskResourcePanel>();
   /** 自定义扩展组件 */
   private extendResourcePane = React.createRef<ExtendResourcePanel>();
   /** 接口调试组件 */
@@ -860,7 +862,37 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           onDelHttpApi={files => files.forEach(file => this.closeEditFile(file.id))}
         />
         <TaskResourcePanel
+          ref={this.taskResourcePanel}
           className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.TimedTask })}
+          openFileId={currentEditId}
+          onHidePanel={() => this.toggleLeftPanel()}
+          onSelectChange={node => {
+            const resource = node.nodeData;
+            if (!resource) {
+              this.setState({ topStatusFileInfo: undefined });
+              return;
+            }
+            this.setState({
+              topStatusFileInfo: {
+                fileResourceId: resource.fileResourceId,
+                isFile: resource.isFile,
+                path: resource.path,
+                name: resource.name,
+                httpApiId: undefined,
+                requestMapping: undefined,
+                requestMethod: undefined,
+              }
+            });
+          }}
+          onOpenFile={resource => {
+            if (resource.isFile !== 1) return;
+            this.setCurrentEditFile(resource.fileResourceId);
+          }}
+          // onAddFile={file => {
+          //   if (file.isFile !== 1) return;
+          //   this.setCurrentEditFile(file.id);
+          // }}
+          // onDelFile={files => files.forEach(file => this.closeEditFile(file.id))}
         />
         <ExtendResourcePanel
           ref={this.extendResourcePane}

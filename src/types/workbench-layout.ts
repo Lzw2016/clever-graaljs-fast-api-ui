@@ -76,12 +76,15 @@ export interface TopStatusFileInfo {
   path: string;
   /** 文件名称 */
   name: string;
+
   /** HTTP接口id */
   httpApiId?: string;
   /** http请求路径 */
   requestMapping?: string;
   /** http请求method，ALL GET HEAD POST PUT DELETE CONNECT OPTIONS TRACE PATCH */
   requestMethod?: RequestMethod;
+
+
 }
 
 export interface EditorTabItem {
