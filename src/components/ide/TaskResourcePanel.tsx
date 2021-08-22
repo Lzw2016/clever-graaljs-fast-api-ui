@@ -20,32 +20,23 @@ interface AddJsJobForm {
   filePath: string;
   fileName: string;
   /** 最大重入执行数量(对于单个节点当前任务未执行完成就触发了下一次执行导致任务重入执行)，小于等于0：表示禁止重入执行 */
-  maxReentry: number;
+  maxReentry?: number;
   /** 执行失败时的最大重试次数 */
-  maxRetryCount: number;
+  maxRetryCount?: number;
   /** 是否更新任务数据，0：不更新，1：更新 */
-  isUpdateData: number;
+  isUpdateData?: number;
   /** 是否禁用：0-启用，1-禁用 */
-  disable: number;
+  disable?: number;
   /** 描述 */
-  description: string;
+  description?: string;
   /** cron表达式 */
   cron: string;
   /** 触发开始时间 */
-  startTime: string;
+  startTime?: string;
   /** 触发结束时间 */
-  endTime: string;
+  endTime?: string;
   /** 错过触发策略，1：忽略，2：立即补偿触发一次 */
-  misfireStrategy: number;
-  /**  */
-  aaa: number;
-
-
-  // String name, String filePath, String fileName, String fileContent
-  // /**
-  //  * 是否允许多节点并发执行，使用悲观锁实现(不建议使用)，0：禁止，1：允许
-  //  */
-  // protected Integer allowConcurrent;
+  misfireStrategy?: number;
 }
 
 interface AddDirForm {
@@ -69,9 +60,9 @@ interface TaskResourcePanelProps {
   onOpenFile?: (jobFileResourceRes: JobFileResourceRes) => void;
   /** 当前组件点击最小化事件 */
   onHidePanel?: () => void;
-  // /** 新增接口成功 */
-  // onAddHttpApi?: (httpApi: HttpApi, file: FileResource) => void;
-  // /** 删除接口成功 */
+  /** 新增任务成功 */
+  onAddJsJob?: (job: Job, jobTrigger: JobTrigger, file: FileResource) => void;
+  // /** 删除任务成功 */
   // onDelHttpApi?: (files: Array<FileResource>) => void;
 }
 
@@ -88,14 +79,12 @@ interface TaskResourcePanelState {
   contextMenuSelectNode?: TreeNodeInfo<JobFileResourceRes>;
   /** 节点名称排序规则 */
   nodeNameSort: "ASC" | "DESC";
-  // /** 显示新增接口对话框 */
-  // showAddHttpApiDialog: boolean;
-  // /** 新增接口表单数据 */
-  // addHttpApiForm: AddHttpApiForm;
-  // /** addHttpApi requestMethod 值用户是否自定义输入 */
-  // addHttpApiRequestMappingChanged: boolean;
-  // /** 新增接口Loading */
-  // addHttpApiLoading: boolean;
+  /** 显示新增任务对话框 */
+  showAddJsJobDialog: boolean;
+  /** 新增任务表单数据 */
+  addJsJobForm: AddJsJobForm;
+  /** 新增任务Loading */
+  addJsJobLoading: boolean;
   /** 显示新增目录对话框 */
   showAddDirDialog: boolean;
   /** 新增目录表单数据 */
@@ -122,10 +111,9 @@ const defaultState: TaskResourcePanelState = {
   expandedIds: new Set(),
   selectedId: "",
   nodeNameSort: "ASC",
-  // showAddHttpApiDialog: false,
-  // addHttpApiForm: { path: "/", name: "", requestMapping: "", requestMethod: "GET" },
-  // addHttpApiRequestMappingChanged: false,
-  // addHttpApiLoading: false,
+  showAddJsJobDialog: false,
+  addJsJobForm: { name: "", filePath: "", fileName: "", cron: "" },
+  addJsJobLoading: false,
   showAddDirDialog: false,
   addDirForm: { path: "/" },
   addDirLoading: false,
@@ -195,6 +183,26 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
     });
   }
 
+  /** 新增任务 */
+  private addJsJob() {
+    const { onAddJsJob } = this.props;
+    const { expandedIds, addJsJobForm } = this.state;
+    this.setState({ addJsJobLoading: true });
+    request.post(FastApi.TaskManage.addJsJob, { ...addJsJobForm })
+      .then((res: AddJsJobRes) => {
+        res?.fileList?.forEach(item => {
+          if (item.isFile === 0) {
+            expandedIds.add(item.id);
+            return
+          }
+          if (onAddJsJob) onAddJsJob(res.job, res.jobTrigger, item);
+          this.setState({ selectedId: item.id });
+        });
+        this.setState({ showAddJsJobDialog: false });
+        this.reLoadTreeData(false);
+      }).finally(() => this.setState({ addJsJobLoading: false }));
+  }
+
   /** 新增目录 */
   private addDir() {
     const { expandedIds, addDirForm: { path } } = this.state;
@@ -222,7 +230,6 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
         if (res && res.length > 0) this.reLoadTreeData(false);
       }).finally(() => this.setState({ renameLoading: false }));
   }
-
 
   /** 填充TreeData(选中状态、展开状态、排序) */
   private fillTreeState(treeData: Array<TreeNodeInfo<JobFileResourceRes>>): Array<TreeNodeInfo<JobFileResourceRes>> {
@@ -333,6 +340,11 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
           icon={<Icon component={AddFile} className={cls(styles.menuIcon)}/>}
           text="新增定时任务"
           onClick={() => {
+            const addJsJobForm: AddJsJobForm = { name: "", filePath: "/", fileName: "", cron: "" };
+            const nodeData = contextMenuSelectNode?.nodeData;
+            if (nodeData) addJsJobForm.filePath = nodeData.isFile === 1 ? nodeData.path : (nodeData.path + nodeData.name);
+            if (!addJsJobForm.filePath.endsWith("/")) addJsJobForm.filePath += "/";
+            this.setState({ showAddJsJobDialog: true, addJsJobForm: addJsJobForm });
           }}
         />
         <MenuItem
@@ -408,6 +420,73 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
           onClick={() => this.reLoadTreeData()}
         />
       </Menu>
+    );
+  }
+
+  private getAddJsJobDialog() {
+    const { showAddJsJobDialog, addJsJobForm, addJsJobLoading } = this.state;
+    const { name, filePath, fileName, maxReentry, maxRetryCount, isUpdateData, disable, description, cron, startTime, endTime, misfireStrategy } = addJsJobForm;
+    return (
+      <Dialog
+        className={cls(Classes.DARK, styles.dialog, styles.addHttpApiDialog)}
+        style={{ width: 600 }}
+        lazy={true}
+        icon={<Icon component={AddFile} className={cls(styles.menuIcon)} style={{ marginRight: 8 }}/>}
+        title={"新增定时任务"}
+        transitionDuration={0.1}
+        usePortal={true}
+        isCloseButtonShown={!addJsJobLoading}
+        canEscapeKeyClose={!addJsJobLoading}
+        canOutsideClickClose={false}
+        autoFocus={true}
+        enforceFocus={true}
+        isOpen={showAddJsJobDialog}
+        onClose={() => this.setState({ showAddJsJobDialog: false })}
+      >
+        <FormGroup style={{ marginTop: 12 }} inline={true} label={"所属目录"}>
+          <InputGroup
+            type={"text"}
+            placeholder={"输入所属目录"}
+            disabled={addJsJobLoading}
+            value={filePath}
+            onChange={e => this.setState({ addJsJobForm: { ...addJsJobForm, filePath: e.target.value } })}
+          />
+        </FormGroup>
+        <FormGroup style={{ marginBottom: 12 }} inline={true} label={"文件名称"}>
+          <InputGroup
+            type={"text"}
+            placeholder={"输入文件名称"}
+            disabled={addJsJobLoading}
+            autoFocus={true}
+            value={fileName}
+            onChange={e => this.setState({ addJsJobForm: { ...addJsJobForm, fileName: e.target.value } })}
+          />
+        </FormGroup>
+        <FormGroup style={{ marginBottom: 12 }} inline={true} label={"任务名称"}>
+          <InputGroup
+            type={"text"}
+            placeholder={"输入任务名称"}
+            disabled={addJsJobLoading}
+            value={name}
+            onChange={e => this.setState({ addJsJobForm: { ...addJsJobForm, name: e.target.value } })}
+          />
+        </FormGroup>
+        <FormGroup style={{ marginBottom: 12 }} inline={true} label={"执行时间"}>
+          <InputGroup
+            type={"text"}
+            placeholder={"输入cron表达式，如：0 0/5 * * * ? *"}
+            disabled={addJsJobLoading}
+            value={cron}
+            onChange={e => this.setState({ addJsJobForm: { ...addJsJobForm, cron: e.target.value } })}
+          />
+        </FormGroup>
+        <div className={Classes.DIALOG_FOOTER}>
+          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+            <Button onClick={() => this.setState({ showAddJsJobDialog: false })} disabled={addJsJobLoading}>取消</Button>
+            <Button intent={Intent.PRIMARY} onClick={() => this.addJsJob()} loading={addJsJobLoading}>确认</Button>
+          </div>
+        </div>
+      </Dialog>
     );
   }
 
@@ -607,7 +686,7 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
             <div className={styles.emptyDiv}/>
           </SimpleBar>
         </ContextMenu2>
-        {/*{this.getAddHttpApiDialog()}*/}
+        {this.getAddJsJobDialog()}
         {this.getAddDirDialog()}
         {this.getRenameDialog()}
         {this.getDeleteDialog()}

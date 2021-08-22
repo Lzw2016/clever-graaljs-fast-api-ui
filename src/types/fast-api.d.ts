@@ -576,3 +576,51 @@ interface JobFileResourceRes {
   triggerDisable: number;
 }
 
+interface Job {
+  id: string;
+  namespace: string;
+  name: string;
+  type: number;
+  maxReentry: number;
+  allowConcurrent: number;
+  lockVersion: number;
+  maxRetryCount: number;
+  routeStrategy: number;
+  firstScheduler: string;
+  whitelistScheduler: string;
+  blacklistScheduler: string;
+  loadBalance: number;
+  isUpdateData: number;
+  jobData: string;
+  disable: number;
+  description: string;
+  createAt: string;
+  updateAt: string;
+}
+
+interface JobTrigger {
+  id: string;
+  namespace: string;
+  jobId: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  lastFireTime: string;
+  nextFireTime: string;
+  misfireStrategy: number;
+  allowConcurrent: number;
+  lockVersion: number;
+  type: number;
+  cron: string;
+  fixedInterval: string;
+  disable: number;
+  description: string;
+  createAt: string;
+  updateAt: string;
+}
+
+interface AddJsJobRes {
+  fileList: Array<FileResource>;
+  job: Job;
+  jobTrigger: JobTrigger;
+}

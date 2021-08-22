@@ -84,7 +84,7 @@ export interface TopStatusFileInfo {
   /** http请求method，ALL GET HEAD POST PUT DELETE CONNECT OPTIONS TRACE PATCH */
   requestMethod?: RequestMethod;
 
-
+  // TODO 定时任务信息
 }
 
 export interface EditorTabItem {

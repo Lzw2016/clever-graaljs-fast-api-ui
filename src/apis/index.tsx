@@ -55,6 +55,8 @@ const FastApi = {
   TaskManage: {
     getJsJobTree: `${serverHost}/task_manage/js_job_tree`,
     getJsJobInfo: `${serverHost}/task_manage/js_job_info`,
+    addJsJob: `${serverHost}/task_manage/add_js_job`,
+    delJsJob: `${serverHost}/task_manage/del_js_job`,
   },
 };
 
