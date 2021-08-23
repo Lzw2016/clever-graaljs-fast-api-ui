@@ -59,6 +59,7 @@ const FastApi = {
     delJsJob: `${serverHost}/task_manage/del_js_job`,
     disable: `${serverHost}/task_manage/disable`,
     enable: `${serverHost}/task_manage/enable`,
+    execJob: `${serverHost}/task_manage/exec_job`,
   },
 };
 

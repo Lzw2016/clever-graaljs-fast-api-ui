@@ -12,7 +12,7 @@ import { FastApi } from "@/apis";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, storeGetData, storeSaveData } from "@/utils/storage";
-import { AddFile, AddFolder, CollapseAll, Copy, EditSource, ExpandAll, Find, Folder, getFileIcon, Locate, Refresh, Remove } from "@/utils/IdeaIconUtils";
+import { AddFile, AddFolder, CollapseAll, Copy, EditSource, ExpandAll, Find, Folder, getFileIcon, Locate, Refresh, Remove, StartTimer, StopTimer } from "@/utils/IdeaIconUtils";
 import styles from "./TaskResourcePanel.module.less";
 
 interface AddJsJobForm {
@@ -103,6 +103,10 @@ interface TaskResourcePanelState {
   showDeleteDialog: boolean;
   /** 删除数据Loading */
   deleteApiLoading: boolean;
+  showEnableDialog: boolean;
+  enableLoading: boolean;
+  showDisableDialog: boolean;
+  disableLoading: boolean;
 }
 
 
@@ -124,6 +128,10 @@ const defaultState: TaskResourcePanelState = {
   renameLoading: false,
   showDeleteDialog: false,
   deleteApiLoading: false,
+  showEnableDialog: false,
+  enableLoading: false,
+  showDisableDialog: false,
+  disableLoading: false,
 }
 
 class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskResourcePanelState> {
@@ -233,6 +241,32 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
       }).finally(() => this.setState({ renameLoading: false }));
   }
 
+  private enableJob() {
+    const { contextMenuSelectNode } = this.state;
+    this.setState({ enableLoading: true });
+    request.post(
+      FastApi.TaskManage.enable,
+      {},
+      { params: { jobId: contextMenuSelectNode?.nodeData?.jobId } }
+    ).then(() => {
+      this.setState({ showEnableDialog: false });
+      this.reLoadTreeData(false, true);
+    }).finally(() => this.setState({ enableLoading: false }));
+  }
+
+  private disableJob() {
+    const { contextMenuSelectNode } = this.state;
+    this.setState({ disableLoading: true });
+    request.post(
+      FastApi.TaskManage.disable,
+      {},
+      { params: { jobId: contextMenuSelectNode?.nodeData?.jobId } }
+    ).then(() => {
+      this.setState({ showDisableDialog: false });
+      this.reLoadTreeData(false, true);
+    }).finally(() => this.setState({ disableLoading: false }));
+  }
+
   /** 填充TreeData(选中状态、展开状态、排序) */
   private fillTreeState(treeData: Array<TreeNodeInfo<JobFileResourceRes>>): Array<TreeNodeInfo<JobFileResourceRes>> {
     const { expandedIds, selectedId, nodeNameSort } = this.state;
@@ -336,6 +370,7 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
 
   private getContextMenu() {
     const { expandedIds, contextMenuSelectNode } = this.state;
+    const triggerDisable = contextMenuSelectNode?.nodeData?.triggerDisable === 1;
     return (
       <Menu className={cls(styles.menu)}>
         <MenuItem
@@ -380,6 +415,18 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
           }}
         />
         <MenuDivider/>
+        <MenuItem
+          icon={<Icon component={triggerDisable ? StartTimer : StopTimer} className={cls(styles.menuIcon)}/>}
+          text={triggerDisable ? "启用任务" : "禁用任务"}
+          disabled={!contextMenuSelectNode}
+          onClick={() => {
+            if (triggerDisable) {
+              this.setState({ showEnableDialog: true });
+            } else {
+              this.setState({ showDisableDialog: true });
+            }
+          }}
+        />
         <MenuItem
           icon={<Icon component={Remove} className={cls(styles.menuIcon)}/>}
           text="删除"
@@ -620,6 +667,54 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
     );
   }
 
+  private getEnableDialog() {
+    const { contextMenuSelectNode, showEnableDialog, enableLoading } = this.state;
+    return (
+      <Alert
+        icon={(<Icon component={StartTimer} className={cls(styles.flexItemColumn, styles.alertIcon)}/>)}
+        intent={Intent.PRIMARY}
+        cancelButtonText={"取消"}
+        confirmButtonText={"启用"}
+        canEscapeKeyCancel={!enableLoading}
+        canOutsideClickCancel={!enableLoading}
+        transitionDuration={0.1}
+        isOpen={showEnableDialog && hasValue(contextMenuSelectNode?.nodeData?.jobId)}
+        loading={enableLoading}
+        onCancel={() => this.setState({ showEnableDialog: false })}
+        onConfirm={() => this.enableJob()}
+      >
+        <p>
+          确认启用定时任务？<br/>
+          <span>{contextMenuSelectNode?.nodeData?.jobName}</span>
+        </p>
+      </Alert>
+    );
+  }
+
+  private getDisableDialog() {
+    const { contextMenuSelectNode, showDisableDialog, disableLoading } = this.state;
+    return (
+      <Alert
+        icon={(<Icon component={StopTimer} className={cls(styles.flexItemColumn, styles.alertIcon)}/>)}
+        intent={Intent.DANGER}
+        cancelButtonText={"取消"}
+        confirmButtonText={"禁用"}
+        canEscapeKeyCancel={!disableLoading}
+        canOutsideClickCancel={!disableLoading}
+        transitionDuration={0.1}
+        isOpen={showDisableDialog && hasValue(contextMenuSelectNode?.nodeData?.jobId)}
+        loading={disableLoading}
+        onCancel={() => this.setState({ showDisableDialog: false })}
+        onConfirm={() => this.disableJob()}
+      >
+        <p>
+          确认禁用定时任务？<br/>
+          <span>{contextMenuSelectNode?.nodeData?.jobName}</span>
+        </p>
+      </Alert>
+    );
+  }
+
   render() {
     this.saveComponentState();
     const { className, openFileId, onSelectChange, onOpenFile } = this.props;
@@ -692,6 +787,8 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
         {this.getAddDirDialog()}
         {this.getRenameDialog()}
         {this.getDeleteDialog()}
+        {this.getEnableDialog()}
+        {this.getDisableDialog()}
       </div>
     );
   }
