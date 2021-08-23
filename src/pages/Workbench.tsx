@@ -3,22 +3,16 @@
 import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
-import copyToClipboard from "copy-to-clipboard";
 import Split from "react-split";
 import Icon, {
   ApiOutlined,
-  AppstoreOutlined,
-  ArrowRightOutlined,
   CloseOutlined,
   ControlOutlined,
   FolderFilled,
   GithubOutlined,
-  LockOutlined,
   MinusOutlined,
   QqOutlined,
   QuestionCircleOutlined,
-  SettingOutlined,
-  UnlockOutlined,
   WechatOutlined
 } from "@ant-design/icons";
 import { Alert, Intent, ProgressBar, Spinner, SpinnerSize } from "@blueprintjs/core";
@@ -37,26 +31,12 @@ import {
   RedisManagePanel,
   RequestDebugPanel,
   TaskResourcePanel,
+  TopStatusPanel,
 } from "@/components/ide";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, storeGetData, storeSaveData } from "@/utils/storage";
-import {
-  ChevronDown,
-  ChevronUp,
-  Copy,
-  Debugger,
-  Execute,
-  Find,
-  getFileIcon,
-  History,
-  MenuSaveAll,
-  NoEvents,
-  OpenTerminal,
-  Rollback,
-  StartTimer,
-  StopTimer
-} from "@/utils/IdeaIconUtils";
+import { ChevronDown, ChevronUp, Debugger, getFileIcon, NoEvents, OpenTerminal } from "@/utils/IdeaIconUtils";
 import { editorDefOptions, getLanguage, initEditorConfig, initKeyBinding, themeEnum } from "@/utils/editor-utils";
 import {
   BottomPanelEnum,
@@ -555,95 +535,12 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     const { globalEnv, topStatusFileInfo, openFileMap } = this.state;
     const needSave = topStatusFileInfo && openFileMap.get(topStatusFileInfo.fileResourceId)?.needSave;
     return (
-      <>
-        <div className={cls(styles.flexItemColumn)} style={{ width: 3 }}/>
-        <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)} style={{ paddingTop: 6 }}>
-          <AppstoreOutlined style={{ fontSize: 16 }}/>
-        </div>
-        <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)} style={{ margin: "0 8px 0 4px", fontWeight: "bold" }}>
-          [{globalEnv.namespace}]
-        </div>
-        {/*文件信息*/}
-        {
-          topStatusFileInfo &&
-          <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
-            {
-              topStatusFileInfo.isFile === 1 ?
-                (
-                  <>
-                    {topStatusFileInfo.path}
-                    <span className={cls({ [styles.topStatusFileModify]: needSave })}>
-                      {topStatusFileInfo.name}
-                    </span>
-                  </>
-                ) :
-                (topStatusFileInfo.path + topStatusFileInfo.name)
-            }
-          </div>
-        }
-        {
-          (topStatusFileInfo?.httpApiId || topStatusFileInfo?.jobName) &&
-          <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
-            <ArrowRightOutlined style={{ fontSize: 10, padding: "0 8px 0 8px" }}/>
-          </div>
-        }
-        {/*http api信息*/}
-        {
-          topStatusFileInfo?.httpApiId &&
-          <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
-            [{topStatusFileInfo.requestMethod}]&nbsp;{globalEnv.apiPrefix + topStatusFileInfo.requestMapping}
-          </div>
-        }
-        {
-          topStatusFileInfo?.httpApiId &&
-          <Icon
-            component={Copy}
-            className={cls(styles.flexItemColumn, styles.icon, styles.copyIcon)}
-            onClick={() => copyToClipboard(globalEnv.apiPrefix + topStatusFileInfo?.requestMapping!)}
-          />
-        }
-        {
-          topStatusFileInfo?.httpApiId &&
-          <SettingOutlined
-            className={cls(styles.flexItemColumn, styles.icon)}
-            style={{ fontSize: 15, padding: "4px" }}
-            onClick={() => this.toggleBottomPanel(BottomPanelEnum.Interface)}
-          />
-        }
-        {/*定时任务信息*/}
-        {
-          topStatusFileInfo?.jobName &&
-          <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
-            {topStatusFileInfo.jobName}&nbsp;|&nbsp;{topStatusFileInfo.cron}&nbsp;|&nbsp;下次:{topStatusFileInfo.nextFireTime}&nbsp;|&nbsp;上次:{topStatusFileInfo.lastFireTime}
-          </div>
-        }
-        {
-          topStatusFileInfo?.jobName && topStatusFileInfo?.triggerDisable === 1 &&
-          <Icon
-            component={StartTimer}
-            className={cls(styles.flexItemColumn, styles.icon)}
-            style={{ marginLeft: 8 }}
-          />
-        }
-        {
-          topStatusFileInfo?.jobName && topStatusFileInfo?.triggerDisable === 0 &&
-          <Icon
-            component={StopTimer}
-            className={cls(styles.flexItemColumn, styles.icon)}
-            style={{ marginLeft: 8 }}
-          />
-        }
-        <div className={cls(styles.flexItemColumnWidthFull)}/>
-        <Icon component={Execute} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
-        <Icon component={MenuSaveAll} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
-        <Icon component={Rollback} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
-        <LockOutlined className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
-        <UnlockOutlined className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
-        <Icon component={Find} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
-        <Icon component={History} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
-        <IconFont type="icon-keyboard" className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)} style={{ fontSize: 20, padding: "1px 2px" }}/>
-        <div className={cls(styles.flexItemColumn)} style={{ marginRight: 16 }}/>
-      </>
+      <TopStatusPanel
+        globalEnv={globalEnv}
+        topStatusFileInfo={topStatusFileInfo}
+        needSave={!!needSave}
+        toggleBottomPanel={() => this.toggleBottomPanel(BottomPanelEnum.Interface)}
+      />
     );
   }
 

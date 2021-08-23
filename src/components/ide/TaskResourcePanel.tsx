@@ -37,6 +37,8 @@ interface AddJsJobForm {
   endTime?: string;
   /** 错过触发策略，1：忽略，2：立即补偿触发一次 */
   misfireStrategy?: number;
+  /** 是否禁用：0-启用，1-禁用 */
+  triggerDisable?: number;
 }
 
 interface AddDirForm {
@@ -188,7 +190,7 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
     const { onAddJsJob } = this.props;
     const { expandedIds, addJsJobForm } = this.state;
     this.setState({ addJsJobLoading: true });
-    request.post(FastApi.TaskManage.addJsJob, { ...addJsJobForm })
+    request.post(FastApi.TaskManage.addJsJob, { ...addJsJobForm, triggerDisable: 1 })
       .then((res: AddJsJobRes) => {
         res?.fileList?.forEach(item => {
           if (item.isFile === 0) {
