@@ -27,7 +27,8 @@ import {
   Refresh,
   Remove,
   StartTimer,
-  StopTimer
+  StopTimer,
+  TimedTask
 } from "@/utils/IdeaIconUtils";
 import styles from "./TaskResourcePanel.module.less";
 
@@ -428,6 +429,12 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
           }}
         />
         <MenuDivider/>
+        <MenuItem
+          icon={<Icon component={TimedTask} className={cls(styles.menuIcon)}/>}
+          text="任务执行明细"
+          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData}
+          // onClick={() => this.setState({ showExecJobDialog: true })}
+        />
         <MenuItem
           icon={<Icon component={Execute} className={cls(styles.menuIcon)}/>}
           text="立即执行"
