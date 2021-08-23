@@ -406,4 +406,4 @@ class GlobalConfigPanel extends React.Component<GlobalConfigPanelProps, GlobalCo
 }
 
 export type { GlobalConfigPanelProps, GlobalConfigPanelState };
-export { GlobalConfigPanel } ;
+export { GlobalConfigPanel };

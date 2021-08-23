@@ -149,4 +149,4 @@ const getJdbcIcon = (dbType: string): string => {
 }
 
 export type { JdbcDatabaseManagePanelProps, JdbcDatabaseManagePanelState };
-export { JdbcDatabaseManagePanel } ;
+export { JdbcDatabaseManagePanel };

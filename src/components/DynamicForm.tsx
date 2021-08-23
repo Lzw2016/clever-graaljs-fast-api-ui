@@ -241,4 +241,4 @@ class DynamicForm extends React.Component<DynamicFormProps, DynamicFormState> {
 }
 
 export type { DynamicFormProps, DynamicFormState };
-export { DynamicForm } ;
+export { DynamicForm };

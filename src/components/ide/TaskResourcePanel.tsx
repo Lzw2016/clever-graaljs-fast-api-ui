@@ -733,4 +733,4 @@ const forEachTreeNode = (node: TreeNodeInfo<JobFileResourceRes>, callBack: (n: T
 };
 
 export type { TaskResourcePanelProps, TaskResourcePanelState };
-export { TaskResourcePanel } ;
+export { TaskResourcePanel };

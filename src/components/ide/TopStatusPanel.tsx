@@ -1,10 +1,16 @@
+// noinspection DuplicatedCode
+
 import React from "react";
 import cls from "classnames";
 import copyToClipboard from "copy-to-clipboard";
 import Icon, { AppstoreOutlined, ArrowRightOutlined, LockOutlined, SettingOutlined, UnlockOutlined } from "@ant-design/icons";
-import { TopStatusFileInfo } from "@/types/workbench-layout";
+import { Alert, Intent } from "@blueprintjs/core";
+import { EditorTabItem, TopStatusFileInfo } from "@/types/workbench-layout";
 import IconFont from "@/components/IconFont";
 import { Copy, Execute, Find, History, MenuSaveAll, Rollback, StartTimer, StopTimer } from "@/utils/IdeaIconUtils";
+import { hasValue } from "@/utils/utils";
+import { FastApi } from "@/apis";
+import { request } from "@/utils/request";
 import styles from "./TopStatusPanel.module.less";
 
 interface TopStatusPanelProps {
@@ -12,18 +18,113 @@ interface TopStatusPanelProps {
   globalEnv: FastApiGlobalEnv;
   /** HttpApiTree当前选中的节点 */
   topStatusFileInfo?: TopStatusFileInfo;
-  /** 是否需要保存 */
-  needSave: boolean;
+  /** 当前文件 */
+  currentFile?: EditorTabItem;
   /** 切换底部面板 */
   toggleBottomPanel: () => void;
+  /** 重新加载定时任务资源树 */
+  reLoadTaskResourceTree: () => void;
 }
 
 interface TopStatusPanelState {
+  showEnableDialog: boolean;
+  enableLoading: boolean;
+  showDisableDialog: boolean;
+  disableLoading: boolean;
+}
+
+const defaultState: TopStatusPanelState = {
+  showEnableDialog: false,
+  enableLoading: false,
+  showDisableDialog: false,
+  disableLoading: false,
 }
 
 class TopStatusPanel extends React.Component<TopStatusPanelProps, TopStatusPanelState> {
+
+  constructor(props: TopStatusPanelProps) {
+    super(props);
+    this.state = { ...defaultState };
+  }
+
+  private enableJob() {
+    const { topStatusFileInfo, reLoadTaskResourceTree } = this.props;
+    this.setState({ enableLoading: true });
+    request.post(
+      FastApi.TaskManage.enable,
+      {},
+      { params: { jobId: topStatusFileInfo?.jobId } }
+    ).then(() => {
+      this.setState({ showEnableDialog: false });
+      if (reLoadTaskResourceTree) reLoadTaskResourceTree();
+    }).finally(() => this.setState({ enableLoading: false }));
+  }
+
+  private disableJob() {
+    const { topStatusFileInfo, reLoadTaskResourceTree } = this.props;
+    this.setState({ disableLoading: true });
+    request.post(
+      FastApi.TaskManage.disable,
+      {},
+      { params: { jobId: topStatusFileInfo?.jobId } }
+    ).then(() => {
+      this.setState({ showDisableDialog: false });
+      if (reLoadTaskResourceTree) reLoadTaskResourceTree();
+    }).finally(() => this.setState({ disableLoading: false }));
+  }
+
+  private getEnableDialog() {
+    const { topStatusFileInfo } = this.props;
+    const { showEnableDialog, enableLoading } = this.state;
+    return (
+      <Alert
+        icon={(<Icon component={StartTimer} className={cls(styles.flexItemColumn, styles.alertIcon)}/>)}
+        intent={Intent.PRIMARY}
+        cancelButtonText={"取消"}
+        confirmButtonText={"启用"}
+        canEscapeKeyCancel={!enableLoading}
+        canOutsideClickCancel={!enableLoading}
+        transitionDuration={0.1}
+        isOpen={showEnableDialog && hasValue(topStatusFileInfo?.jobName)}
+        loading={enableLoading}
+        onCancel={() => this.setState({ showEnableDialog: false })}
+        onConfirm={() => this.enableJob()}
+      >
+        <p>
+          确认启用定时任务？<br/>
+          <span>{topStatusFileInfo?.jobName}</span>
+        </p>
+      </Alert>
+    );
+  }
+
+  private getDisableDialog() {
+    const { topStatusFileInfo } = this.props;
+    const { showDisableDialog, disableLoading } = this.state;
+    return (
+      <Alert
+        icon={(<Icon component={StopTimer} className={cls(styles.flexItemColumn, styles.alertIcon)}/>)}
+        intent={Intent.DANGER}
+        cancelButtonText={"取消"}
+        confirmButtonText={"禁用"}
+        canEscapeKeyCancel={!disableLoading}
+        canOutsideClickCancel={!disableLoading}
+        transitionDuration={0.1}
+        isOpen={showDisableDialog && hasValue(topStatusFileInfo?.jobName)}
+        loading={disableLoading}
+        onCancel={() => this.setState({ showDisableDialog: false })}
+        onConfirm={() => this.disableJob()}
+      >
+        <p>
+          确认禁用定时任务？<br/>
+          <span>{topStatusFileInfo?.jobName}</span>
+        </p>
+      </Alert>
+    );
+  }
+
   render() {
-    const { globalEnv, topStatusFileInfo, needSave } = this.props;
+    const { globalEnv, topStatusFileInfo, currentFile } = this.props;
     const { toggleBottomPanel } = this.props;
     return (
       <>
@@ -43,7 +144,7 @@ class TopStatusPanel extends React.Component<TopStatusPanelProps, TopStatusPanel
                 (
                   <>
                     {topStatusFileInfo.path}
-                    <span className={cls({ [styles.topStatusFileModify]: needSave })}>
+                    <span className={cls({ [styles.topStatusFileModify]: currentFile?.needSave })}>
                       {topStatusFileInfo.name}
                     </span>
                   </>
@@ -95,6 +196,7 @@ class TopStatusPanel extends React.Component<TopStatusPanelProps, TopStatusPanel
             component={StartTimer}
             className={cls(styles.flexItemColumn, styles.icon)}
             style={{ marginLeft: 8 }}
+            onClick={() => this.setState({ showEnableDialog: true })}
           />
         }
         {
@@ -103,6 +205,7 @@ class TopStatusPanel extends React.Component<TopStatusPanelProps, TopStatusPanel
             component={StopTimer}
             className={cls(styles.flexItemColumn, styles.icon)}
             style={{ marginLeft: 8 }}
+            onClick={() => this.setState({ showDisableDialog: true })}
           />
         }
         <div className={cls(styles.flexItemColumnWidthFull)}/>
@@ -115,10 +218,12 @@ class TopStatusPanel extends React.Component<TopStatusPanelProps, TopStatusPanel
         <Icon component={History} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
         <IconFont type="icon-keyboard" className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)} style={{ fontSize: 20, padding: "1px 2px" }}/>
         <div className={cls(styles.flexItemColumn)} style={{ marginRight: 16 }}/>
+        {this.getEnableDialog()}
+        {this.getDisableDialog()}
       </>
     );
   }
 }
 
 export type { TopStatusPanelProps, TopStatusPanelState };
-export { TopStatusPanel } ;
+export { TopStatusPanel };

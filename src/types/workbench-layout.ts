@@ -84,6 +84,8 @@ export interface TopStatusFileInfo {
   /** http请求method，ALL GET HEAD POST PUT DELETE CONNECT OPTIONS TRACE PATCH */
   requestMethod?: RequestMethod;
 
+  /** 任务ID */
+  jobId?: string;
   /** 任务名称 */
   jobName?: string;
   /** 上一次触发时间 */
@@ -141,6 +143,7 @@ export function transformEditorTabItem2TopStatusFileInfo(editorTabItem: EditorTa
     httpApiId: editorTabItem.httpApi?.id,
     requestMapping: editorTabItem.httpApi?.requestMapping,
     requestMethod: editorTabItem.httpApi?.requestMethod,
+    jobId: editorTabItem.job?.id,
     jobName: editorTabItem.job?.name,
     lastFireTime: editorTabItem.jobTrigger?.lastFireTime,
     nextFireTime: editorTabItem.jobTrigger?.nextFireTime,
@@ -158,6 +161,7 @@ export function toTopStatusFileInfo(resource: Partial<(FileResourceTreeNodeRes &
     httpApiId: resource.httpApiId,
     requestMapping: resource.requestMapping,
     requestMethod: resource.requestMethod,
+    jobId: resource.jobId,
     jobName: resource.jobName,
     lastFireTime: resource.lastFireTime,
     nextFireTime: resource.nextFireTime,

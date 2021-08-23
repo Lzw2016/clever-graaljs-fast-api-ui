@@ -129,4 +129,4 @@ class InterfaceConfigPanel extends React.Component<InterfaceConfigPanelProps, In
 }
 
 export type { InterfaceConfigPanelProps, InterfaceConfigPanelState };
-export { InterfaceConfigPanel } ;
+export { InterfaceConfigPanel };

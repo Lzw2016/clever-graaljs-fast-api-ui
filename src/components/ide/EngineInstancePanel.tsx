@@ -64,4 +64,4 @@ class EngineInstancePanel extends React.Component<EngineInstancePanelProps, Engi
 }
 
 export type { EngineInstancePanelProps, EngineInstancePanelState };
-export { EngineInstancePanel } ;
+export { EngineInstancePanel };

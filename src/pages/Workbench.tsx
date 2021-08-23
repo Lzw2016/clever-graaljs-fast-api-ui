@@ -533,13 +533,14 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
 
   private getTopStatus() {
     const { globalEnv, topStatusFileInfo, openFileMap } = this.state;
-    const needSave = topStatusFileInfo && openFileMap.get(topStatusFileInfo.fileResourceId)?.needSave;
+    const currentFile = topStatusFileInfo && openFileMap.get(topStatusFileInfo.fileResourceId);
     return (
       <TopStatusPanel
         globalEnv={globalEnv}
         topStatusFileInfo={topStatusFileInfo}
-        needSave={!!needSave}
+        currentFile={currentFile}
         toggleBottomPanel={() => this.toggleBottomPanel(BottomPanelEnum.Interface)}
+        reLoadTaskResourceTree={() => this.taskResourcePanel.current?.reLoadTreeData(false, true)}
       />
     );
   }

@@ -213,4 +213,4 @@ function fixBackspace(txt: string) {
 }
 
 export type { LogViewerProps, LogViewerState };
-export { LogViewer } ;
+export { LogViewer };

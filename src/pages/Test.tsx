@@ -32,4 +32,4 @@ class Test extends React.Component<TestProps, TestState> {
 }
 
 export type { TestProps, TestState };
-export { Test } ;
+export { Test };

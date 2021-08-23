@@ -780,4 +780,4 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 }
 
 export type { RequestDebugPanelProps, RequestDebugPanelState };
-export { RequestDebugPanel } ;
+export { RequestDebugPanel };

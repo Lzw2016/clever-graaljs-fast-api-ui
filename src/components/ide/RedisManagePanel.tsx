@@ -128,4 +128,4 @@ class RedisManagePanel extends React.Component<RedisManagePanelProps, RedisManag
 }
 
 export type { RedisManagePanelProps, RedisManagePanelState };
-export { RedisManagePanel } ;
+export { RedisManagePanel };
