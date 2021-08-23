@@ -430,15 +430,15 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
         />
         <MenuDivider/>
         <MenuItem
-          icon={<Icon component={TimedTask} className={cls(styles.menuIcon)}/>}
+          icon={<Icon component={TimedTask} className={cls(styles.menuIcon, { [styles.iconDisable]: !contextMenuSelectNode?.nodeData?.jobName })}/>}
           text="任务执行明细"
-          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData}
+          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData || !contextMenuSelectNode.nodeData.jobName}
           // onClick={() => this.setState({ showExecJobDialog: true })}
         />
         <MenuItem
-          icon={<Icon component={Execute} className={cls(styles.menuIcon)}/>}
+          icon={<Icon component={Execute} className={cls(styles.menuIcon, { [styles.iconDisable]: !contextMenuSelectNode?.nodeData?.jobName })}/>}
           text="立即执行"
-          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData}
+          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData || !contextMenuSelectNode.nodeData.jobName}
           onClick={() => this.setState({ showExecJobDialog: true })}
         />
         <MenuItem
@@ -461,9 +461,9 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
         />
         <MenuDivider/>
         <MenuItem
-          icon={<Icon component={triggerDisable ? StartTimer : StopTimer} className={cls(styles.menuIcon)}/>}
+          icon={<Icon component={triggerDisable ? StartTimer : StopTimer} className={cls(styles.menuIcon, { [styles.iconDisable]: !contextMenuSelectNode?.nodeData?.jobName })}/>}
           text={triggerDisable ? "启用任务" : "禁用任务"}
-          disabled={!contextMenuSelectNode}
+          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData || !contextMenuSelectNode.nodeData.jobName}
           onClick={() => {
             if (triggerDisable) {
               this.setState({ showEnableDialog: true });
