@@ -12,7 +12,23 @@ import { FastApi } from "@/apis";
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, storeGetData, storeSaveData } from "@/utils/storage";
-import { AddFile, AddFolder, CollapseAll, Copy, EditSource, ExpandAll, Find, Folder, getFileIcon, Locate, Refresh, Remove, StartTimer, StopTimer } from "@/utils/IdeaIconUtils";
+import {
+  AddFile,
+  AddFolder,
+  CollapseAll,
+  Copy,
+  EditSource,
+  Execute,
+  ExpandAll,
+  Find,
+  Folder,
+  getFileIcon,
+  Locate,
+  Refresh,
+  Remove,
+  StartTimer,
+  StopTimer
+} from "@/utils/IdeaIconUtils";
 import styles from "./TaskResourcePanel.module.less";
 
 interface AddJsJobForm {
@@ -107,6 +123,8 @@ interface TaskResourcePanelState {
   enableLoading: boolean;
   showDisableDialog: boolean;
   disableLoading: boolean;
+  showExecJobDialog: boolean;
+  execJobLoading: boolean;
 }
 
 
@@ -132,6 +150,8 @@ const defaultState: TaskResourcePanelState = {
   enableLoading: false,
   showDisableDialog: false,
   disableLoading: false,
+  showExecJobDialog: false,
+  execJobLoading: false,
 }
 
 class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskResourcePanelState> {
@@ -267,6 +287,18 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
     }).finally(() => this.setState({ disableLoading: false }));
   }
 
+  private execJob() {
+    const { contextMenuSelectNode } = this.state;
+    this.setState({ execJobLoading: true });
+    request.post(
+      FastApi.TaskManage.execJob,
+      {},
+      { params: { jobId: contextMenuSelectNode?.nodeData?.jobId } }
+    ).then(() => {
+      this.setState({ showExecJobDialog: false });
+    }).finally(() => this.setState({ execJobLoading: false }));
+  }
+
   /** 填充TreeData(选中状态、展开状态、排序) */
   private fillTreeState(treeData: Array<TreeNodeInfo<JobFileResourceRes>>): Array<TreeNodeInfo<JobFileResourceRes>> {
     const { expandedIds, selectedId, nodeNameSort } = this.state;
@@ -396,6 +428,12 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
           }}
         />
         <MenuDivider/>
+        <MenuItem
+          icon={<Icon component={Execute} className={cls(styles.menuIcon)}/>}
+          text="立即执行"
+          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData}
+          onClick={() => this.setState({ showExecJobDialog: true })}
+        />
         <MenuItem
           icon={<Icon component={Copy} className={cls(styles.menuIcon)}/>}
           text="复制名称"
@@ -715,6 +753,30 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
     );
   }
 
+  private getExecJobDialog() {
+    const { contextMenuSelectNode, showExecJobDialog, execJobLoading } = this.state;
+    return (
+      <Alert
+        icon={(<Icon component={Execute} className={cls(styles.flexItemColumn, styles.alertIcon)}/>)}
+        intent={Intent.PRIMARY}
+        cancelButtonText={"取消"}
+        confirmButtonText={"立即执行"}
+        canEscapeKeyCancel={!execJobLoading}
+        canOutsideClickCancel={!execJobLoading}
+        transitionDuration={0.1}
+        isOpen={showExecJobDialog && hasValue(contextMenuSelectNode?.nodeData?.jobId)}
+        loading={execJobLoading}
+        onCancel={() => this.setState({ showExecJobDialog: false })}
+        onConfirm={() => this.execJob()}
+      >
+        <p>
+          确认立即执行定时任务？<br/>
+          <span>{contextMenuSelectNode?.nodeData?.jobName}</span>
+        </p>
+      </Alert>
+    );
+  }
+
   render() {
     this.saveComponentState();
     const { className, openFileId, onSelectChange, onOpenFile } = this.props;
@@ -789,6 +851,7 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
         {this.getDeleteDialog()}
         {this.getEnableDialog()}
         {this.getDisableDialog()}
+        {this.getExecJobDialog()}
       </div>
     );
   }
