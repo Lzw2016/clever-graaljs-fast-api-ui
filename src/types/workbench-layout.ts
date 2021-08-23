@@ -84,7 +84,16 @@ export interface TopStatusFileInfo {
   /** http请求method，ALL GET HEAD POST PUT DELETE CONNECT OPTIONS TRACE PATCH */
   requestMethod?: RequestMethod;
 
-  // TODO 定时任务信息
+  /** 任务名称 */
+  jobName?: string;
+  /** 上一次触发时间 */
+  lastFireTime?: string;
+  /** 下一次触发时间 */
+  nextFireTime?: string;
+  /** cron表达式 */
+  cron?: string;
+  /** 是否禁用：0-启用，1-禁用 */
+  triggerDisable?: number;
 }
 
 export interface EditorTabItem {
@@ -98,12 +107,18 @@ export interface EditorTabItem {
   rawContent: string;
   /** 是否需要保存 */
   needSave: boolean;
+
   /** Http接口 */
   httpApi?: HttpApi,
   /** TODO 请求参数(列表) */
   // httpApiRequestParamList?: Array<any>;
   /** TODO API文档 */
   // httpApiDoc?: any;
+
+  /** 定时任务信息 */
+  job?: Job;
+  /** 触发器信息 */
+  jobTrigger?: JobTrigger;
 }
 
 /** 编辑器打开的文件 */
@@ -126,5 +141,27 @@ export function transformEditorTabItem2TopStatusFileInfo(editorTabItem: EditorTa
     httpApiId: editorTabItem.httpApi?.id,
     requestMapping: editorTabItem.httpApi?.requestMapping,
     requestMethod: editorTabItem.httpApi?.requestMethod,
+    jobName: editorTabItem.job?.name,
+    lastFireTime: editorTabItem.jobTrigger?.lastFireTime,
+    nextFireTime: editorTabItem.jobTrigger?.nextFireTime,
+    cron: editorTabItem.jobTrigger?.cron,
+    triggerDisable: editorTabItem.jobTrigger?.disable,
+  };
+}
+
+export function toTopStatusFileInfo(resource: Partial<(FileResourceTreeNodeRes & ApiFileResourceRes & JobFileResourceRes)>): TopStatusFileInfo {
+  return {
+    fileResourceId: (resource.fileResourceId || resource.id)!,
+    isFile: resource.isFile!,
+    path: resource.path!,
+    name: resource.name!,
+    httpApiId: resource.httpApiId,
+    requestMapping: resource.requestMapping,
+    requestMethod: resource.requestMethod,
+    jobName: resource.jobName,
+    lastFireTime: resource.lastFireTime,
+    nextFireTime: resource.nextFireTime,
+    cron: resource.cron,
+    triggerDisable: resource.triggerDisable,
   };
 }

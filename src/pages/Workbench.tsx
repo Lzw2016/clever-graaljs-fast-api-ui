@@ -41,7 +41,22 @@ import {
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, storeGetData, storeSaveData } from "@/utils/storage";
-import { ChevronDown, ChevronUp, Copy, Debugger, Execute, Find, getFileIcon, History, MenuSaveAll, NoEvents, OpenTerminal, Rollback } from "@/utils/IdeaIconUtils";
+import {
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  Debugger,
+  Execute,
+  Find,
+  getFileIcon,
+  History,
+  MenuSaveAll,
+  NoEvents,
+  OpenTerminal,
+  Rollback,
+  StartTimer,
+  StopTimer
+} from "@/utils/IdeaIconUtils";
 import { editorDefOptions, getLanguage, initEditorConfig, initKeyBinding, themeEnum } from "@/utils/editor-utils";
 import {
   BottomPanelEnum,
@@ -51,6 +66,7 @@ import {
   LeftPanelEnum,
   RightPanelEnum,
   TopStatusFileInfo,
+  toTopStatusFileInfo,
   transformEditorTabItem2TopStatusFileInfo,
   WorkbenchLoading
 } from "@/types/workbench-layout";
@@ -364,6 +380,42 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
       }).finally(() => this.setState({ getApiFileResourceLoading: false }));
   }
 
+  /** 设置当前编辑器编辑的Js定时任务 */
+  public setCurrentEditJsJobFile(fileResourceId?: string, jobId?: string) {
+    if (!fileResourceId) return;
+    const { currentEditId, openFileMap } = this.state;
+    const openFile = openFileMap.get(fileResourceId);
+    if (openFile) {
+      if (currentEditId === fileResourceId) {
+        this.showCurrentEditFileTab(currentEditId);
+        return;
+      }
+      openFile.lastEditTime = lodash.now();
+      this.setState(
+        { currentEditId: fileResourceId, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) },
+        () => this.showCurrentEditFileTab(fileResourceId),
+      );
+      return;
+    }
+    if (!jobId) return;
+    this.setState({ getApiFileResourceLoading: true });
+    request.get(FastApi.TaskManage.getJsJobInfo, { params: { jobId } })
+      .then((data: JsJobInfoRes) => {
+        if (!data || !data.fileResource) return;
+        const fileResource: FileResource = data.fileResource;
+        const sort = openFileMap.size + 1;
+        const openFile: EditorTabItem = {
+          sort, lastEditTime: lodash.now(), fileResource, rawContent: fileResource.content, needSave: false,
+          job: data.job, jobTrigger: data.jobTrigger,
+        };
+        openFileMap.set(fileResource.id, openFile);
+        this.setState(
+          { currentEditId: fileResource.id, topStatusFileInfo: transformEditorTabItem2TopStatusFileInfo(openFile) },
+          () => this.showCurrentEditFileTab(fileResource.id),
+        );
+      }).finally(() => this.setState({ getApiFileResourceLoading: false }));
+  }
+
   /** 设置当前编辑器编辑的文件 */
   public setCurrentEditFile(fileResourceId?: string) {
     if (!fileResourceId) return;
@@ -511,6 +563,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)} style={{ margin: "0 8px 0 4px", fontWeight: "bold" }}>
           [{globalEnv.namespace}]
         </div>
+        {/*文件信息*/}
         {
           topStatusFileInfo &&
           <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
@@ -529,11 +582,12 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           </div>
         }
         {
-          topStatusFileInfo?.httpApiId &&
+          (topStatusFileInfo?.httpApiId || topStatusFileInfo?.jobName) &&
           <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
             <ArrowRightOutlined style={{ fontSize: 10, padding: "0 8px 0 8px" }}/>
           </div>
         }
+        {/*http api信息*/}
         {
           topStatusFileInfo?.httpApiId &&
           <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
@@ -554,6 +608,29 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             className={cls(styles.flexItemColumn, styles.icon)}
             style={{ fontSize: 15, padding: "4px" }}
             onClick={() => this.toggleBottomPanel(BottomPanelEnum.Interface)}
+          />
+        }
+        {/*定时任务信息*/}
+        {
+          topStatusFileInfo?.jobName &&
+          <div className={cls(styles.flexItemColumn, styles.topStatusFileResourcePath)}>
+            {topStatusFileInfo.jobName}&nbsp;|&nbsp;{topStatusFileInfo.cron}&nbsp;|&nbsp;下次:{topStatusFileInfo.nextFireTime}&nbsp;|&nbsp;上次:{topStatusFileInfo.lastFireTime}
+          </div>
+        }
+        {
+          topStatusFileInfo?.jobName && topStatusFileInfo?.triggerDisable === 1 &&
+          <Icon
+            component={StartTimer}
+            className={cls(styles.flexItemColumn, styles.icon)}
+            style={{ marginLeft: 8 }}
+          />
+        }
+        {
+          topStatusFileInfo?.jobName && topStatusFileInfo?.triggerDisable === 0 &&
+          <Icon
+            component={StopTimer}
+            className={cls(styles.flexItemColumn, styles.icon)}
+            style={{ marginLeft: 8 }}
           />
         }
         <div className={cls(styles.flexItemColumnWidthFull)}/>
@@ -839,17 +916,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
               this.setState({ topStatusFileInfo: undefined });
               return;
             }
-            this.setState({
-              topStatusFileInfo: {
-                fileResourceId: apiFileResource.fileResourceId,
-                isFile: apiFileResource.isFile,
-                path: apiFileResource.path,
-                name: apiFileResource.name,
-                httpApiId: apiFileResource.httpApiId,
-                requestMapping: apiFileResource.requestMapping,
-                requestMethod: apiFileResource.requestMethod,
-              }
-            });
+            this.setState({ topStatusFileInfo: toTopStatusFileInfo(apiFileResource) });
           }}
           onOpenFile={apiFileResource => {
             if (apiFileResource.isFile !== 1) return;
@@ -872,21 +939,11 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
               this.setState({ topStatusFileInfo: undefined });
               return;
             }
-            this.setState({
-              topStatusFileInfo: {
-                fileResourceId: resource.fileResourceId,
-                isFile: resource.isFile,
-                path: resource.path,
-                name: resource.name,
-                httpApiId: undefined,
-                requestMapping: undefined,
-                requestMethod: undefined,
-              }
-            });
+            this.setState({ topStatusFileInfo: toTopStatusFileInfo(resource) });
           }}
           onOpenFile={resource => {
             if (resource.isFile !== 1) return;
-            this.setCurrentEditFile(resource.fileResourceId);
+            this.setCurrentEditJsJobFile(resource.fileResourceId, resource.jobId);
           }}
           // onAddFile={file => {
           //   if (file.isFile !== 1) return;
@@ -905,17 +962,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
               this.setState({ topStatusFileInfo: undefined });
               return;
             }
-            this.setState({
-              topStatusFileInfo: {
-                fileResourceId: resource.id,
-                isFile: resource.isFile,
-                path: resource.path,
-                name: resource.name,
-                httpApiId: undefined,
-                requestMapping: undefined,
-                requestMethod: undefined,
-              }
-            });
+            this.setState({ topStatusFileInfo: toTopStatusFileInfo(resource) });
           }}
           onOpenFile={resource => {
             if (resource.isFile !== 1) return;

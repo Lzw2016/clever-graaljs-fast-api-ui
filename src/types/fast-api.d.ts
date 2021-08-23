@@ -535,6 +535,8 @@ interface JobFileResourceRes {
   /** 读写权限：0-可读可写，1-只读 */
   readOnly: ReadOnly;
   // -------------------------------------------------------------------------------- Job
+  /** 任务名称 */
+  jobName: string;
   /** 最大重入执行数量(对于单个节点当前任务未执行完成就触发了下一次执行导致任务重入执行)，小于等于0：表示禁止重入执行 */
   maxReentry: number;
   /** 是否允许多节点并发执行，使用悲观锁实现(不建议使用)，0：禁止，1：允许 */
@@ -621,6 +623,12 @@ interface JobTrigger {
 
 interface AddJsJobRes {
   fileList: Array<FileResource>;
+  job: Job;
+  jobTrigger: JobTrigger;
+}
+
+interface JsJobInfoRes {
+  fileResource: FileResource;
   job: Job;
   jobTrigger: JobTrigger;
 }
