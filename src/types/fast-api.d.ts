@@ -632,3 +632,7 @@ interface JsJobInfoRes {
   job: Job;
   jobTrigger: JobTrigger;
 }
+
+interface DelJsJobRes {
+  fileList: Array<FileResource>;
+}

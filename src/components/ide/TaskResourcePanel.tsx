@@ -81,8 +81,8 @@ interface TaskResourcePanelProps {
   onHidePanel?: () => void;
   /** 新增任务成功 */
   onAddJsJob?: (job: Job, jobTrigger: JobTrigger, file: FileResource) => void;
-  // /** 删除任务成功 */
-  // onDelHttpApi?: (files: Array<FileResource>) => void;
+  /** 删除任务成功 */
+  onDelJsJob?: (files: Array<FileResource>) => void;
 }
 
 interface TaskResourcePanelState {
@@ -119,7 +119,7 @@ interface TaskResourcePanelState {
   /** 删除数据对话框 */
   showDeleteDialog: boolean;
   /** 删除数据Loading */
-  deleteApiLoading: boolean;
+  deleteJobLoading: boolean;
   showEnableDialog: boolean;
   enableLoading: boolean;
   showDisableDialog: boolean;
@@ -146,7 +146,7 @@ const defaultState: TaskResourcePanelState = {
   renameForm: { id: "", path: "", newName: "" },
   renameLoading: false,
   showDeleteDialog: false,
-  deleteApiLoading: false,
+  deleteJobLoading: false,
   showEnableDialog: false,
   enableLoading: false,
   showDisableDialog: false,
@@ -232,6 +232,29 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
         this.setState({ showAddJsJobDialog: false });
         this.reLoadTreeData(false);
       }).finally(() => this.setState({ addJsJobLoading: false }));
+  }
+
+  /** 删除任务 */
+  private delJsJob() {
+    const { onDelJsJob } = this.props;
+    const { expandedIds, contextMenuSelectNode } = this.state;
+    const nodeData = contextMenuSelectNode?.nodeData;
+    if (!nodeData) {
+      this.setState({ showDeleteDialog: false });
+      return;
+    }
+    this.setState({ deleteJobLoading: true });
+    request.delete(FastApi.TaskManage.delJsJob, { params: { fileResourceId: nodeData.fileResourceId } })
+      .then((res: DelJsJobRes) => {
+        const files: Array<FileResource> = [];
+        if (res) res.fileList?.forEach(file => {
+          if (file.isFile === 1) files.push(file);
+          expandedIds.delete(file.id);
+        });
+        if (onDelJsJob) onDelJsJob(files);
+        this.setState({ showDeleteDialog: false });
+        this.reLoadTreeData(false);
+      }).finally(() => this.setState({ deleteJobLoading: false }));
   }
 
   /** 新增目录 */
@@ -404,6 +427,8 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
   private getContextMenu() {
     const { expandedIds, contextMenuSelectNode } = this.state;
     const triggerDisable = contextMenuSelectNode?.nodeData?.triggerDisable === 1;
+    const hasSelectNode = contextMenuSelectNode && contextMenuSelectNode.nodeData;
+    const hasSelectJob = contextMenuSelectNode && contextMenuSelectNode.nodeData && contextMenuSelectNode.nodeData.jobName;
     return (
       <Menu className={cls(styles.menu)}>
         <MenuItem
@@ -430,21 +455,20 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
         />
         <MenuDivider/>
         <MenuItem
-          icon={<Icon component={TimedTask} className={cls(styles.menuIcon, { [styles.iconDisable]: !contextMenuSelectNode?.nodeData?.jobName })}/>}
+          icon={<Icon component={TimedTask} className={cls(styles.menuIcon, { [styles.iconDisable]: true })}/>}
           text="任务执行明细"
-          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData || !contextMenuSelectNode.nodeData.jobName}
-          // onClick={() => this.setState({ showExecJobDialog: true })}
+          disabled={true}
         />
         <MenuItem
-          icon={<Icon component={Execute} className={cls(styles.menuIcon, { [styles.iconDisable]: !contextMenuSelectNode?.nodeData?.jobName })}/>}
+          icon={<Icon component={Execute} className={cls(styles.menuIcon, { [styles.iconDisable]: !hasSelectJob })}/>}
           text="立即执行"
-          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData || !contextMenuSelectNode.nodeData.jobName}
+          disabled={!hasSelectJob}
           onClick={() => this.setState({ showExecJobDialog: true })}
         />
         <MenuItem
           icon={<Icon component={Copy} className={cls(styles.menuIcon)}/>}
           text="复制名称"
-          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData}
+          disabled={!hasSelectNode}
           onClick={() => {
             const nodeData = contextMenuSelectNode?.nodeData;
             if (nodeData) copyToClipboard(nodeData.name);
@@ -453,7 +477,7 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
         <MenuItem
           icon={<Icon component={Copy} className={cls(styles.menuIcon)}/>}
           text="复制文件路径"
-          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData}
+          disabled={!hasSelectNode}
           onClick={() => {
             const nodeData = contextMenuSelectNode?.nodeData;
             if (nodeData) copyToClipboard(nodeData.path + nodeData.name);
@@ -461,9 +485,9 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
         />
         <MenuDivider/>
         <MenuItem
-          icon={<Icon component={triggerDisable ? StartTimer : StopTimer} className={cls(styles.menuIcon, { [styles.iconDisable]: !contextMenuSelectNode?.nodeData?.jobName })}/>}
+          icon={<Icon component={triggerDisable ? StartTimer : StopTimer} className={cls(styles.menuIcon, { [styles.iconDisable]: !hasSelectJob })}/>}
           text={triggerDisable ? "启用任务" : "禁用任务"}
-          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData || !contextMenuSelectNode.nodeData.jobName}
+          disabled={!hasSelectJob}
           onClick={() => {
             if (triggerDisable) {
               this.setState({ showEnableDialog: true });
@@ -522,7 +546,7 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
     const { name, filePath, fileName, maxReentry, maxRetryCount, isUpdateData, disable, description, cron, startTime, endTime, misfireStrategy } = addJsJobForm;
     return (
       <Dialog
-        className={cls(Classes.DARK, styles.dialog, styles.addHttpApiDialog)}
+        className={cls(Classes.DARK, styles.dialog)}
         style={{ width: 600 }}
         lazy={true}
         icon={<Icon component={AddFile} className={cls(styles.menuIcon)} style={{ marginRight: 8 }}/>}
@@ -678,7 +702,7 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
   }
 
   private getDeleteDialog() {
-    const { contextMenuSelectNode, showDeleteDialog, deleteApiLoading } = this.state;
+    const { contextMenuSelectNode, showDeleteDialog, deleteJobLoading } = this.state;
     const nodeData = contextMenuSelectNode?.nodeData;
     return (
       <Alert
@@ -686,18 +710,18 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
         intent={Intent.DANGER}
         cancelButtonText={"取消"}
         confirmButtonText={"删除"}
-        canEscapeKeyCancel={!deleteApiLoading}
-        canOutsideClickCancel={!deleteApiLoading}
+        canEscapeKeyCancel={!deleteJobLoading}
+        canOutsideClickCancel={!deleteJobLoading}
         transitionDuration={0.1}
         isOpen={showDeleteDialog && hasValue(nodeData)}
-        loading={deleteApiLoading}
+        loading={deleteJobLoading}
         onCancel={() => this.setState({ showDeleteDialog: false })}
-        // onConfirm={() => this.delHttpApi()}
+        onConfirm={() => this.delJsJob()}
       >
         {
           nodeData?.isFile === 1 &&
           <p>
-            确认删除文件: <br/>
+            确认删除定时任务以及文件: <br/>
             {nodeData?.path + nodeData?.name}？
           </p>
         }
@@ -705,7 +729,7 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
           nodeData?.isFile === 0 &&
           <p>
             确认删除目录: {nodeData?.path + nodeData?.name}？<br/>
-            <span>此操作会删除目录下的所有内容！</span>
+            <span>此操作会删除目录下的所有定时任务！</span>
           </p>
         }
       </Alert>

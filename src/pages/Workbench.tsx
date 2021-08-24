@@ -843,11 +843,11 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
             if (resource.isFile !== 1) return;
             this.setCurrentEditJsJobFile(resource.fileResourceId, resource.jobId);
           }}
-          // onAddFile={file => {
-          //   if (file.isFile !== 1) return;
-          //   this.setCurrentEditFile(file.id);
-          // }}
-          // onDelFile={files => files.forEach(file => this.closeEditFile(file.id))}
+          onAddJsJob={(job, jobTrigger, file) => {
+            if (file.isFile !== 1) return;
+            this.setCurrentEditJsJobFile(file.id, job.id);
+          }}
+          onDelJsJob={files => files.forEach(file => this.closeEditFile(file.id))}
         />
         <ExtendResourcePanel
           ref={this.extendResourcePane}
