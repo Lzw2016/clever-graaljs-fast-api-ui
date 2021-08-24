@@ -73,7 +73,7 @@ interface TaskResourcePanelProps {
   className?: string;
   /** 当前打开的文件ID */
   openFileId?: string;
-  // /** 选择节点变化事件 */
+  /** 选择节点变化事件 */
   onSelectChange?: (node: TreeNodeInfo<JobFileResourceRes>) => void;
   /** 打开文件事件 */
   onOpenFile?: (jobFileResourceRes: JobFileResourceRes) => void;
@@ -433,7 +433,7 @@ class TaskResourcePanel extends React.Component<TaskResourcePanelProps, TaskReso
       <Menu className={cls(styles.menu)}>
         <MenuItem
           icon={<Icon component={AddFile} className={cls(styles.menuIcon)}/>}
-          text="新增定时任务"
+          text="新增任务"
           onClick={() => {
             const addJsJobForm: AddJsJobForm = { name: "", filePath: "/", fileName: "", cron: "" };
             const nodeData = contextMenuSelectNode?.nodeData;
