@@ -12,6 +12,7 @@ const allData: { [key: string]: any } = {};
 /** 组件状态key */
 const componentStateKey = {
   Workbench: "Workbench",
+  ResourceFilePanelState: "ResourceFilePanelState",
   HttpApiResourcePanelState: "HttpApiResourcePanelState",
   ExtendResourcePanelState: "ExtendResourcePanelState",
   TaskResourcePanelState: "TaskResourcePanelState",

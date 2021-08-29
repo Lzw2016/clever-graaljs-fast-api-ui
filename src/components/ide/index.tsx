@@ -1,4 +1,5 @@
 export * from "./TopStatusPanel";
+export * from "./ResourceFilePanel";
 export * from "./HttpApiResourcePanel";
 export * from "./ExtendResourcePanel";
 export * from "./TaskResourcePanel";
