@@ -4,10 +4,13 @@ import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
 import Icon, { MinusOutlined, SortAscendingOutlined, SortDescendingOutlined } from "@ant-design/icons";
-import { Classes, TreeNodeInfo } from "@blueprintjs/core";
+import copyToClipboard from "copy-to-clipboard";
+import SimpleBar from "simplebar-react";
+import { Classes, Intent, Menu, MenuDivider, MenuItem, Spinner, SpinnerSize, Tree, TreeNodeInfo } from "@blueprintjs/core";
+import { ContextMenu2 } from "@blueprintjs/popover2";
 import { noValue } from "@/utils/utils";
 import { componentStateKey, storeGetData, storeSaveData } from "@/utils/storage";
-import { CollapseAll, ExpandAll, Find, Folder, getFileIcon, Locate, Refresh } from "@/utils/IdeaIconUtils";
+import { AddFile, AddFolder, CollapseAll, Copy, EditSource, ExpandAll, Find, Folder, getFileIcon, Locate, Refresh, Remove } from "@/utils/IdeaIconUtils";
 import styles from "./ResourceFilePanel.module.less";
 
 interface AddResourceFileForm {
@@ -137,6 +140,32 @@ class ResourceFilePanel extends React.Component<ResourceFilePanelProps, Resource
     });
   }
 
+  /** 填充TreeData(选中状态、展开状态、排序) */
+  private fillTreeState(treeData: Array<TreeNodeInfo<FileResource>>): Array<TreeNodeInfo<FileResource>> {
+    const { expandedIds, selectedId, nodeNameSort } = this.state;
+    const fillTreeNodeState = (node: TreeNodeInfo<FileResource>) => {
+      node.isSelected = selectedId === node.id;
+      node.isExpanded = expandedIds.has(node.id);
+      if (node.childNodes && node.childNodes.length > 0) {
+        node.childNodes = lodash.sortBy(node.childNodes, node => {
+          if (!node.nodeData) return node.label;
+          else if (node.nodeData.isFile === 1) return "b" + node.label;
+          return "a" + node.label;
+        });
+        if (nodeNameSort === "DESC") node.childNodes = node.childNodes.reverse();
+        node.childNodes.forEach(childNode => fillTreeNodeState(childNode));
+      }
+    };
+    treeData = lodash.sortBy(treeData, node => {
+      if (!node.nodeData) return node.label;
+      else if (node.nodeData.isFile === 1) return "b" + node.label;
+      return "a" + node.label;
+    });
+    if (nodeNameSort === "DESC") treeData = treeData.reverse();
+    treeData.forEach(node => fillTreeNodeState(node));
+    return treeData;
+  }
+
   private getHead() {
     const { openFileId, onHidePanel, onSelectChange } = this.props;
     const { expandedIds, treeData, selectedId, nodeNameSort } = this.state;
@@ -212,14 +241,166 @@ class ResourceFilePanel extends React.Component<ResourceFilePanelProps, Resource
     );
   }
 
+  private getContextMenu() {
+    const { expandedIds, contextMenuSelectNode } = this.state;
+    return (
+      <Menu className={cls(styles.menu)}>
+        <MenuItem
+          icon={<Icon component={AddFile} className={cls(styles.menuIcon)}/>}
+          text="新增文件"
+          // onClick={() => {
+          //   const addFileForm: AddHttpApiForm = { path: "/", name: "", requestMapping: "", requestMethod: "GET" };
+          //   const nodeData = contextMenuSelectNode?.nodeData;
+          //   if (nodeData) addFileForm.path = nodeData.isFile === 1 ? nodeData.path : (nodeData.path + nodeData.name);
+          //   if (!addFileForm.path.endsWith("/")) addFileForm.path += "/";
+          //   this.setState({ showAddHttpApiDialog: true, addHttpApiForm: addFileForm, addHttpApiRequestMappingChanged: false });
+          // }}
+        />
+        <MenuItem
+          icon={<Icon component={AddFolder} className={cls(styles.menuIcon)}/>}
+          text="新增目录"
+          onClick={() => {
+            const addDirForm: AddDirForm = { path: "/" };
+            const nodeData = contextMenuSelectNode?.nodeData;
+            if (nodeData) addDirForm.path = nodeData.isFile === 1 ? nodeData.path : (nodeData.path + nodeData.name);
+            if (!addDirForm.path.endsWith("/")) addDirForm.path += "/";
+            this.setState({ showAddDirDialog: true, addDirForm });
+          }}
+        />
+        <MenuDivider/>
+        <MenuItem
+          icon={<Icon component={Copy} className={cls(styles.menuIcon)}/>}
+          text="复制名称"
+          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData}
+          onClick={() => {
+            const nodeData = contextMenuSelectNode?.nodeData;
+            if (nodeData) copyToClipboard(nodeData.name);
+          }}
+        />
+        <MenuItem
+          icon={<Icon component={Copy} className={cls(styles.menuIcon)}/>}
+          text="复制文件路径"
+          disabled={!contextMenuSelectNode || !contextMenuSelectNode.nodeData}
+          onClick={() => {
+            const nodeData = contextMenuSelectNode?.nodeData;
+            if (nodeData) copyToClipboard(nodeData.path + nodeData.name);
+          }}
+        />
+        <MenuDivider/>
+        <MenuItem
+          icon={<Icon component={Remove} className={cls(styles.menuIcon)}/>}
+          text="删除"
+          disabled={!contextMenuSelectNode}
+          onClick={() => this.setState({ showDeleteDialog: true })}
+        />
+        <MenuItem
+          icon={<Icon component={EditSource} className={cls(styles.menuIcon)}/>}
+          text="重命名"
+          disabled={!contextMenuSelectNode}
+          onClick={() => {
+            const renameForm: RenameForm = { id: "", path: "/", newName: "" };
+            const nodeData = contextMenuSelectNode?.nodeData;
+            if (nodeData) {
+              renameForm.id = nodeData.id;
+              renameForm.path = nodeData.path;
+              renameForm.newName = nodeData.name;
+            }
+            if (!renameForm.path.endsWith("/")) renameForm.path += "/";
+            this.setState({ showRenameDialog: true, renameForm });
+          }}
+        />
+        <MenuDivider/>
+        <MenuItem
+          icon={<Icon component={ExpandAll} className={cls(styles.menuIcon)}/>}
+          text="展开子节点"
+          disabled={!contextMenuSelectNode || !contextMenuSelectNode.childNodes || contextMenuSelectNode.childNodes.length <= 0}
+          onClick={() => {
+            if (contextMenuSelectNode) {
+              forEachTreeNode(contextMenuSelectNode, n => {
+                if (n.nodeData?.isFile === 0) expandedIds.add(n.id);
+              });
+              this.forceUpdate();
+            }
+          }}
+        />
+        <MenuItem
+          icon={<Icon component={Refresh} className={cls(styles.menuIcon)}/>}
+          text="刷新"
+          // onClick={() => this.reLoadTreeData()}
+        />
+      </Menu>
+    );
+  }
+
+
   render() {
-    // openFileId, onSelectChange, onOpenFile
-    const { className, } = this.props;
+    this.saveComponentState();
+    const { className, openFileId, onSelectChange, onOpenFile } = this.props;
+    const { loading, expandedIds, selectedId } = this.state;
+    let { treeData, } = this.state;
+    treeData = this.fillTreeState(treeData);
     return (
       <div className={cls(Classes.DARK, styles.panel, className)}>
         <div className={cls(styles.flexColumn, styles.head)}>
           {this.getHead()}
         </div>
+        {loading && <Spinner className={cls(styles.loading)} intent={Intent.PRIMARY} size={SpinnerSize.SMALL}/>}
+        <ContextMenu2
+          className={cls(styles.center, { [styles.hide]: loading })}
+          content={this.getContextMenu()}
+          onContextMenu={e => {
+            const className = (e?.target as any)?.className;
+            if (className === "simplebar-content-wrapper" || className === styles.emptyDiv) {
+              this.setState({ contextMenuSelectNode: undefined });
+            }
+          }}
+        >
+          <SimpleBar
+            style={{ height: "100%", width: "100%" }}
+            autoHide={false}
+            scrollbarMinSize={48}
+          >
+            <Tree
+              className={cls(styles.fileTree)}
+              contents={treeData}
+              onNodeExpand={node => {
+                if (node.childNodes && node.childNodes.length <= 0) return;
+                expandedIds.add(node.id);
+                if (onSelectChange && selectedId !== node.id) onSelectChange(node);
+                this.setState({ selectedId: node.id });
+              }}
+              onNodeCollapse={node => {
+                if (node.childNodes && node.childNodes.length <= 0) return;
+                forEachTreeNode(node, n => expandedIds.delete(n.id));
+                if (onSelectChange && selectedId !== node.id) onSelectChange(node);
+                this.setState({ selectedId: node.id });
+              }}
+              onNodeDoubleClick={node => {
+                if (node.childNodes && node.childNodes.length > 0) {
+                  if (node.isExpanded) {
+                    forEachTreeNode(node, n => expandedIds.delete(n.id));
+                  } else {
+                    expandedIds.add(node.id);
+                  }
+                }
+                if (node.nodeData?.isFile === 1 && onOpenFile) {
+                  onOpenFile(node.nodeData);
+                }
+                if (onSelectChange && selectedId !== node.id) onSelectChange(node);
+                this.setState({ selectedId: node.id });
+              }}
+              onNodeClick={node => {
+                if (onSelectChange && selectedId !== node.id) onSelectChange(node);
+                this.setState({ selectedId: node.id });
+              }}
+              onNodeContextMenu={node => {
+                if (onSelectChange && selectedId !== node.id) onSelectChange(node);
+                this.setState({ selectedId: node.id, contextMenuSelectNode: node });
+              }}
+            />
+            <div className={styles.emptyDiv}/>
+          </SimpleBar>
+        </ContextMenu2>
       </div>
     );
   }
