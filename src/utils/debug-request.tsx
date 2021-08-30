@@ -85,6 +85,24 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
     params,
     headers,
     data: (requestData.bodyType === "JsonBody" && requestData.jsonBody) ? requestData.jsonBody : undefined,
+    responseType: "arraybuffer",
+    transformResponse: (data: any, headers: any) => {
+      let contentType = headers["content-type"] || "application/json";
+      const isImg = contentType.indexOf("png") >= 0;
+      if (isImg) {
+        return window.btoa(String.fromCharCode(...new Uint8Array(data)));
+      }
+      const isJson = contentType.indexOf("json") >= 0;
+      // const isXml = contentType.indexOf("xml") >= 0;
+      const text = decodeURIComponent(escape(String.fromCodePoint(...new Uint8Array(data))));
+      if (isJson) {
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+        }
+      }
+      return text;
+    },
   }).then(response => {
     const endTime = lodash.now();
     const { data, headers, status, statusText } = response;

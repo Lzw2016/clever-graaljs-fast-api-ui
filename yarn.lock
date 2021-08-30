@@ -459,14 +459,13 @@
   dependencies:
     state-local "^1.0.6"
 
-"@monaco-editor/react@^4.2.1":
-  version "4.2.1"
-  resolved "https://registry.nlark.com/@monaco-editor/react/download/@monaco-editor/react-4.2.1.tgz#75cb6e85e3640e05887a14005c370e46bd71256b"
-  integrity sha1-dctuheNkDgWIehQAXDcORr1xJWs=
+"@monaco-editor/react@^4.2.2":
+  version "4.2.2"
+  resolved "https://registry.nlark.com/@monaco-editor/react/download/@monaco-editor/react-4.2.2.tgz#636e5b8eb9519ef62f475f9a4a50f62ee0c493a8"
+  integrity sha1-Y25bjrlRnvYvR1+aSlD2LuDEk6g=
   dependencies:
     "@monaco-editor/loader" "^1.1.1"
     prop-types "^15.7.2"
-    state-local "^1.0.7"
 
 "@popperjs/core@^2.5.4":
   version "2.9.2"
@@ -1484,10 +1483,10 @@ mitt@^1.1.2:
   resolved "https://registry.nlark.com/mitt/download/mitt-1.2.0.tgz#cb24e6569c806e31bd4e3995787fe38a04fdf90d"
   integrity sha1-yyTmVpyAbjG9TjmVeH/jigT9+Q0=
 
-monaco-editor@^0.25.2:
-  version "0.25.2"
-  resolved "https://registry.nlark.com/monaco-editor/download/monaco-editor-0.25.2.tgz#119e2b15bbd968a1a99c03cac9c329316d7c37e9"
-  integrity sha1-EZ4rFbvZaKGpnAPKycMpMW18N+k=
+monaco-editor@^0.27.0:
+  version "0.27.0"
+  resolved "https://registry.nlark.com/monaco-editor/download/monaco-editor-0.27.0.tgz#4b69108bb1dc1f60174c5dcdf51bc5306ab5ba26"
+  integrity sha1-S2kQi7HcH2AXTF3N9RvFMGq1uiY=
 
 ms@2.1.2:
   version "2.1.2"
@@ -2099,7 +2098,7 @@ sql-autocomplete@^1.1.1:
     antlr4-c3 "^1.1.15"
     antlr4ts-sql "^1.1.0"
 
-state-local@^1.0.6, state-local@^1.0.7:
+state-local@^1.0.6:
   version "1.0.7"
   resolved "https://registry.npm.taobao.org/state-local/download/state-local-1.0.7.tgz#da50211d07f05748d53009bee46307a37db386d5"
   integrity sha1-2lAhHQfwV0jVMAm+5GMHo32zhtU=

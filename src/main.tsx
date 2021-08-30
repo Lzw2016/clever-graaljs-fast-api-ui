@@ -30,7 +30,7 @@ document.addEventListener("keydown", e => {
 // 初始化 dayjs
 dayjs.locale("zh-cn");
 loader.config({
-  paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.25.2/min/vs" },
+  paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.27.0/min/vs" },
   "vs/nls": { availableLanguages: { "*": "zh-cn" } },
 });
 

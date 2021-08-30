@@ -88,7 +88,7 @@ interface RequestDebugPanelState {
 // 组件状态默认值
 const defHttpApiDebug = (): HttpApiDebugRes => ({
   id: "", namespace: "", httpApiId: "", title: "",
-  requestData: { method: "GET", path: "", params: [], headers: [], bodyType: "JsonBody", jsonBody: "", formBody: [] },
+  requestData: { method: "GET", path: "", params: [], headers: [], bodyType: "None", jsonBody: "", formBody: [] },
   createAt: "", updateAt: ""
 });
 const defDebugResponseData = (): DebugResponseData => ({ body: "", headers: [] });
@@ -554,33 +554,36 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           <Radio label="json-body" value={"JsonBody"}/>
           <Radio label="form-body" value={"FormBody"} disabled={true}/>
         </RadioGroup>
-        <Editor
-          wrapperClassName={cls(styles.requestEditor)}
-          theme={themeEnum.IdeaDracula}
-          loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
-          options={{ ...editorDefOptions, contextmenu: false }}
-          language={languageEnum.json}
-          path={"/request_body.json"}
-          value={requestData?.jsonBody}
-          onMount={(editor, monaco) => {
-            initEditorConfig(editor);
-            initKeyBinding(editor, monaco);
-            editor.addCommand(
-              MonacoApi.KeyMod.CtrlCmd | MonacoApi.KeyCode.KEY_S,
-              () => {
-                if (this.state.needUpdate) {
-                  this.updateHttpApiDebug();
-                }
-              },
-            );
-          }}
-          onChange={value => {
-            if (!requestData) return;
-            this.setRequestDataJsonBody(value ?? "");
-          }}
-          saveViewState={false}
-          keepCurrentModel={false}
-        />
+        {
+          requestData.bodyType === "JsonBody" &&
+          <Editor
+            wrapperClassName={cls(styles.requestEditor)}
+            theme={themeEnum.IdeaDracula}
+            loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
+            options={{ ...editorDefOptions, contextmenu: false }}
+            language={languageEnum.json}
+            path={"/request_body.json"}
+            value={requestData?.jsonBody}
+            onMount={(editor, monaco) => {
+              initEditorConfig(editor);
+              initKeyBinding(editor, monaco);
+              editor.addCommand(
+                MonacoApi.KeyMod.CtrlCmd | MonacoApi.KeyCode.KEY_S,
+                () => {
+                  if (this.state.needUpdate) {
+                    this.updateHttpApiDebug();
+                  }
+                },
+              );
+            }}
+            onChange={value => {
+              if (!requestData) return;
+              this.setRequestDataJsonBody(value ?? "");
+            }}
+            saveViewState={false}
+            keepCurrentModel={false}
+          />
+        }
       </>
     );
   }
@@ -616,6 +619,26 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   // 响应Body面板
   private getResponseBodyPanel() {
     const { debugResponseData } = this.state;
+    let contentType = "application/json";
+    debugResponseData?.headers?.forEach(item => {
+      if (item.key === "content-type") contentType = item.value;
+    });
+    if (contentType.indexOf("xml") >= 0) {
+      return (
+        <Editor
+          theme={themeEnum.IdeaDracula}
+          loading={<Spinner intent={Intent.PRIMARY} size={SpinnerSize.STANDARD}/>}
+          options={{ ...editorDefOptions, readOnly: true, domReadOnly: true, contextmenu: false }}
+          language={languageEnum.xml}
+          path={"/response_body.xml"}
+          value={debugResponseData.body}
+          saveViewState={false}
+          keepCurrentModel={false}
+        />
+      );
+    } else if (contentType.indexOf("png") >= 0) {
+      return <img src={`data:image/png;base64,${debugResponseData.body}`} alt="img" style={{ width: 358 }}/>;
+    }
     return (
       <Editor
         theme={themeEnum.IdeaDracula}
