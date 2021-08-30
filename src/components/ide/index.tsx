@@ -3,6 +3,7 @@ export * from "./ResourceFilePanel";
 export * from "./HttpApiResourcePanel";
 export * from "./ExtendResourcePanel";
 export * from "./TaskResourcePanel";
+export * from "./InitScriptPanel";
 export * from "./RequestDebugPanel";
 export * from "./EngineInstancePanel";
 export * from "./GlobalConfigPanel";

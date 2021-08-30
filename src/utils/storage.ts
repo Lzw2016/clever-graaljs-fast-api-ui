@@ -1,6 +1,5 @@
 import localforage from "localforage";
 import lodash from "lodash";
-import { TaskResourcePanelState } from "@/components/ide/TaskResourcePanel";
 
 const fastApiStore = localforage.createInstance({
   name: "fast-api",
@@ -16,6 +15,7 @@ const componentStateKey = {
   HttpApiResourcePanelState: "HttpApiResourcePanelState",
   ExtendResourcePanelState: "ExtendResourcePanelState",
   TaskResourcePanelState: "TaskResourcePanelState",
+  InitScriptPanelState: "InitScriptPanelState",
   RequestDebugPanelState: "RequestDebugPanelState",
   GlobalConfigPanelState: "GlobalConfigPanelState",
 }

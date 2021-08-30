@@ -1,0 +1,137 @@
+@import "/src/assets/variables";
+
+.panel {
+  overflow: hidden;
+  height: 100%;
+}
+
+.head {
+  height: @toolHeight + 4px;
+  color: @fontColor;
+  background-color: @splitBgColor;
+  align-items: center;
+  box-sizing: border-box;
+  border-bottom: 1px solid @borderColor;
+}
+
+//noinspection DuplicatedCode
+.center {
+  overflow: auto;
+  height: calc(100% - @toolHeight);
+  font-size: 14px;
+  flex-shrink: 0;
+
+  :global {
+    .simplebar-track {
+      &.simplebar-horizontal {
+        width: 12px;
+      }
+
+      &.simplebar-vertical {
+        width: 10px;
+      }
+
+      .simplebar-scrollbar {
+        width: 10px;
+        right: 0;
+
+        &:before {
+          background-color: @scrollBarColor;
+          border-radius: 0;
+          opacity: 1;
+          right: 0;
+        }
+      }
+    }
+  }
+}
+
+.fileTree {
+  font-size: 14px;
+}
+
+.folderIcon {
+  padding-right: 4px;
+
+  svg {
+    fill: #87939A;
+  }
+}
+
+.loading {
+  height: 256px;
+}
+
+//noinspection DuplicatedCode
+.icon {
+  height: @toolHeight;
+  margin: 1px;
+  padding: 4px 4px;
+  border-radius: 2px;
+  font-size: 16px;
+  color: @iconColor;
+  user-select: none;
+
+  &:hover {
+    background-color: @toolItemIconHoverBgColor;
+  }
+
+  &:active {
+    background-color: @toolItemIconActiveBgColor;
+  }
+
+  svg, svg g, svg g path, svg g rect {
+    fill: @iconColor;
+  }
+}
+
+.iconDisable {
+  color: @fontDisableColor !important;
+  cursor: default !important;
+
+  &:hover {
+    background-color: unset !important;
+  }
+
+  svg, svg g, svg g path, svg g rect {
+    fill: @fontDisableColor !important;
+  }
+}
+
+.menu {
+  box-sizing: border-box;
+}
+
+.menuIcon {
+  padding: 2px 0;
+  font-size: 16px;
+
+  svg {
+    color: @iconColor;
+  }
+}
+
+.dialog {
+  font-size: 12px;
+
+  :global {
+    .bp3-form-group.bp3-inline {
+      margin-left: 16px;
+      margin-right: 16px;
+
+      .bp3-form-content {
+        flex-grow: 1;
+        flex-shrink: 1;
+      }
+    }
+  }
+}
+
+.renameDialog {
+  :global {
+    .bp3-label {
+      width: 50px;
+    }
+  }
+}
+

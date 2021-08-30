@@ -26,6 +26,7 @@ import {
   ExtendResourcePanel,
   GlobalConfigPanel,
   HttpApiResourcePanel,
+  InitScriptPanel,
   InterfaceConfigPanel,
   JdbcDatabaseManagePanel,
   RedisManagePanel,
@@ -131,6 +132,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   private taskResourcePanel = React.createRef<TaskResourcePanel>();
   /** 自定义扩展组件 */
   private extendResourcePane = React.createRef<ExtendResourcePanel>();
+  /** 初始化脚本组件 */
+  private initScriptPanel = React.createRef<InitScriptPanel>();
   /** 接口调试组件 */
   private requestDebugPane = React.createRef<RequestDebugPanel>();
   /** 全局请求参数组件 */
@@ -895,9 +898,29 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           }}
           onDelFile={files => files.forEach(file => this.closeEditFile(file.id))}
         />
-        <div className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.Initialization })}>
-          Initialization
-        </div>
+        <InitScriptPanel
+          ref={this.initScriptPanel}
+          className={cls({ [styles.hide]: leftPanel !== LeftPanelEnum.Initialization })}
+          openFileId={currentEditId}
+          onHidePanel={() => this.toggleLeftPanel()}
+          onSelectChange={node => {
+            const resource = node.nodeData;
+            if (!resource) {
+              this.setState({ topStatusFileInfo: undefined });
+              return;
+            }
+            this.setState({ topStatusFileInfo: toTopStatusFileInfo(resource) });
+          }}
+          onOpenFile={resource => {
+            if (resource.isFile !== 1) return;
+            this.setCurrentEditFile(resource.id);
+          }}
+          onAddFile={file => {
+            if (file.isFile !== 1) return;
+            this.setCurrentEditFile(file.id);
+          }}
+          onDelFile={files => files.forEach(file => this.closeEditFile(file.id))}
+        />
       </>
     );
   }
