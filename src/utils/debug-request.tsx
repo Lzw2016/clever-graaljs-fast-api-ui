@@ -88,13 +88,16 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
     responseType: "arraybuffer",
     transformResponse: (data: any, headers: any) => {
       let contentType = headers["content-type"] || "application/json";
+      // 图片base64
       const isImg = contentType.indexOf("png") >= 0;
       if (isImg) {
-        return window.btoa(String.fromCharCode(...new Uint8Array(data)));
+        return arrayBufferToBase64(data);
       }
+      // TODO 文件下载
+      // json|xml
       const isJson = contentType.indexOf("json") >= 0;
       // const isXml = contentType.indexOf("xml") >= 0;
-      const text = decodeURIComponent(escape(String.fromCodePoint(...new Uint8Array(data))));
+      const text = decodeURIComponent(escape(arrayBufferToBinary(data).join("")));
       if (isJson) {
         try {
           return JSON.parse(text);
@@ -155,5 +158,20 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
     }
   });
 };
+
+// String.fromCodePoint(...new Uint8Array(data))
+function arrayBufferToBinary(buffer: any) {
+  const binary: string[] = [];
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary.push(String.fromCharCode(bytes[i]));
+  }
+  return binary;
+}
+
+function arrayBufferToBase64(buffer: any) {
+  return window.btoa(arrayBufferToBinary(buffer).join(""));
+}
 
 export { globalDebugRequestData, debugRequest, doDebugRequest };

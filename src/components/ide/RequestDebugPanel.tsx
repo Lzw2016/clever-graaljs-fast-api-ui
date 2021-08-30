@@ -637,7 +637,15 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
         />
       );
     } else if (contentType.indexOf("png") >= 0) {
-      return <img src={`data:image/png;base64,${debugResponseData.body}`} alt="img" style={{ width: 358 }}/>;
+      return (
+        <SimpleBar
+          style={{ height: "100%", width: "100%" }}
+          autoHide={false}
+          scrollbarMinSize={48}
+        >
+          <img src={`data:image/png;base64,${debugResponseData.body}`} alt="img"/>
+        </SimpleBar>
+      );
     }
     return (
       <Editor
