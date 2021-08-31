@@ -89,11 +89,23 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
     transformResponse: (data: any, headers: any) => {
       let contentType = headers["content-type"] || "application/json";
       // 图片base64
-      const isImg = contentType.indexOf("png") >= 0;
+      const isImg = contentType.indexOf("image") >= 0;
       if (isImg) {
         return arrayBufferToBase64(data);
       }
-      // TODO 文件下载
+      // 文件下载 content-disposition: attachment;filename=%E4%BA%8C%E7%BB%B4%E7%A0%81.jpg;filename*=utf-8''%E4%BA%8C%E7%BB%B4%E7%A0%81.jpg
+      const contentDisposition: string = headers["content-disposition"] || "";
+      const isDownloadFile = contentDisposition.indexOf("attachment") >= 0 && contentDisposition.indexOf("filename") >= 0;
+      if (isDownloadFile) {
+        const blob = new Blob([data], { type: contentType });
+        (blob as any).__type = "blob";
+        const filename = contentDisposition.substring(
+          contentDisposition.indexOf("attachment;filename=") + "attachment;filename=".length,
+          contentDisposition.indexOf(";filename*=")
+        );
+        (blob as any).__filename = decodeURI(filename);
+        return blob;
+      }
       // json|xml
       const isJson = contentType.indexOf("json") >= 0;
       // const isXml = contentType.indexOf("xml") >= 0;
@@ -119,7 +131,10 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
     responseData.body = "";
     responseData.logs = undefined;
     const dataType = variableTypeOf(data);
-    if (dataType === TypeEnum.string
+    if (data.__type === "blob" || dataType === TypeEnum.blob) {
+      responseData.body = data;
+      responseData.filename = data.__filename;
+    } else if (dataType === TypeEnum.string
       || dataType === TypeEnum.number
       || dataType === TypeEnum.boolean) {
       responseData.body = data;

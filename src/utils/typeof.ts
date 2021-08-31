@@ -11,6 +11,7 @@ enum TypeEnum {
   json = 'json',
   math = 'math',
   regexp = 'regexp',
+  blob = 'blob',
   date = 'date',
   undefined = 'undefined',
   nan = 'nan',
@@ -70,6 +71,9 @@ const variableTypeOf = (object?: any): TypeEnum => {
       break;
     case '[object regexp]':
       typeName = TypeEnum.regexp;
+      break;
+    case '[object blob]':
+      typeName = TypeEnum.blob;
       break;
     // 貌似不会走的分支
     case '[object undefined]':

@@ -620,6 +620,20 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   // 响应Body面板
   private getResponseBodyPanel() {
     const { debugResponseData } = this.state;
+    const { body } = debugResponseData;
+    if ((body as any).__type === "blob") {
+      const filename = debugResponseData.filename || (body as any).__filename || "文件下载.txt";
+      return (
+        <a
+          title={"点击下载文件"}
+          href={window.URL.createObjectURL(body as any)}
+          download={filename}
+          style={{ margin: "8px 16px", display: "inline-block" }}
+        >
+          {filename}
+        </a>
+      );
+    }
     let contentType = "application/json";
     debugResponseData?.headers?.forEach(item => {
       if (item.key === "content-type") contentType = item.value;
@@ -632,7 +646,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           options={{ ...editorDefOptions, readOnly: true, domReadOnly: true, contextmenu: false }}
           language={languageEnum.xml}
           path={"/response_body.xml"}
-          value={debugResponseData.body}
+          value={body}
           saveViewState={false}
           keepCurrentModel={false}
         />
@@ -644,7 +658,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           autoHide={false}
           scrollbarMinSize={48}
         >
-          <img src={`data:image/png;base64,${debugResponseData.body}`} alt="img"/>
+          <img src={`data:image/png;base64,${body}`} alt="img"/>
         </SimpleBar>
       );
     }

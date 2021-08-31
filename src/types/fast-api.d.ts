@@ -442,11 +442,12 @@ interface DebugResponseData {
   body: string;
   headers: Array<RequestItemData>;
   // resCookies?: { [key: string]: string }; // Name Value Domain Path Expires HttpOnly Secure
+  filename?: string;
   status?: number;
   statusText?: string;
   time?: number;
   size?: number;
-  logs?: { firstIndex: number; lastIndex: number; content: Array<string> }
+  logs?: { firstIndex: number; lastIndex: number; content: Array<string> };
 }
 
 interface GlobalRequestData {
