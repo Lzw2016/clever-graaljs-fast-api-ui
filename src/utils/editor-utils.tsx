@@ -123,46 +123,46 @@ const registerTheme = (monaco: typeof MonacoApi) => {
  */
 const initMonaco = (monaco: typeof MonacoApi): Promise<void> => {
   // 设置sql提示
-  monaco.languages.registerCompletionItemProvider(languageEnum.sql, {
-    triggerCharacters: ' $.:{}=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
-    provideCompletionItems(
-      model: MonacoApi.editor.ITextModel,
-      position: MonacoApi.Position,
-      context: MonacoApi.languages.CompletionContext,
-      token: MonacoApi.CancellationToken): MonacoApi.languages.ProviderResult<MonacoApi.languages.CompletionList> {
-      const word = model.getWordUntilPosition(position);
-      const range = {
-        startLineNumber: position.lineNumber,
-        endLineNumber: position.lineNumber,
-        startColumn: word.startColumn,
-        endColumn: word.endColumn
-      };
-      return {
-        suggestions: [
-          {
-            label: 'select',
-            kind: monaco.languages.CompletionItemKind.Keyword,
-            documentation: "Describe your library here",
-            insertText: 'select',
-            // insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-            range: range
-          },
-          {
-            label: {
-              name: 'f001',
-              qualifier: "t001.f001",
-              type: "字段",
-            },
-            kind: monaco.languages.CompletionItemKind.Field,
-            documentation: "字段含义",
-            insertText: 'f001',
-            // insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-            range: range
-          }
-        ],
-      };
-    }
-  });
+  // monaco.languages.registerCompletionItemProvider(languageEnum.sql, {
+  //   triggerCharacters: ' $.:{}=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+  //   provideCompletionItems(
+  //     model: MonacoApi.editor.ITextModel,
+  //     position: MonacoApi.Position,
+  //     context: MonacoApi.languages.CompletionContext,
+  //     token: MonacoApi.CancellationToken): MonacoApi.languages.ProviderResult<MonacoApi.languages.CompletionList> {
+  //     const word = model.getWordUntilPosition(position);
+  //     const range = {
+  //       startLineNumber: position.lineNumber,
+  //       endLineNumber: position.lineNumber,
+  //       startColumn: word.startColumn,
+  //       endColumn: word.endColumn
+  //     };
+  //     return {
+  //       suggestions: [
+  //         {
+  //           label: 'select',
+  //           kind: monaco.languages.CompletionItemKind.Keyword,
+  //           documentation: "Describe your library here",
+  //           insertText: 'select',
+  //           // insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+  //           range: range
+  //         },
+  //         {
+  //           label: {
+  //             name: 'f001',
+  //             qualifier: "t001.f001",
+  //             type: "字段",
+  //           },
+  //           kind: monaco.languages.CompletionItemKind.Field,
+  //           documentation: "字段含义",
+  //           insertText: 'f001',
+  //           // insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+  //           range: range
+  //         }
+  //       ],
+  //     };
+  //   }
+  // });
 
   // 设置js/ts语法检测
   monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
