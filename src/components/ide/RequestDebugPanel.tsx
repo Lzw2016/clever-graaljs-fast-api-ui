@@ -658,7 +658,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           autoHide={false}
           scrollbarMinSize={48}
         >
-          <img src={`data:image/png;base64,${body}`} alt="img"/>
+          <img src={`data:image/png;base64,${body}`} alt="img" style={{ margin: "8px 0 0 8px" }}/>
         </SimpleBar>
       );
     }
