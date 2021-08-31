@@ -168,6 +168,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
       if (!force && httpApiIdProps === httpApiIdState) return;
       httpApiId = httpApiIdProps;
     }
+    this.setState({ debugResponseData: { ...defDebugResponseData() } });
     if (!httpApiId) {
       this.setState({ httpApiId, titleList: [], httpApiDebug: { ...defHttpApiDebug() } });
       return;
@@ -189,13 +190,13 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   private loadHttpApiDebugRes(id: string) {
     if (!id) return;
     const { httpApiDebug } = this.state;
-    this.setState({ httpApiDebugLoading: true, httpApiDebug: { ...httpApiDebug, id } });
+    this.setState({ httpApiDebugLoading: true, httpApiDebug: { ...httpApiDebug, id }, debugResponseData: { ...defDebugResponseData() }, needUpdate: false });
     request.get(FastApi.HttpApiDebugManage.getHttpApiDebug, { params: { id } })
       .then((data: HttpApiDebugRes) => {
         if (data) {
-          this.setState({ httpApiDebug: { ...defHttpApiDebug(), ...data }, debugResponseData: { ...defDebugResponseData() }, needUpdate: false });
+          this.setState({ httpApiDebug: { ...defHttpApiDebug(), ...data } });
         } else {
-          this.setState({ httpApiDebug: { ...defHttpApiDebug() }, debugResponseData: { ...defDebugResponseData() }, needUpdate: false });
+          this.setState({ httpApiDebug: { ...defHttpApiDebug() } });
         }
       }).finally(() => this.setState({ httpApiDebugLoading: false }));
   }
