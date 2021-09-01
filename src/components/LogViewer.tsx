@@ -1,4 +1,5 @@
-import React, { ReactNode } from "react";
+import React from "react";
+import lodash from "lodash";
 import cls from "classnames";
 import Anser, { AnserJsonEntry } from "anser";
 import { escapeCarriageReturn } from "escape-carriage";
@@ -35,7 +36,7 @@ interface LogViewerState {
 }
 
 class LogViewer extends React.Component<LogViewerProps, LogViewerState> {
-  private logs: JSX.Element[] = [];
+  private logsDiv: HTMLDivElement | null = null;
   private lineNo = 0;
 
   public addLogLine(logs?: string) {
@@ -43,8 +44,8 @@ class LogViewer extends React.Component<LogViewerProps, LogViewerState> {
     const logArray = logs?.split("\n") ?? [];
     if (logArray[logArray.length - 1] === "") logArray.pop();
     logArray.forEach(log => {
-      if (maxLine && this.logs.length >= maxLine) {
-        this.logs.shift();
+      if (maxLine && this.logsDiv?.children && this.logsDiv?.children.length > maxLine) {
+        this.logsDiv.children[0].remove();
       }
       this.lineNo++;
       const content = ansiToJSON(log ?? "", useClasses ?? false)
@@ -52,49 +53,64 @@ class LogViewer extends React.Component<LogViewerProps, LogViewerState> {
       const lineText = this.createLineText(content);
       const lineNo = this.createLineNo(this.lineNo);
       const line = this.createLine(lineNo, lineText);
-      this.logs.push(line);
+      this.logsDiv?.append(line);
     });
-    this.forceUpdate();
   }
 
   public clear(lineNo: number = 0) {
-    this.logs.length = 0;
+    if (this.logsDiv) this.logsDiv.innerHTML = "";
     this.lineNo = lineNo;
-    this.forceUpdate();
   }
 
-  private createLine(...children: ReactNode[]): JSX.Element {
+  private createLine(lineNo: Node, lineText: Node): Node {
     const { lineClassName, lineStyle } = this.props;
-    return React.createElement(
-      "div",
-      { key: `line-${this.lineNo}`, className: cls(styles.logLine, lineClassName), style: lineStyle },
-      children
-    );
+    const logLine = document.createElement("div");
+    logLine.append(lineNo);
+    logLine.append(lineText);
+    logLine.className = cls(styles.logLine, lineClassName);
+    if (lineStyle) {
+      lodash.forEach(lineStyle, (value: any, key: any) => {
+        logLine.style[key] = value;
+      })
+    }
+    return logLine;
   }
 
-  private createLineNo(...children: ReactNode[]): JSX.Element {
+  private createLineNo(lineNo: number): Node {
     const { lineNoClassName, lineNoStyle } = this.props;
-    return React.createElement(
-      "span",
-      { key: `lineNo-${this.lineNo}`, className: cls(styles.logLineNo, lineNoClassName), style: lineNoStyle },
-      children
-    );
+    const logLineNo = document.createElement("span");
+    logLineNo.innerHTML = `${lineNo}`;
+    logLineNo.className = cls(styles.logLineNo, lineNoClassName);
+    if (lineNoStyle) {
+      lodash.forEach(lineNoStyle, (value: any, key: any) => {
+        logLineNo.style[key] = value;
+      })
+    }
+    return logLineNo;
   }
 
-  private createLineText(...children: ReactNode[]): JSX.Element {
+  private createLineText(content: Node[]): Node {
     const { lineTextClassName, lineTextStyle } = this.props;
-    return React.createElement("span",
-      { key: `lineText-${this.lineNo}`, className: cls(styles.logText, lineTextClassName), style: lineTextStyle },
-      children
-    );
+    const logLineText = document.createElement("span");
+    content.forEach(value => logLineText.append(value));
+    logLineText.className = cls(styles.logText, lineTextClassName);
+    if (lineTextStyle) {
+      lodash.forEach(lineTextStyle, (value: any, key: any) => {
+        logLineText.style[key] = value;
+      })
+    }
+    return logLineText;
   }
 
   render() {
     const { className, style } = this.props;
     return (
-      <div className={cls(styles.code, className)} style={style}>
-        {this.logs}
-      </div>
+      <div
+        ref={logsDiv => {
+          this.logsDiv = logsDiv;
+        }}
+        className={cls(styles.code, className)} style={style}
+      />
     );
   }
 }
@@ -154,13 +170,18 @@ function createStyle(bundle: AnserJsonEntry): Colors {
  * @param bundle Anser output.
  * @param key
  */
-function convertBundleIntoReact(linkify: boolean, useClasses: boolean, bundle: AnserJsonEntry, key: number): JSX.Element {
+function convertBundleIntoReact(linkify: boolean, useClasses: boolean, bundle: AnserJsonEntry, key: number): Node {
   const style = useClasses ? null : createStyle(bundle);
   const className = useClasses ? createClass(bundle) : null;
   if (!linkify) {
-    return React.createElement("pre", { style, key, className }, bundle.content);
+    const pre = document.createElement("pre");
+    pre.innerHTML = bundle.content;
+    if (className) pre.className = className;
+    if (style?.color) pre.style.color = style.color;
+    if (style?.backgroundColor) pre.style.backgroundColor = style.backgroundColor;
+    return pre;
   }
-  const content: React.ReactNode[] = [];
+  const content: Node[] = [];
   const linkRegex = /(\s+|^)(https?:\/\/(?:www\.|(?!www))[^\s.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g;
   let index = 0;
   let match: RegExpExecArray | null;
@@ -168,19 +189,28 @@ function convertBundleIntoReact(linkify: boolean, useClasses: boolean, bundle: A
     const [, pre, url] = match;
     const startIndex = match.index + pre.length;
     if (startIndex > index) {
-      content.push(bundle.content.substring(index, startIndex));
+      content.push(bundle.content.substring(index, startIndex) as any);
     }
     // Make sure the href we generate from the link is fully qualified. We assume http
     // if it starts with a www because many sites don't support https
     // noinspection HttpUrlsUsage
     const href = url.startsWith("www.") ? `http://${url}` : url;
-    content.push(React.createElement("a", { key: index, href, target: "_blank", }, `${url}`));
+    const alink = document.createElement("a");
+    alink.href = href;
+    alink.target = "_blank";
+    alink.innerHTML = url;
+    content.push(alink);
     index = linkRegex.lastIndex;
   }
   if (index < bundle.content.length) {
-    content.push(bundle.content.substring(index));
+    content.push(bundle.content.substring(index) as any);
   }
-  return React.createElement("pre", { style, key, className }, content);
+  const pre = document.createElement("pre");
+  content.forEach(value => pre.append(value));
+  if (className) pre.className = className;
+  if (style?.color) pre.style.color = style.color;
+  if (style?.backgroundColor) pre.style.backgroundColor = style.backgroundColor;
+  return pre;
 }
 
 /**

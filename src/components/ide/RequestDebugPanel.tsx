@@ -119,9 +119,12 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   /** 保存组件的状态 */
   private saveComponentState = lodash.debounce(() => this.saveState().finally(), 1_000, { maxWait: 3_000 });
   /** 显示日志组件 */
+  private simpleBar: HTMLDivElement | null = null;
+  /** 显示日志组件 */
   private logViewer = React.createRef<LogViewer>();
   /** 获取日志的WebSocket */
   private logsWebSocket: WebSocket | undefined;
+  private logsLastIndex = -1;
   /** 设置请求RequestData JsonBody */
   private setRequestDataJsonBody = lodash.debounce((value: string) => {
     const { httpApiDebug: { requestData } } = this.state;
@@ -216,7 +219,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
       this.logsWebSocket.onmessage = ev => {
         const logViewer = this.logViewer.current;
         if (!logViewer) {
-          console.log("server logs ->", ev.data)
+          // console.log("server logs ->", ev.data)
           return;
         }
         const data = JSON.parse(ev.data);
@@ -225,7 +228,16 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
           logViewer.addLogLine(data.errorStackTrace);
         } else {
           const logs: RingBuffer = data;
-          logs.content.forEach(log => logViewer.addLogLine(log));
+          if (this.logsLastIndex >= 0 && logs.firstIndex > 0 && logs.firstIndex > (this.logsLastIndex + 1)) {
+            logViewer.addLogLine("......由于服务器输出日志速度过快，部分日志丢失......");
+          }
+          logs.content.forEach(log => {
+            logViewer.addLogLine(log);
+          });
+          this.logsLastIndex = logs.lastIndex;
+        }
+        if (this.simpleBar) {
+          this.simpleBar.scrollTop = this.simpleBar.scrollHeight;
         }
       };
     }
@@ -234,9 +246,17 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   // 调试接口
   private doDebug() {
     const { httpApiDebug: { requestData }, debugResponseData } = this.state;
+    debugResponseData.body = "";
+    debugResponseData.headers.length = 0;
+    debugResponseData.filename = undefined;
+    debugResponseData.status = undefined;
+    debugResponseData.statusText = undefined;
+    debugResponseData.time = undefined;
+    debugResponseData.size = undefined;
     this.setState({ debugLoading: true });
     this.initLogsWebSocket();
     this.logViewer.current?.clear();
+    this.logsLastIndex = -1;
     const apiDebugId = `debug-${uuid.v4()}`;
     this.logsWebSocket?.send(JSON.stringify({ apiDebugId }));
     doDebugRequest(requestData, debugResponseData, apiDebugId)
@@ -482,8 +502,9 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
 
   // 右边面板
   private getRightPanel() {
-    const { responseTab, httpApiDebug, debugResponseData } = this.state;
-    const isHide = lodash.toString(httpApiDebug.id).length <= 0 || lodash.toString(debugResponseData.status).length <= 0;
+    const { responseTab, httpApiDebug, debugResponseData, debugLoading } = this.state;
+    let isHide = lodash.toString(httpApiDebug.id).length <= 0 || lodash.toString(debugResponseData.status).length <= 0;
+    if (debugLoading) isHide = false;
     return (
       <Tabs
         className={cls(styles.responseData, { [styles.hide]: isHide })}
@@ -719,6 +740,11 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   private getServerLogsPanel() {
     return (
       <SimpleBar
+        scrollableNodeProps={{
+          ref: (ref: any) => {
+            this.simpleBar = ref;
+          }
+        }}
         style={{ height: "100%", width: "100%" }}
         autoHide={false}
         scrollbarMinSize={48}
