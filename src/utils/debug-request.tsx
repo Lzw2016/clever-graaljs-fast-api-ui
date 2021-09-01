@@ -1,9 +1,8 @@
 import qs from "qs";
 import axios, { Method } from "axios";
 import lodash from "lodash";
-import * as uuid from "uuid";
 import Cookies from "js-cookie";
-import { hasPropertyIn, hasValue } from "@/utils/utils";
+import { hasValue } from "@/utils/utils";
 import { TypeEnum, variableTypeOf } from "@/utils/typeof";
 import { Intent, IToastProps, Toaster } from "@blueprintjs/core";
 
@@ -59,7 +58,7 @@ function transform(rawData?: Array<RequestItemData>): ({ [key: string]: string |
   return data;
 }
 
-const doDebugRequest = async (requestData: DebugRequestData, responseData: DebugResponseData) => {
+const doDebugRequest = async (requestData: DebugRequestData, responseData: DebugResponseData, apiDebugId: string) => {
   // 全局请求参数，自定义请求参数
   const paramsArr: Array<RequestItemData> = [...requestData?.params, ...globalDebugRequestData.params];
   const headersArr: Array<RequestItemData> = [...requestData?.headers, ...globalDebugRequestData.headers];
@@ -76,7 +75,7 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
     toaster.show({ ...toastProps, intent: Intent.NONE, message: "GET请求的Body数据无效，应该使用POST" });
   }
   if (!headers["api-debug"]) {
-    headers["api-debug"] = `debug-${uuid.v4()}`;
+    headers["api-debug"] = apiDebugId;
   }
   const startTime = lodash.now();
   return debugRequest.request({
@@ -129,7 +128,6 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
     responseData.time = endTime - startTime;
     // 处理body
     responseData.body = "";
-    responseData.logs = undefined;
     const dataType = variableTypeOf(data);
     if (data.__type === "blob" || dataType === TypeEnum.blob) {
       responseData.body = data;
@@ -146,18 +144,7 @@ const doDebugRequest = async (requestData: DebugRequestData, responseData: Debug
       || dataType === TypeEnum.date) {
       responseData.body = JSON.stringify(data, null, 4);
     } else if (dataType === TypeEnum.object || dataType === TypeEnum.json) {
-      if (hasPropertyIn(data, "data") && variableTypeOf(data?.logs?.content) === TypeEnum.array) {
-        const resData = data?.data;
-        const resDataType = variableTypeOf(resData);
-        if (resDataType === TypeEnum.string || resDataType === TypeEnum.number || resDataType === TypeEnum.boolean) {
-          responseData.body = resData;
-        } else if (resDataType !== TypeEnum.null && resDataType !== TypeEnum.undefined && resDataType !== TypeEnum.nan) {
-          responseData.body = JSON.stringify(resData, null, 4);
-        }
-        responseData.logs = data?.logs;
-      } else {
-        responseData.body = JSON.stringify(data, null, 4);
-      }
+      responseData.body = JSON.stringify(data, null, 4);
     }
     if (contentLength) {
       responseData.size = lodash.toNumber(contentLength) * 8;

@@ -1,6 +1,7 @@
 import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
+import * as uuid from "uuid";
 import cookie from "cookie";
 import Cookies from "js-cookie";
 import Split from "react-split";
@@ -119,6 +120,8 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   private saveComponentState = lodash.debounce(() => this.saveState().finally(), 1_000, { maxWait: 3_000 });
   /** 显示日志组件 */
   private logViewer = React.createRef<LogViewer>();
+  /** 获取日志的WebSocket */
+  private logsWebSocket: WebSocket | undefined;
   /** 设置请求RequestData JsonBody */
   private setRequestDataJsonBody = lodash.debounce((value: string) => {
     const { httpApiDebug: { requestData } } = this.state;
@@ -136,6 +139,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   // 组件挂载后
   public componentDidMount() {
     this.reLoadData();
+    this.initLogsWebSocket();
   }
 
   // 组件更新成功
@@ -146,6 +150,7 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
   // 组件将要被卸载
   public componentWillUnmount() {
     this.saveState().finally();
+    this.logsWebSocket?.close();
   }
 
   /** 保存组件状态 */
@@ -201,21 +206,41 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
       }).finally(() => this.setState({ httpApiDebugLoading: false }));
   }
 
+  private initLogsWebSocket() {
+    if (!this.logsWebSocket) {
+      this.logsWebSocket = new WebSocket(FastApi.WS.debugApiLogs)
+      this.logsWebSocket.onclose = () => {
+        this.logsWebSocket = undefined;
+        this.initLogsWebSocket();
+      };
+      this.logsWebSocket.onmessage = ev => {
+        const logViewer = this.logViewer.current;
+        if (!logViewer) {
+          console.log("server logs ->", ev.data)
+          return;
+        }
+        const data = JSON.parse(ev.data);
+        if (data.errorStackTrace) {
+          logViewer.addLogLine("服务端异常：");
+          logViewer.addLogLine(data.errorStackTrace);
+        } else {
+          const logs: RingBuffer = data;
+          logs.content.forEach(log => logViewer.addLogLine(log));
+        }
+      };
+    }
+  }
+
   // 调试接口
   private doDebug() {
     const { httpApiDebug: { requestData }, debugResponseData } = this.state;
     this.setState({ debugLoading: true });
-    doDebugRequest(requestData, debugResponseData)
+    this.initLogsWebSocket();
+    this.logViewer.current?.clear();
+    const apiDebugId = `debug-${uuid.v4()}`;
+    this.logsWebSocket?.send(JSON.stringify({ apiDebugId }));
+    doDebugRequest(requestData, debugResponseData, apiDebugId)
       .then(() => {
-        // 服务端日志
-        const logViewer = this.logViewer.current;
-        if (logViewer && debugResponseData.logs && debugResponseData.logs.content && debugResponseData.logs.content.length > 0) {
-          logViewer.clear(debugResponseData.logs.firstIndex);
-          debugResponseData.logs.content.forEach(log => logViewer.addLogLine(log));
-          logViewer.addLogLine("\n\n\n");
-        } else if (logViewer) {
-          logViewer.clear();
-        }
         this.forceUpdate();
       }).finally(() => this.setState({ debugLoading: false }));
   }

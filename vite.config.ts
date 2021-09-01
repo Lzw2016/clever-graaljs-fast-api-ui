@@ -55,12 +55,17 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 8000,
     proxy: {
-      "/fast_api": {
+      "/fast_api/": {
         target: "http://127.0.0.1:18081",
         changeOrigin: true,
         // rewrite: path => path,
       },
-      "/api": {
+      "/fast_api/ws/": {
+        target: "http://127.0.0.1:18081",
+        changeOrigin: true,
+        ws: true,
+      },
+      "/api/": {
         target: "http://127.0.0.1:18081",
         changeOrigin: true,
         // rewrite: path => path,

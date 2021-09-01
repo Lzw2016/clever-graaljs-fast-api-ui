@@ -447,7 +447,16 @@ interface DebugResponseData {
   statusText?: string;
   time?: number;
   size?: number;
-  logs?: { firstIndex: number; lastIndex: number; content: Array<string> };
+}
+
+interface WebSocketErrorRes {
+  errorStackTrace: string;
+}
+
+interface RingBuffer {
+  firstIndex: number;
+  lastIndex: number;
+  content: Array<string>
 }
 
 interface GlobalRequestData {

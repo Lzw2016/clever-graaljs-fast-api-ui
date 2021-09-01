@@ -65,6 +65,9 @@ const FastApi = {
     updateRedis: `${serverHost}/redis_manage/update`,
     getStatus: `${serverHost}/redis_manage/status`,
   },
+  WS: {
+    debugApiLogs: `ws://${location.host}${serverHost}/ws/debug_api_logs`,
+  },
 };
 
 export { FastApi };
