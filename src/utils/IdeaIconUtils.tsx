@@ -525,6 +525,8 @@ const getFileIcon = (filename: string): (() => JSX.Element) => {
   return UnknownFile;
 }
 
+// https://jetbrains.design/intellij/resources/icons_list/
+
 export {
   JsFile,
   TsFile,
