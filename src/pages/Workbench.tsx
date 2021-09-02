@@ -32,6 +32,7 @@ import {
   RedisManagePanel,
   RequestDebugPanel,
   ResourceFilePanel,
+  ServerLogsPanel,
   TaskResourcePanel,
   TopStatusPanel,
 } from "@/components/ide";
@@ -136,6 +137,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   private initScriptPanel = React.createRef<InitScriptPanel>();
   /** 接口调试组件 */
   private requestDebugPane = React.createRef<RequestDebugPanel>();
+  /** 服务端日志组件 */
+  private serverLogsPanel = React.createRef<ServerLogsPanel>();
   /** 全局请求参数组件 */
   private globalConfigPanel = React.createRef<GlobalConfigPanel>();
   /** 执行保存整个应用状态的全局锁 */
@@ -790,7 +793,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           />
         </div>
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.ServerLogs })} style={style}>
-          RunResult
+          <ServerLogsPanel ref={this.serverLogsPanel}/>
         </div>
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.GlobalConfig })} style={style}>
           <GlobalConfigPanel ref={this.globalConfigPanel}/>

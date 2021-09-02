@@ -431,7 +431,69 @@ const TimedTask = () => (
   </svg>
 );
 
-// const ExpandAll = () => ();
+const ScrollDown = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <g fill="none" fillRule="evenodd">
+      <polygon fill="#AFB1B3" points="12 6 15 6 11 10 7 6 10 6 10 1 12 1" transform="matrix(-1 0 0 1 22 0)"/>
+      <rect width="12" height="2" x="2" y="11" fill="#AFB1B3"/>
+      <rect width="4" height="2" x="2" y="7" fill="#AFB1B3"/>
+      <rect width="4" height="2" x="2" y="3" fill="#AFB1B3"/>
+    </g>
+  </svg>
+
+);
+
+const Socket = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <g fill="#AFB1B3" fillRule="evenodd" transform="rotate(45 4.793 12.328)">
+      <rect width="1.5" height="4" x="1"/>
+      <rect width="2" height="6" x="3" y="8"/>
+      <rect width="1.5" height="4" x="5.5"/>
+      <rect width="8" height="6" y="3" rx="3"/>
+      <rect width="8" height="3" y="3"/>
+    </g>
+  </svg>
+);
+
+const GC = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <path fill="#AFB1B3"
+          d="M3,1 L3,0 L7,0 L7,1 L10,1 L10,3 L0,3 L0,1 L3,1 Z M1,11.7142858 L1,4 L9,4 L9,11.7142858 C9,12.4214286 8.4,13 7.6666667,13 L2.33333333,13 C1.6,13 1,12.4214286 1,11.7142858 Z"
+          transform="translate(3 1)"/>
+  </svg>
+);
+
+const Top = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M8.00122 13.6797C8.44653 13.6797 8.75122 13.375 8.75122 12.9219V5.57812L8.69653 4.26562L10.384 6.15625L11.5481 7.29688C11.6809 7.4375 11.8684 7.51562 12.0793 7.51562C12.4856 7.51562 12.7903 7.21094 12.7903 6.79688C12.7903 6.59375 12.72 6.41406 12.5559 6.25L8.56372 2.24219C8.40747 2.08594 8.21216 2 8.00122 2C7.7981 2 7.60278 2.08594 7.44653 2.24219L3.45435 6.25C3.2981 6.41406 3.21997 6.59375 3.21997 6.79688C3.21997 7.21094 3.52466 7.51562 3.93091 7.51562C4.14185 7.51562 4.32935 7.4375 4.46216 7.29688L5.62622 6.15625L7.31372 4.25781L7.25903 5.57812V12.9219C7.25903 13.375 7.56372 13.6797 8.00122 13.6797Z"
+      fill="#AFB1B3"/>
+  </svg>
+);
+
+const Bottom = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M8.00122 2C8.44653 2 8.75122 2.30469 8.75122 2.75781V10.1016L8.69653 11.4141L10.384 9.52344L11.5481 8.38281C11.6809 8.24219 11.8684 8.16406 12.0793 8.16406C12.4856 8.16406 12.7903 8.46875 12.7903 8.88281C12.7903 9.08594 12.72 9.26562 12.5559 9.42969L8.56372 13.4375C8.40747 13.5938 8.21216 13.6797 8.00122 13.6797C7.7981 13.6797 7.60278 13.5938 7.44653 13.4375L3.45435 9.42969C3.2981 9.26562 3.21997 9.08594 3.21997 8.88281C3.21997 8.46875 3.52466 8.16406 3.93091 8.16406C4.14185 8.16406 4.32935 8.24219 4.46216 8.38281L5.62622 9.52344L7.31372 11.4219L7.25903 10.1016V2.75781C7.25903 2.30469 7.56372 2 8.00122 2Z"
+      fill="#AFB1B3"/>
+  </svg>
+);
+
+const Download = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <g fill="none" fillRule="evenodd">
+      <polygon fill="#AFB1B3" points="9 7 12 7 8 11 4 7 7 7 7 2 9 2" transform="matrix(-1 0 0 1 16 0)"/>
+      <rect width="12" height="2" x="2" y="12" fill="#AFB1B3"/>
+    </g>
+  </svg>
+);
+
+const Suspend = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <rect width="10" height="10" x="3" y="3" fill="#C75450" fillRule="evenodd"/>
+  </svg>
+);
+
 // const ExpandAll = () => ();
 // const ExpandAll = () => ();
 // const ExpandAll = () => ();
@@ -509,4 +571,11 @@ export {
   BuildAutoReloadChanges,
   LayoutEditorPreview,
   TimedTask,
+  ScrollDown,
+  Socket,
+  GC,
+  Top,
+  Bottom,
+  Download,
+  Suspend,
 }
