@@ -155,6 +155,9 @@ interface Colors {
  * @return {Object} returns the style object
  */
 function createStyle(bundle: AnserJsonEntry): Colors {
+  if (bundle?.fg === "0, 0, 187") {
+    bundle.fg = "57, 147, 212";
+  }
   const style: Colors = {};
   if (bundle.bg) {
     style.backgroundColor = `rgb(${bundle.bg})`;
