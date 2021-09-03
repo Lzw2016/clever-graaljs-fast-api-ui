@@ -121,6 +121,7 @@ class ServerLogsPanel extends React.Component<ServerLogsPanelProps, ServerLogsPa
             component={GC}
             className={cls(styles.flexItemRow, styles.icon)}
             onClick={() => {
+              this.logsLastIndex = -1;
               this.logViewer.current?.clear();
             }}
           />
