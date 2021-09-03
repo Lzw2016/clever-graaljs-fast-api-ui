@@ -1,3 +1,5 @@
+// noinspection DuplicatedCode
+
 import React from "react";
 import cls from "classnames";
 import lodash from "lodash";
@@ -214,8 +216,8 @@ class RequestDebugPanel extends React.Component<RequestDebugPanelProps, RequestD
       this.logsWebSocket = new WebSocket(FastApi.WS.debugApiLogs)
       this.logsWebSocket.onclose = () => {
         this.logsWebSocket = undefined;
-        this.initLogsWebSocket();
       };
+      // noinspection DuplicatedCode
       this.logsWebSocket.onmessage = ev => {
         const logViewer = this.logViewer.current;
         if (!logViewer) {
