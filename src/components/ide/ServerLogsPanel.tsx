@@ -60,6 +60,9 @@ class ServerLogsPanel extends React.Component<ServerLogsPanelProps, ServerLogsPa
           logViewer.addLogLine(data.errorStackTrace);
         } else {
           const logs: RingBuffer = data;
+          if (this.logsLastIndex >= logs.lastIndex) {
+            return;
+          }
           if (this.logsLastIndex >= 0 && logs.firstIndex > 0 && logs.firstIndex > (this.logsLastIndex + 1)) {
             logViewer.addLogLine("......由于服务器输出日志速度过快，部分日志丢失......");
           }
