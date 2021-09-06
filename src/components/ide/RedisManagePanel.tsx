@@ -115,6 +115,11 @@ class RedisManagePanel extends React.Component<RedisManagePanelProps, RedisManag
                 <div
                   className={cls(styles.flexItemColumnWidthFull, styles.leftPanelListItemText)}
                   onClick={() => this.setState({ selectRedisName: redisInfo.name })}
+                  title={
+                    redisInfo.status ?
+                      `总数:${redisInfo.status.totalConnections} | 空闲:${redisInfo.status.idleConnections} | 等待:${redisInfo.status.threadsAwaitingConnection}` :
+                      undefined
+                  }
                 >
                   {redisInfo.name}
                 </div>

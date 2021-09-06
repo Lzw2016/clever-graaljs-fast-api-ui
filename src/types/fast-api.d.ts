@@ -523,7 +523,7 @@ interface RedisInfoRes {
   def: boolean;
   immutable: boolean;
   redisInfo: RedisInfo;
-  status: RedisDataSourceStatus;
+  status?: RedisDataSourceStatus;
   dataSourceConfig: DataSourceConfig;
 }
 

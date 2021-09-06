@@ -821,7 +821,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           <GlobalConfigPanel ref={this.globalConfigPanel}/>
         </div>
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.SysEvent })} style={style}>
-          SysEvent
+
         </div>
       </>
     );

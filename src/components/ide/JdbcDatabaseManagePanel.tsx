@@ -115,6 +115,7 @@ class JdbcDatabaseManagePanel extends React.Component<JdbcDatabaseManagePanelPro
                 <div
                   className={cls(styles.flexItemColumnWidthFull, styles.leftPanelListItemText)}
                   onClick={() => this.setState({ selectJdbcName: jdbcInfo.name })}
+                  title={`总数:${jdbcInfo.status.totalConnections} | 空闲:${jdbcInfo.status.idleConnections} | 等待:${jdbcInfo.status.threadsAwaitingConnection}`}
                 >
                   {jdbcInfo.name}
                 </div>
