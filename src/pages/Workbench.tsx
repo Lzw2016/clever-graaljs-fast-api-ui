@@ -32,6 +32,7 @@ import {
   RedisManagePanel,
   RequestDebugPanel,
   ResourceFilePanel,
+  RunJsPanel,
   ServerLogsPanel,
   TaskResourcePanel,
   TopStatusPanel,
@@ -39,7 +40,7 @@ import {
 import { hasValue, noValue } from "@/utils/utils";
 import { request } from "@/utils/request";
 import { componentStateKey, storeGetData, storeSaveData } from "@/utils/storage";
-import { ChevronDown, ChevronUp, Debugger, getFileIcon, NoEvents, OpenTerminal } from "@/utils/IdeaIconUtils";
+import { ChevronDown, ChevronUp, Debugger, getFileIcon, NoEvents, OpenTerminal, RunAnything } from "@/utils/IdeaIconUtils";
 import { editorDefOptions, getLanguage, initEditorConfig, initKeyBinding, themeEnum } from "@/utils/editor-utils";
 import {
   BottomPanelEnum,
@@ -125,6 +126,8 @@ const getDefaultState = (): WorkbenchState => ({
 });
 
 class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
+  /** 顶部状态栏组件 */
+  private topStatusPanel = React.createRef<TopStatusPanel>();
   /** 资源文件组件 */
   private resourceFilePanel = React.createRef<ResourceFilePanel>();
   /** HTTP API组件 */
@@ -137,6 +140,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
   private initScriptPanel = React.createRef<InitScriptPanel>();
   /** 接口调试组件 */
   private requestDebugPane = React.createRef<RequestDebugPanel>();
+  /** 执行脚本组件 */
+  private runJsPanel = React.createRef<RunJsPanel>();
   /** 服务端日志组件 */
   private serverLogsPanel = React.createRef<ServerLogsPanel>();
   /** 全局请求参数组件 */
@@ -285,6 +290,8 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
       newBottomPanel = (bottomPanel === BottomPanelEnum.Interface ? undefined : BottomPanelEnum.Interface);
     } else if (panel === BottomPanelEnum.RequestDebug) {
       newBottomPanel = (bottomPanel === BottomPanelEnum.RequestDebug ? undefined : BottomPanelEnum.RequestDebug);
+    } else if (panel === BottomPanelEnum.RunAnything) {
+      newBottomPanel = (bottomPanel === BottomPanelEnum.RunAnything ? undefined : BottomPanelEnum.RunAnything);
     } else if (panel === BottomPanelEnum.ServerLogs) {
       newBottomPanel = (bottomPanel === BottomPanelEnum.ServerLogs ? undefined : BottomPanelEnum.ServerLogs);
     } else if (panel === BottomPanelEnum.GlobalConfig) {
@@ -545,11 +552,13 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
     const currentFile = topStatusFileInfo && openFileMap.get(topStatusFileInfo.fileResourceId);
     return (
       <TopStatusPanel
+        ref={this.topStatusPanel}
         globalEnv={globalEnv}
         topStatusFileInfo={topStatusFileInfo}
         currentFile={currentFile}
         toggleBottomPanel={() => this.toggleBottomPanel(BottomPanelEnum.Interface)}
         reLoadTaskResourceTree={() => this.taskResourcePanel.current?.reLoadTreeData(false, true)}
+        onStartRunJs={fileResourceId => this.runJsPanel.current?.startRunJs(fileResourceId)}
       />
     );
   }
@@ -599,6 +608,12 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           onClick={() => this.toggleBottomPanel(BottomPanelEnum.RequestDebug)}
         >
           <Icon component={Debugger}/><span className={styles.bottomTabsItemText}>接口调试</span>
+        </div>
+        <div
+          className={cls(styles.flexItemColumn, styles.bottomTabsItem, { [styles.bottomTabsItemActive]: bottomPanel === BottomPanelEnum.RunAnything })}
+          onClick={() => this.toggleBottomPanel(BottomPanelEnum.RunAnything)}
+        >
+          <Icon component={RunAnything}/><span className={styles.bottomTabsItemText}>执行脚本</span>
         </div>
         <div
           className={cls(styles.flexItemColumn, styles.bottomTabsItem, { [styles.bottomTabsItemActive]: bottomPanel === BottomPanelEnum.ServerLogs })}
@@ -713,6 +728,7 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
         <div className={cls(styles.flexItemColumn, styles.verticalSplitTabsLabel)}>
           {bottomPanel === BottomPanelEnum.Interface && <span>接口配置:</span>}
           {bottomPanel === BottomPanelEnum.RequestDebug && <span>接口调试:</span>}
+          {bottomPanel === BottomPanelEnum.RunAnything && <span>执行脚本:</span>}
           {bottomPanel === BottomPanelEnum.ServerLogs && <span>服务端日志:</span>}
           {bottomPanel === BottomPanelEnum.GlobalConfig && <span>全局请求参数:</span>}
           {bottomPanel === BottomPanelEnum.SysEvent && <span>系统日志:</span>}
@@ -790,6 +806,12 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           <RequestDebugPanel
             ref={this.requestDebugPane}
             httpApiId={httpApiId}
+          />
+        </div>
+        <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.RunAnything })} style={style}>
+          <RunJsPanel
+            ref={this.runJsPanel}
+            onEndRunJs={() => this.topStatusPanel.current?.setRunning(false)}
           />
         </div>
         <div className={cls(styles.flexItemRowHeightFull, { [styles.hide]: bottomPanel !== BottomPanelEnum.ServerLogs })} style={style}>

@@ -31,6 +31,8 @@ export enum BottomPanelEnum {
   Interface,
   /** 接口调试 */
   RequestDebug,
+  /** 执行脚本 */
+  RunAnything,
   /** 服务端日志 */
   ServerLogs,
   /** 全局请求参数 */

@@ -3,11 +3,11 @@
 import React from "react";
 import cls from "classnames";
 import copyToClipboard from "copy-to-clipboard";
-import Icon, { AppstoreOutlined, ArrowRightOutlined, LockOutlined, SettingOutlined, UnlockOutlined } from "@ant-design/icons";
+import Icon, { AppstoreOutlined, ArrowRightOutlined, SettingOutlined } from "@ant-design/icons";
 import { Alert, Intent } from "@blueprintjs/core";
 import { EditorTabItem, TopStatusFileInfo } from "@/types/workbench-layout";
 import IconFont from "@/components/IconFont";
-import { Copy, Execute, Find, History, MenuSaveAll, Rollback, StartTimer, StopTimer } from "@/utils/IdeaIconUtils";
+import { Copy, Execute, Find, History, MenuSaveAll, ReadOnly, ReadWrite, Rollback, StartTimer, StopTimer, Suspend } from "@/utils/IdeaIconUtils";
 import { hasValue } from "@/utils/utils";
 import { FastApi } from "@/apis";
 import { request } from "@/utils/request";
@@ -24,6 +24,8 @@ interface TopStatusPanelProps {
   toggleBottomPanel: () => void;
   /** 重新加载定时任务资源树 */
   reLoadTaskResourceTree: () => void;
+  /** 开始执行脚本 */
+  onStartRunJs?: (fileResourceId: string) => void;
 }
 
 interface TopStatusPanelState {
@@ -31,6 +33,7 @@ interface TopStatusPanelState {
   enableLoading: boolean;
   showDisableDialog: boolean;
   disableLoading: boolean;
+  running: boolean;
 }
 
 const defaultState: TopStatusPanelState = {
@@ -38,6 +41,7 @@ const defaultState: TopStatusPanelState = {
   enableLoading: false,
   showDisableDialog: false,
   disableLoading: false,
+  running: false,
 }
 
 class TopStatusPanel extends React.Component<TopStatusPanelProps, TopStatusPanelState> {
@@ -123,9 +127,14 @@ class TopStatusPanel extends React.Component<TopStatusPanelProps, TopStatusPanel
     );
   }
 
+  public setRunning(running: boolean) {
+    this.setState({ running });
+  }
+
   render() {
-    const { globalEnv, topStatusFileInfo, currentFile } = this.props;
-    const { toggleBottomPanel } = this.props;
+    const { globalEnv, topStatusFileInfo, currentFile, toggleBottomPanel, onStartRunJs } = this.props;
+    const { running } = this.state;
+    const canRunJs = [2, 4].includes(currentFile?.fileResource.module ?? -1);
     return (
       <>
         <div className={cls(styles.flexItemColumn)} style={{ width: 3 }}/>
@@ -209,13 +218,41 @@ class TopStatusPanel extends React.Component<TopStatusPanelProps, TopStatusPanel
           />
         }
         <div className={cls(styles.flexItemColumnWidthFull)}/>
-        <Icon component={Execute} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
+        {
+          running ?
+            <Icon
+              component={Suspend}
+              className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}
+            /> :
+            <Icon
+              component={Execute}
+              className={cls(styles.flexItemColumn, styles.icon, { [styles.iconDisable]: !canRunJs })}
+              // title={`直接执行${currentFile?.fileResource.name}`}
+              onClick={() => {
+                if (!canRunJs || !currentFile?.fileResource) return;
+                if (currentFile?.fileResource && onStartRunJs) onStartRunJs(currentFile?.fileResource.id);
+                this.setState({ running: true });
+              }}
+            />
+        }
         <Icon component={MenuSaveAll} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
         <Icon component={Rollback} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
-        <LockOutlined className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
-        <UnlockOutlined className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
         <Icon component={Find} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
         <Icon component={History} className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}/>
+        {
+          currentFile?.fileResource.readOnly === 0 &&
+          <Icon
+            component={ReadOnly}
+            className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}
+          />
+        }
+        {
+          currentFile?.fileResource.readOnly === 1 &&
+          <Icon
+            component={ReadWrite}
+            className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)}
+          />
+        }
         <IconFont type="icon-keyboard" className={cls(styles.flexItemColumn, styles.icon, styles.iconDisable)} style={{ fontSize: 20, padding: "1px 2px" }}/>
         <div className={cls(styles.flexItemColumn)} style={{ marginRight: 16 }}/>
         {this.getEnableDialog()}

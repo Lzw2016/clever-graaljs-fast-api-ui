@@ -494,7 +494,36 @@ const Suspend = () => (
   </svg>
 );
 
-// const ExpandAll = () => ();
+const ReadWrite = () => (
+  <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <title>ide/readwrite_dark</title>
+    <desc>Created with Sketch.</desc>
+    <defs/>
+    <g id="ide/readwrite_dark" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+      <rect id="Rectangle-4" fill="#AFB1B3" x="4" y="7" width="8" height="6"/>
+      <path
+        d="M4,3.5 C3.17157288,3.5 2.5,4.12360338 2.5,4.89285714 L2.5,7 L5.5,7.00064087 L5.5,4.89285714 C5.5,4.12360338 4.82842712,3.5 4,3.5 Z M7,7 L1,7 L1,5 C1,3.34314575 2.34314575,2 4,2 C5.65685425,2 7,3.34314575 7,5 L7,7 Z"
+        id="Combined-Shape" fill="#AFB1B3" fillRule="nonzero"/>
+    </g>
+  </svg>
+);
+
+const ReadOnly = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <path fill="#AFB1B3"
+          d="M4,7 L12,7 L12,13 L4,13 L4,7 Z M8,3.5 C7.17157288,3.5 6.5,4.12360338 6.5,4.89285714 L6.5,8.10714286 C6.5,8.87639662 7.17157288,9.5 8,9.5 C8.82842712,9.5 9.5,8.87639662 9.5,8.10714286 L9.5,4.89285714 C9.5,4.12360338 8.82842712,3.5 8,3.5 Z M8,2 C9.65685425,2 11,3.34314575 11,5 L11,8 C11,9.65685425 9.65685425,11 8,11 C6.34314575,11 5,9.65685425 5,8 L5,5 C5,3.34314575 6.34314575,2 8,2 Z"/>
+  </svg>
+);
+
+const RunAnything = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <g fill="none" fillRule="evenodd" transform="translate(1 2)">
+      <path fill="#AFB1B3" d="M0,0 L14,0 L14,12 L0,12 L0,0 Z M1,3 L1,11 L13,11 L13,3 L1,3 Z"/>
+      <polygon fill="#499C54" points="3 4 7.667 7 3 10"/>
+    </g>
+  </svg>
+);
+
 // const ExpandAll = () => ();
 // const ExpandAll = () => ();
 
@@ -580,4 +609,7 @@ export {
   Bottom,
   Download,
   Suspend,
+  ReadWrite,
+  ReadOnly,
+  RunAnything,
 }

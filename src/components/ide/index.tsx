@@ -5,6 +5,7 @@ export * from "./ExtendResourcePanel";
 export * from "./TaskResourcePanel";
 export * from "./InitScriptPanel";
 export * from "./RequestDebugPanel";
+export * from "./RunJsPanel";
 export * from "./ServerLogsPanel";
 export * from "./EngineInstancePanel";
 export * from "./GlobalConfigPanel";

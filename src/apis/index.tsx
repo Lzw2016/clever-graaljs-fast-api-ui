@@ -68,6 +68,7 @@ const FastApi = {
   WS: {
     debugApiLogs: `ws://${location.host}${serverHost}/ws/debug_api_logs`,
     serverLogs: `ws://${location.host}${serverHost}/ws/server_logs`,
+    runJs: `ws://${location.host}${serverHost}/ws/run_js`,
   },
 };
 
