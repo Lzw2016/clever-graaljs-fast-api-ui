@@ -706,14 +706,14 @@ class Workbench extends React.Component<WorkbenchProps, WorkbenchState> {
           <div style={{ marginTop: 6, marginBottom: 16, marginLeft: -2, transform: "rotate(90deg)" }}>Redis</div>
           数据库
         </div>
-        <div
-          className={cls(styles.flexItemRow, styles.rightTabsItem, { [styles.rightTabsItemActive]: rightPanel === RightPanelEnum.Elasticsearch })}
-          style={{ height: 146 }}
-          onClick={() => this.toggleRightPanel(RightPanelEnum.Elasticsearch)}
-        >
-          <IconFont type="icon-elasticsearch"/>
-          <div style={{ marginTop: 6, marginLeft: -2, transform: "rotate(90deg)" }}>Elasticsearch</div>
-        </div>
+        {/*<div*/}
+        {/*  className={cls(styles.flexItemRow, styles.rightTabsItem, { [styles.rightTabsItemActive]: rightPanel === RightPanelEnum.Elasticsearch })}*/}
+        {/*  style={{ height: 146 }}*/}
+        {/*  onClick={() => this.toggleRightPanel(RightPanelEnum.Elasticsearch)}*/}
+        {/*>*/}
+        {/*  <IconFont type="icon-elasticsearch"/>*/}
+        {/*  <div style={{ marginTop: 6, marginLeft: -2, transform: "rotate(90deg)" }}>Elasticsearch</div>*/}
+        {/*</div>*/}
         <div className={styles.flexItemRowHeightFull}/>
       </>
     );
